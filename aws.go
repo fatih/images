@@ -52,9 +52,14 @@ func (a *AwsImages) Print() {
 	w.Init(os.Stdout, 10, 8, 0, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, "    Name\tID")
+	fmt.Fprintln(w, "    Name\tID\tTags")
 	for i, image := range a.images {
-		fmt.Fprintf(w, "[%d] %s\t%s\n", i, *image.Name, *image.ImageID)
+		tags := make([]string, len(image.Tags))
+		for i, tag := range image.Tags {
+			tags[i] = *tag.Key + ":" + *tag.Value
+		}
+
+		fmt.Fprintf(w, "[%d] %s\t%s\t%+v\n", i, *image.Name, *image.ImageID, tags)
 	}
 }
 
