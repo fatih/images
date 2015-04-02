@@ -2,8 +2,11 @@ package images
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"sort"
 	"text/tabwriter"
+	"time"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
@@ -37,6 +40,9 @@ func (a *AwsImages) Fetch() error {
 		a.images[i] = image
 	}
 
+	// sort from oldest to newest
+	sort.Sort(a)
+
 	return err
 }
 
@@ -53,6 +59,7 @@ func (a *AwsImages) Print() {
 	defer w.Flush()
 
 	fmt.Fprintln(w, "    Name\tID\tTags")
+
 	for i, image := range a.images {
 		tags := make([]string, len(image.Tags))
 		for i, tag := range image.Tags {
@@ -71,4 +78,26 @@ func stringSlice(vals ...string) []*string {
 	}
 
 	return a
+}
+
+func (a *AwsImages) Len() int {
+	return len(a.images)
+}
+
+func (a *AwsImages) Less(i, j int) bool {
+	it, err := time.Parse(time.RFC3339, *a.images[i].CreationDate)
+	if err != nil {
+		log.Println("aws: sorting err: ", err)
+	}
+
+	jt, err := time.Parse(time.RFC3339, *a.images[j].CreationDate)
+	if err != nil {
+		log.Println("aws: sorting err: ", err)
+	}
+
+	return it.Before(jt)
+}
+
+func (a *AwsImages) Swap(i, j int) {
+	a.images[i], a.images[j] = a.images[j], a.images[i]
 }
