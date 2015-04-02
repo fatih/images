@@ -41,7 +41,9 @@ func (a *AwsImages) Fetch() error {
 	}
 
 	// sort from oldest to newest
-	sort.Sort(a)
+	if len(a.images) > 1 {
+		sort.Sort(a)
+	}
 
 	return err
 }
