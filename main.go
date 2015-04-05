@@ -31,6 +31,9 @@ func realMain() int {
 		"modify": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Modify image properties"}, nil
 		},
+		"copy": func() (cli.Command, error) {
+			return &cli.MockCommand{SynopsisText: "Copy images to different region"}, nil
+		},
 	}
 
 	exitCode, err := c.Run()

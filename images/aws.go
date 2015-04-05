@@ -60,7 +60,7 @@ func (a *AwsImages) Print() {
 	w.Init(os.Stdout, 10, 8, 0, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, "    Name\tID\tTags")
+	fmt.Fprintln(w, "    Name\tID\tState\tTags")
 
 	for i, image := range a.images {
 		tags := make([]string, len(image.Tags))
@@ -68,18 +68,9 @@ func (a *AwsImages) Print() {
 			tags[i] = *tag.Key + ":" + *tag.Value
 		}
 
-		fmt.Fprintf(w, "[%d] %s\t%s\t%+v\n", i, *image.Name, *image.ImageID, tags)
+		fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
+			i, *image.Name, *image.ImageID, *image.State, tags)
 	}
-}
-
-func stringSlice(vals ...string) []*string {
-	a := make([]*string, len(vals))
-
-	for i, v := range vals {
-		a[i] = aws.String(v)
-	}
-
-	return a
 }
 
 func (a *AwsImages) Len() int {
@@ -102,4 +93,14 @@ func (a *AwsImages) Less(i, j int) bool {
 
 func (a *AwsImages) Swap(i, j int) {
 	a.images[i], a.images[j] = a.images[j], a.images[i]
+}
+
+func stringSlice(vals ...string) []*string {
+	a := make([]*string, len(vals))
+
+	for i, v := range vals {
+		a[i] = aws.String(v)
+	}
+
+	return a
 }

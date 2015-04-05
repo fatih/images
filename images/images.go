@@ -6,10 +6,6 @@ type Config struct {
 	Provider string
 }
 
-type Image struct {
-	ID string
-}
-
 type ImageProvider interface {
 	// Fetch fetches the information from the provider
 	Fetch() error
