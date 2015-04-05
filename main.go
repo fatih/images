@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/images/command"
 	"github.com/mitchellh/cli"
 )
 
@@ -23,9 +24,7 @@ func realMain() int {
 	c := cli.NewCLI(Name, Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
-		"list": func() (cli.Command, error) {
-			return &cli.MockCommand{SynopsisText: "List available images"}, nil
-		},
+		"list": command.NewList,
 		"delete": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Delete images"}, nil
 		},
