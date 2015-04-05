@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/awslabs/aws-sdk-go/aws"
+	"github.com/awslabs/aws-sdk-go/aws/awsutil"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
 )
@@ -35,17 +36,14 @@ func (a *AwsImages) Fetch() error {
 		return err
 	}
 
-	a.images = make([]*ec2.Image, len(resp.Images))
-	for i, image := range resp.Images {
-		a.images[i] = image
-	}
+	a.images = resp.Images
 
 	// sort from oldest to newest
 	if len(a.images) > 1 {
 		sort.Sort(a)
 	}
 
-	return err
+	return nil
 }
 
 func (a *AwsImages) Print() {
@@ -73,6 +71,48 @@ func (a *AwsImages) Print() {
 	}
 }
 
+func (a *AwsImages) Modify(args []string) error {
+	fmt.Println("-------")
+	fmt.Printf("args = %+v\n", args)
+	return nil
+}
+
+// Add tags adds or overwrites all tags for the specified images
+func (a *AwsImages) AddTags(tags map[string]string, images ...string) error {
+	params := &ec2.CreateTagsInput{
+		Resources: []*string{ // Required
+			aws.String("String"), // Required
+			// More values...
+		},
+		Tags: []*ec2.Tag{ // Required
+			&ec2.Tag{ // Required
+				Key:   aws.String("String"),
+				Value: aws.String("String"),
+			},
+			// More values...
+		},
+		DryRun: aws.Boolean(true),
+	}
+
+	resp, err := a.svc.CreateTags(params)
+
+	if awserr := aws.Error(err); awserr != nil {
+		// A service error occurred.
+		fmt.Println("Error:", awserr.Code, awserr.Message)
+	} else if err != nil {
+		// A non-service error occurred.
+		panic(err)
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(awsutil.StringValue(resp))
+	return nil
+}
+
+//
+// Sort interface
+//
+
 func (a *AwsImages) Len() int {
 	return len(a.images)
 }
@@ -94,6 +134,10 @@ func (a *AwsImages) Less(i, j int) bool {
 func (a *AwsImages) Swap(i, j int) {
 	a.images[i], a.images[j] = a.images[j], a.images[i]
 }
+
+//
+// Utils
+//
 
 func stringSlice(vals ...string) []*string {
 	a := make([]*string, len(vals))

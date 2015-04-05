@@ -48,9 +48,7 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	if err := images.Run(&images.Config{
-		Provider: l.provider,
-	}); err != nil {
+	if err := images.List(l.provider); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

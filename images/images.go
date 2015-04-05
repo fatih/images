@@ -1,12 +1,11 @@
 package images
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
-type Config struct {
-	Provider string
-}
-
-type ImageProvider interface {
+type Fetcher interface {
 	// Fetch fetches the information from the provider
 	Fetch() error
 
@@ -14,22 +13,44 @@ type ImageProvider interface {
 	Print()
 }
 
-func Run(conf *Config) error {
-	i, err := Provider(conf.Provider)
+type Modifier interface {
+	Modify(args []string) error
+}
+
+func List(provider string) error {
+	p, err := Provider(provider)
 	if err != nil {
 		return err
 	}
 
-	if err := i.Fetch(); err != nil {
+	f, ok := p.(Fetcher)
+	if !ok {
+		return fmt.Errorf("'%s' doesn't support listing images", provider)
+	}
+
+	if err := f.Fetch(); err != nil {
 		return err
 	}
 
-	i.Print()
-
+	f.Print()
 	return nil
 }
 
-func Provider(provider string) (ImageProvider, error) {
+func Modify(provider string, args []string) error {
+	p, err := Provider(provider)
+	if err != nil {
+		return err
+	}
+
+	m, ok := p.(Modifier)
+	if !ok {
+		return fmt.Errorf("'%s' doesn't support modifying images", provider)
+	}
+
+	return m.Modify(args)
+}
+
+func Provider(provider string) (interface{}, error) {
 	switch provider {
 	case "aws":
 		return NewAwsImages("us-east-1"), nil

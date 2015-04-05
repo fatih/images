@@ -24,12 +24,10 @@ func realMain() int {
 	c := cli.NewCLI(Name, Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
-		"list": command.NewList,
+		"list":   command.NewList,
+		"modify": command.NewModify,
 		"delete": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Delete images"}, nil
-		},
-		"modify": func() (cli.Command, error) {
-			return &cli.MockCommand{SynopsisText: "Modify image properties"}, nil
 		},
 		"copy": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Copy images to different region"}, nil
