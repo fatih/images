@@ -11,7 +11,10 @@ type Image struct {
 }
 
 type ImageProvider interface {
+	// Fetch fetches the information from the provider
 	Fetch() error
+
+	// Print prints the images to standard output or to something else.
 	Print()
 }
 

@@ -54,7 +54,7 @@ func (a *AwsImages) Print() {
 		return
 	}
 
-	color.Green("AWS: %d images found\n\n", len(a.images))
+	color.Green("AWS: Region: %s (%d images)\n\n", a.svc.Config.Region, len(a.images))
 
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 10, 8, 0, '\t', 0)
