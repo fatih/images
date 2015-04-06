@@ -37,6 +37,7 @@ func (m *Modify) Run(args []string) int {
 	flagSet.SetOutput(ioutil.Discard)
 
 	if err := flagSet.Parse(args); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 
