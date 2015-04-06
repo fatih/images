@@ -5,9 +5,19 @@ import (
 	"fmt"
 )
 
-// parseFlag parses a flags name. A flag can be in form of --name, -name or -n.
-// If it's a correct flag, the name is returned. If not an empty string and an
-// error message is returned
+// isFlag checks whether the given argument is a valid flag or not
+func isFlag(arg string) bool {
+	if _, err := parseFlag(arg); err != nil {
+		return false
+	}
+
+	return true
+}
+
+// parseFlag parses a flags name. A flag can be in form of --name=value,
+// -name=value, -n=value, or --name, -name=, etc...  If it's a correct flag,
+// the name is returned. If not an empty string and an error message is
+// returned
 func parseFlag(arg string) (string, error) {
 	if arg == "" {
 		return "", errors.New("argument is empty")
@@ -48,27 +58,47 @@ func parseValue(flag string) (name, value string) {
 		}
 	}
 
+	// special case of "n"
+	if name == "" {
+		name = flag
+	}
+
 	return
 }
 
-func parseProvider(args []string) (string, error) {
+// parseName parses the given flagName from the args slice and returns the
+// value passed to the flag. An example: args: ["--provider", "aws", "--foo"],
+// flagName: "provider" will return "aws".
+func parseFlagValue(flagName string, args []string) (string, error) {
 	if len(args) == 0 {
 		return "", errors.New("argument is empty")
 	}
 
-	for _, arg := range args {
-		name, err := parseFlag(arg)
+	for i, arg := range args {
+		flag, err := parseFlag(arg)
 		if err != nil {
 			fmt.Println("err")
 			continue
 		}
 
-		val := parseValue(name)
+		name, value := parseValue(flag)
+		if name != flagName && name[0] != flagName[0] {
+			continue
+		}
 
-		fmt.Printf("val = %+v\n", val)
+		if value != "" {
+			return value, nil // found
+		}
 
-		fmt.Printf("name = %+v\n", name)
+		// no value found, check out the next argument. at least two args must
+		// be present
+		if len(args) > 1 {
+			// value must be next argument
+			if !isFlag(args[i+1]) {
+				return args[i+1], nil
+			}
+		}
 	}
 
-	return "", nil
+	return "", errors.New("couldn't find")
 }
