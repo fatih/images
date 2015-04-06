@@ -71,13 +71,13 @@ func parseValue(flag string) (name, value string) {
 // flagName: "provider" will return "aws".
 func parseFlagValue(flagName string, args []string) (string, error) {
 	if len(args) == 0 {
-		return "", errors.New("argument is empty")
+		return "", errors.New("argument slice is empty")
 	}
 
 	for i, arg := range args {
 		flag, err := parseFlag(arg)
 		if err != nil {
-			fmt.Println("err")
+			fmt.Println("bad syntax err: ", err)
 			continue
 		}
 
@@ -100,5 +100,5 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 		}
 	}
 
-	return "", errors.New("couldn't find")
+	return "", errors.New("couldn't find any value")
 }
