@@ -67,11 +67,12 @@ func parseValue(flag string) (name, value string) {
 }
 
 // parseName parses the given flagName from the args slice and returns the
-// value passed to the flag. An example: args: ["--provider", "aws", "--foo"],
-// flagName: "provider" will return "aws".
-func parseFlagValue(flagName string, args []string) (string, error) {
+// value passed to the flag and the remaining arguments. An example: args:
+// ["--provider", "aws", "--foo"], flagName: "provider" will return "aws" and
+// ["--foo"].
+func parseFlagValue(flagName string, args []string) (string, []string, error) {
 	if len(args) == 0 {
-		return "", errors.New("argument slice is empty")
+		return "", nil, errors.New("argument slice is empty")
 	}
 
 	for i, arg := range args {
@@ -87,7 +88,7 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 		}
 
 		if value != "" {
-			return value, nil // found
+			return value, args[1:], nil // found
 		}
 
 		// no value found, check out the next argument. at least two args must
@@ -95,10 +96,11 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 		if len(args) > 1 {
 			// value must be next argument
 			if !isFlag(args[i+1]) {
-				return args[i+1], nil
+				// value := args[i+1]
+				return args[i+1], args[2:], nil
 			}
 		}
 	}
 
-	return "", errors.New("couldn't find any value")
+	return "", nil, fmt.Errorf("argument is not passed to flag: %s", flagName)
 }

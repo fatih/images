@@ -1,9 +1,7 @@
 package command
 
 import (
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/fatih/images/images"
@@ -32,23 +30,18 @@ func (m *Modify) Run(args []string) int {
 		provider string
 	)
 
-	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
-	flagSet.StringVar(&provider, "provider", "", "cloud provider to modify images")
-	flagSet.SetOutput(ioutil.Discard)
-
-	if err := flagSet.Parse(args); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		return 1
-	}
-
-	fmt.Printf("provider = %+v\n", provider)
-
-	if flagSet.NFlag() == 0 {
+	if len(args) == 0 {
 		fmt.Print(m.Help())
 		return 1
 	}
 
-	if err := images.Modify(provider, args); err != nil {
+	provider, remainingArgs, err := parseFlagValue("provider", args)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	if err := images.Modify(provider, remainingArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

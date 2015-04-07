@@ -1,6 +1,9 @@
 package command
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestIsFlag(t *testing.T) {
 	var flags = []struct {
@@ -84,13 +87,14 @@ func TestParseValue(t *testing.T) {
 
 func TestParseProvider(t *testing.T) {
 	var arguments = []struct {
-		args  []string
-		value string
+		args    []string
+		remArgs []string
+		value   string
 	}{
-		{args: []string{"--provider=aws"}, value: "aws"},
-		{args: []string{"-provider=aws"}, value: "aws"},
-		{args: []string{"-provider=aws,do"}, value: "aws,do"},
-		{args: []string{"-p=aws", "aws"}, value: "aws"},
+		{args: []string{"--provider=aws", "foo"}, value: "aws", remArgs: []string{"foo"}},
+		{args: []string{"-provider=aws", "foo", "bar"}, value: "aws", remArgs: []string{"foo", "bar"}},
+		{args: []string{"-provider=aws,do"}, value: "aws,do", remArgs: []string{}},
+		{args: []string{"-p=aws", "aws"}, value: "aws", remArgs: []string{"aws"}},
 		{args: []string{"--provider", "aws"}, value: "aws"},
 		{args: []string{"-provider", "aws"}, value: "aws"},
 		{args: []string{"-p", "aws"}, value: "aws"},
@@ -103,11 +107,20 @@ func TestParseProvider(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, _ := parseFlagValue("provider", args.args)
+		value, remainingArgs, _ := parseFlagValue("provider", args.args)
 
 		if value != args.value {
-			t.Errorf("parsing args: %v\n\twant: %s\n\tgot : %s\n",
+			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.value, value)
+		}
+
+		if len(remainingArgs) == len(args.remArgs) {
+			continue
+		}
+
+		if !reflect.DeepEqual(remainingArgs, args.remArgs) {
+			t.Errorf("parsing and returning rem args: %v\n\twant: %s\n\tgot : %s\n",
+				args.args, args.remArgs, remainingArgs)
 		}
 	}
 }
