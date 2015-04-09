@@ -96,11 +96,13 @@ func (a *AwsImages) Modify(args []string) error {
 	var (
 		createTags string
 		deleteTags string
+		imageIds   string
 	)
 
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.StringVar(&createTags, "create-tags", "", "create tags")
 	flagSet.StringVar(&deleteTags, "delete-tags", "", "delete tags")
+	flagSet.StringVar(&imageIds, "image-ids", "", "delete tags")
 	flagSet.Usage = func() {
 		helpMsg := `Usage: images modify --provider aws [options]
 
@@ -108,16 +110,17 @@ func (a *AwsImages) Modify(args []string) error {
 
 Options:
 
-  -create-tags                  Create or override tags
-  -delete-tags                  Delete tags
+  -image-ids   "ami-123,..."   Images to be user with below actions
+
+  -create-tags "key=val,..."   Create or override tags
+  -delete-tags "key,..."       Delete tags
 `
 		fmt.Fprintf(os.Stderr, helpMsg)
 	}
 
 	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
 	if err := flagSet.Parse(args); err != nil {
-		// flagSet.Usage()
-		return nil // we don't return error, the usage will be printed instad
+		return nil // we don't return error, the usage will be printed instead
 	}
 
 	if len(args) == 0 {
@@ -127,6 +130,7 @@ Options:
 
 	fmt.Printf("createTags = %+v\n", createTags)
 	fmt.Printf("deleteTags = %+v\n", deleteTags)
+	fmt.Printf("imageIds = %+v\n", imageIds)
 	return nil
 }
 
