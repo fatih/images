@@ -1,7 +1,10 @@
 package images
 
 import (
+	"errors"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -71,9 +74,59 @@ func (a *AwsImages) Print() {
 	}
 }
 
+func (a *AwsImages) Help(command string) string {
+	switch command {
+	case "modify":
+		return `Usage: images modify --provider aws [options] 
+
+  Modify AMI properties. 
+
+Options:
+
+  -create-tags                  Create or override tags
+  -delete-tags                  Delete tags
+`
+	case "list":
+	}
+
+	return "no help found for command " + command
+}
+
 func (a *AwsImages) Modify(args []string) error {
-	fmt.Println("-------")
-	fmt.Printf("args = %+v\n", args)
+	var (
+		createTags string
+		deleteTags string
+	)
+
+	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
+	flagSet.StringVar(&createTags, "create-tags", "", "create tags")
+	flagSet.StringVar(&deleteTags, "delete-tags", "", "delete tags")
+	flagSet.Usage = func() {
+		helpMsg := `Usage: images modify --provider aws [options]
+
+  Modify AMI properties.
+
+Options:
+
+  -create-tags                  Create or override tags
+  -delete-tags                  Delete tags
+`
+		fmt.Fprintf(os.Stderr, helpMsg)
+	}
+
+	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
+	if err := flagSet.Parse(args); err != nil {
+		// flagSet.Usage()
+		return nil // we don't return error, the usage will be printed instad
+	}
+
+	if len(args) == 0 {
+		flagSet.Usage()
+		return errors.New("no flags are passed")
+	}
+
+	fmt.Printf("createTags = %+v\n", createTags)
+	fmt.Printf("deleteTags = %+v\n", deleteTags)
 	return nil
 }
 
