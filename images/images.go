@@ -17,6 +17,10 @@ type Modifier interface {
 	Modify(args []string) error
 }
 
+type Helper interface {
+	Help(command string) string
+}
+
 func List(provider string) error {
 	p, err := Provider(provider)
 	if err != nil {
@@ -48,6 +52,20 @@ func Modify(provider string, args []string) error {
 	}
 
 	return m.Modify(args)
+}
+
+func Help(command, provider string) string {
+	p, err := Provider(provider)
+	if err != nil {
+		return "Provider " + provider + " doesn't exists."
+	}
+
+	h, ok := p.(Helper)
+	if !ok {
+		return "No help context available for " + provider
+	}
+
+	return h.Help(command)
 }
 
 func Provider(provider string) (interface{}, error) {

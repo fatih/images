@@ -8,14 +8,23 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type Modify struct{}
+type Modify struct {
+	provider string
+}
 
 func NewModify() (cli.Command, error) {
-	return &Modify{}, nil
+	// if any provider is passed just get it, we don't care about errors. This
+	// is so we can create independent errors
+	provider, _, _ := parseFlagValue("provider", os.Args)
+
+	return &Modify{
+		provider: provider,
+	}, nil
 }
 
 func (m *Modify) Help() string {
-	return `Usage: images modify [options] 
+	if m.provider == "" {
+		defaultHelp := `Usage: images modify [options]
 
   Modifies images properties. Each providers sub options are different.
 
@@ -23,6 +32,12 @@ Options:
 
   -provider                  Provider to be used to modify images
 `
+
+		return defaultHelp
+
+	}
+
+	return images.Help("modify", m.provider)
 }
 
 func (m *Modify) Run(args []string) int {
@@ -40,6 +55,8 @@ func (m *Modify) Run(args []string) int {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
+
+	m.provider = provider
 
 	if err := images.Modify(provider, remainingArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())

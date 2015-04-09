@@ -78,7 +78,6 @@ func parseFlagValue(flagName string, args []string) (string, []string, error) {
 	for i, arg := range args {
 		flag, err := parseFlag(arg)
 		if err != nil {
-			fmt.Println("bad syntax err: ", err)
 			continue
 		}
 
@@ -93,7 +92,7 @@ func parseFlagValue(flagName string, args []string) (string, []string, error) {
 
 		// no value found, check out the next argument. at least two args must
 		// be present
-		if len(args) > 1 {
+		if len(args) > i+1 {
 			// value must be next argument
 			if !isFlag(args[i+1]) {
 				// value := args[i+1]
