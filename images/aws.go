@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -97,12 +98,14 @@ func (a *AwsImages) Modify(args []string) error {
 		createTags string
 		deleteTags string
 		imageIds   string
+		dryRun     bool
 	)
 
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
-	flagSet.StringVar(&createTags, "create-tags", "", "create tags")
-	flagSet.StringVar(&deleteTags, "delete-tags", "", "delete tags")
-	flagSet.StringVar(&imageIds, "image-ids", "", "delete tags")
+	flagSet.StringVar(&createTags, "create-tags", "", "Create  or override tags")
+	flagSet.StringVar(&deleteTags, "delete-tags", "", "Delete tags")
+	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be used with actions")
+	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
 	flagSet.Usage = func() {
 		helpMsg := `Usage: images modify --provider aws [options]
 
@@ -110,10 +113,11 @@ func (a *AwsImages) Modify(args []string) error {
 
 Options:
 
-  -image-ids   "ami-123,..."   Images to be user with below actions
+  -image-ids   "ami-123,..."   Images to be used with below actions
 
   -create-tags "key=val,..."   Create or override tags
   -delete-tags "key,..."       Delete tags
+  -dry-run                     Don't run command, but show the action
 `
 		fmt.Fprintf(os.Stderr, helpMsg)
 	}
@@ -128,37 +132,62 @@ Options:
 		return errors.New("no flags are passed")
 	}
 
-	fmt.Printf("createTags = %+v\n", createTags)
-	fmt.Printf("deleteTags = %+v\n", deleteTags)
+	if imageIds == "" {
+		return errors.New("no images are passed with [--image-ids]")
+	}
+
+	if createTags != "" && deleteTags != "" {
+		return errors.New("not allowed to be used together: [--create-tags,--delete-tags]")
+	}
 	fmt.Printf("imageIds = %+v\n", imageIds)
+
+	if createTags != "" {
+		fmt.Printf("createTags = %+v\n", createTags)
+
+		keyVals := make(map[string]string, 0)
+
+		for _, keyVal := range strings.Split(createTags, ",") {
+			keys := strings.Split(keyVal, "=")
+			if len(keys) != 2 {
+				return fmt.Errorf("malformed value passed to --create-tags: %v", keys)
+			}
+			keyVals[keys[0]] = keys[1]
+		}
+
+		return a.AddTags(keyVals, dryRun, strings.Split(imageIds, ",")...)
+	}
+
+	if deleteTags != "" {
+		fmt.Printf("deleteTags = %+v\n", deleteTags)
+	}
+
 	return nil
 }
 
 // Add tags adds or overwrites all tags for the specified images
-func (a *AwsImages) AddTags(tags map[string]string, images ...string) error {
+func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...string) error {
+	ec2Tags := make([]*ec2.Tag, 0)
+	for key, val := range tags {
+		ec2Tags = append(ec2Tags, &ec2.Tag{
+			Key:   aws.String(key),
+			Value: aws.String(val),
+		})
+	}
+
 	params := &ec2.CreateTagsInput{
-		Resources: []*string{ // Required
-			aws.String("String"), // Required
-			// More values...
-		},
-		Tags: []*ec2.Tag{ // Required
-			&ec2.Tag{ // Required
-				Key:   aws.String("String"),
-				Value: aws.String("String"),
-			},
-			// More values...
-		},
-		DryRun: aws.Boolean(true),
+		Resources: stringSlice(images...),
+		Tags:      ec2Tags,
+		DryRun:    aws.Boolean(dryRun),
 	}
 
 	resp, err := a.svc.CreateTags(params)
-
 	if awserr := aws.Error(err); awserr != nil {
 		// A service error occurred.
-		fmt.Println("Error:", awserr.Code, awserr.Message)
+		// fmt.Println("Error:", awserr.Code, awserr.Message)
+		return err
 	} else if err != nil {
 		// A non-service error occurred.
-		panic(err)
+		return err
 	}
 
 	// Pretty-print the response data.
