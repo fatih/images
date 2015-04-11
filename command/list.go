@@ -1,7 +1,6 @@
 package command
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -9,46 +8,40 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type List struct {
-	flagSet  *flag.FlagSet
-	provider string
-}
+type List struct{}
 
 func NewList() (cli.Command, error) {
-	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
-	l := &List{flagSet: flagSet}
-
-	flagSet.StringVar(&l.provider, "provider", "", "cloud provider to list images")
-	flagSet.Usage = func() {
-		l.Help()
-	}
-
-	return l, nil
+	return &List{}, nil
 }
 
 func (l *List) Help() string {
-	help := "Usage: images list [options]\n\n"
-	help += l.Synopsis() + "\n\n"
-	l.flagSet.VisitAll(func(fl *flag.Flag) {
-		format := "  -%s=%s\t %s\n"
-		help += fmt.Sprintf(format, fl.Name, fl.DefValue, fl.Usage)
-	})
+	return `Usage: images list [options]
 
-	help += "\n"
-	return help
+  Lists available images for the given provider.
+
+Options:
+
+  -provider                  Provider to be used to modify images
+`
 }
 
 func (l *List) Run(args []string) int {
-	if err := l.flagSet.Parse(args); err != nil {
-		return 1
-	}
+	var (
+		provider string
+	)
 
-	if l.flagSet.NFlag() == 0 {
+	if len(args) == 0 {
 		fmt.Print(l.Help())
 		return 1
 	}
 
-	if err := images.List(l.provider); err != nil {
+	provider, _, err := parseFlagValue("provider", args)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	if err := images.List(provider); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
