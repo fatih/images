@@ -120,6 +120,9 @@ func TestFilterFlag(t *testing.T) {
 		args    []string
 		remArgs []string
 	}{
+		{args: []string{}, remArgs: []string{}},
+		{args: []string{"-provider"}, remArgs: []string{}},
+		{args: []string{"--provider"}, remArgs: []string{}},
 		{args: []string{"--provider=aws", "foo"}, remArgs: []string{"foo"}},
 		{args: []string{"-provider=aws", "foo", "bar"}, remArgs: []string{"foo", "bar"}},
 		{args: []string{"-provider=aws,do"}, remArgs: []string{}},
@@ -133,6 +136,8 @@ func TestFilterFlag(t *testing.T) {
 		{args: []string{"--provider", "aws"}, remArgs: []string{}},
 		{args: []string{"--provider", "aws", "--test"}, remArgs: []string{"--test"}},
 		{args: []string{"--provider", "--test"}, remArgs: []string{"--test"}},
+		{args: []string{"--test", "--provider"}, remArgs: []string{"--test"}},
+		{args: []string{"--test", "bar", "--foo", "--provider"}, remArgs: []string{"--test", "bar", "--foo"}},
 		{args: []string{"--test", "--provider", "--test2", "aws"}, remArgs: []string{"--test", "--test2", "aws"}},
 	}
 

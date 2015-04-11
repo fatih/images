@@ -130,15 +130,26 @@ func filterFlag(flagName string, args []string) []string {
 				return args[i+1:]
 			}
 
-			// flag is between the first and the last, delete and return the
+			// flag is between the first and the last, delete it and return the
 			// remaining arguments
 			return append(args[:i], args[i+1:]...)
 		}
 
-		// no value found, check out the next argument. at least two args must
-		// be present
+		// no value found yet, check out the next argument. at least two args
+		// must be present
 		if len(args) < i+1 {
 			continue
+		}
+
+		// only one flag is passed and it's ours in the form of ["--flagName"]
+		if len(args) == 1 {
+			return args[1:]
+		}
+
+		// flag is the latest item and has no value, return till the flagName,
+		// ["--foo", "bar", "--flagName"]
+		if len(args) == i+1 {
+			return args[:i]
 		}
 
 		// next argument is a flag i.e: "--flagName --otherFlag", remove our
