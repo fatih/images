@@ -145,7 +145,6 @@ Options:
 
 	if createTags != "" {
 		keyVals := make(map[string]string, 0)
-
 		for _, keyVal := range strings.Split(createTags, ",") {
 			keys := strings.Split(keyVal, "=")
 			if len(keys) != 2 {
@@ -158,12 +157,13 @@ Options:
 	}
 
 	if deleteTags != "" {
+		a.DeleteTags(deleteTags, dryRun, strings.Split(imageIds, ",")...)
 	}
 
 	return nil
 }
 
-// Add tags adds or overwrites all tags for the specified images
+// Add tags adds or overwrites all tags for the specified images.
 func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...string) error {
 	ec2Tags := make([]*ec2.Tag, 0)
 	for key, val := range tags {
@@ -180,6 +180,36 @@ func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...strin
 	}
 
 	_, err := a.svc.CreateTags(params)
+	return err
+}
+
+// DeleteTags deletes the given tags for the given images. Tags is in the form
+// of "key1=val1,key2=val2,key3,key4="
+func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error {
+	ec2Tags := make([]*ec2.Tag, 0)
+
+	for _, keyVal := range strings.Split(tags, ",") {
+		keys := strings.Split(keyVal, "=")
+		ec2Tag := &ec2.Tag{
+			Key: aws.String(keys[0]), // index 0 is always available
+		}
+
+		// means value is not omitted. We don't care if value is empty or not,
+		// the AWS API takes care of it.
+		if len(keys) == 2 {
+			ec2Tag.Value = aws.String(keys[1])
+		}
+
+		ec2Tags = append(ec2Tags, ec2Tag)
+	}
+
+	params := &ec2.DeleteTagsInput{
+		Resources: stringSlice(images...),
+		Tags:      ec2Tags,
+		DryRun:    aws.Boolean(dryRun),
+	}
+
+	_, err := a.svc.DeleteTags(params)
 	return err
 }
 
