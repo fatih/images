@@ -34,11 +34,11 @@ func realMain() int {
 		},
 	}
 
-	exitCode, err := c.Run()
+	_, err := c.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error executing CLI: %s\n", err)
 		return 1
 	}
 
-	return exitCode
+	return 0
 }
