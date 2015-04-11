@@ -35,7 +35,7 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	provider, _, err := parseFlagValue("provider", args)
+	provider, err := providerFromEnvOrFlag(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1

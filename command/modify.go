@@ -15,7 +15,7 @@ type Modify struct {
 func NewModify() (cli.Command, error) {
 	// if any provider is passed just get it, we don't care about errors. This
 	// is so we can create independent errors
-	provider, _, _ := parseFlagValue("provider", os.Args)
+	provider, _ := providerFromEnvOrFlag(os.Args)
 
 	return &Modify{
 		provider: provider,
@@ -50,11 +50,13 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	provider, remainingArgs, err := parseFlagValue("provider", args)
+	provider, err := providerFromEnvOrFlag(os.Args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
+
+	remainingArgs := filterFlag("provider", args)
 
 	m.provider = provider
 

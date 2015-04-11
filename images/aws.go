@@ -77,14 +77,17 @@ func (a *AwsImages) Print() {
 func (a *AwsImages) Help(command string) string {
 	switch command {
 	case "modify":
-		return `Usage: images modify --provider aws [options] 
+		return `Usage: images modify --provider aws [options]
 
-  Modify AMI properties. 
+  Modify AMI properties.
 
 Options:
 
-  -create-tags                  Create or override tags
-  -delete-tags                  Delete tags
+  -image-ids   "ami-123,..."   Images to be used with below actions
+
+  -create-tags "key=val,..."   Create or override tags
+  -delete-tags "key,..."       Delete tags
+  -dry-run                     Don't run command, but show the action
 `
 	case "list":
 	}
@@ -128,16 +131,12 @@ Options:
 
 	if len(args) == 0 {
 		flagSet.Usage()
-		return errors.New("no flags are passed")
+		return nil
 	}
 
 	if imageIds == "" {
 		return errors.New("no images are passed with [--image-ids]")
 	}
-
-	fmt.Printf("imageIds = %+v\n", imageIds)
-	fmt.Printf("createTags = %+v\n", createTags)
-	fmt.Printf("deleteTags = %+v\n", deleteTags)
 
 	if createTags != "" && deleteTags != "" {
 		return errors.New("not allowed to be used together: [--create-tags,--delete-tags]")
