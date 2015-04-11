@@ -85,16 +85,15 @@ func TestParseValue(t *testing.T) {
 
 }
 
-func TestParseProvider(t *testing.T) {
+func TestParseFlagValue(t *testing.T) {
 	var arguments = []struct {
-		args    []string
-		remArgs []string
-		value   string
+		args  []string
+		value string
 	}{
-		{args: []string{"--provider=aws", "foo"}, value: "aws", remArgs: []string{"foo"}},
-		{args: []string{"-provider=aws", "foo", "bar"}, value: "aws", remArgs: []string{"foo", "bar"}},
-		{args: []string{"-provider=aws,do"}, value: "aws,do", remArgs: []string{}},
-		{args: []string{"-p=aws", "aws"}, value: "aws", remArgs: []string{"aws"}},
+		{args: []string{"--provider=aws", "foo"}, value: "aws"},
+		{args: []string{"-provider=aws", "foo", "bar"}, value: "aws"},
+		{args: []string{"-provider=aws,do"}, value: "aws,do"},
+		{args: []string{"-p=aws", "aws"}, value: "aws"},
 		{args: []string{"--provider", "aws"}, value: "aws"},
 		{args: []string{"-provider", "aws"}, value: "aws"},
 		{args: []string{"-p", "aws"}, value: "aws"},
@@ -107,16 +106,38 @@ func TestParseProvider(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, remainingArgs, _ := parseFlagValue("provider", args.args)
+		value, _ := parseFlagValue("provider", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.value, value)
 		}
+	}
+}
 
-		if len(remainingArgs) == len(args.remArgs) {
-			continue
-		}
+func TestFilterFlag(t *testing.T) {
+	var arguments = []struct {
+		args    []string
+		remArgs []string
+	}{
+		{args: []string{"--provider=aws", "foo"}, remArgs: []string{"foo"}},
+		{args: []string{"-provider=aws", "foo", "bar"}, remArgs: []string{"foo", "bar"}},
+		{args: []string{"-provider=aws,do"}, remArgs: []string{}},
+		{args: []string{"-p=aws", "aws"}, remArgs: []string{"aws"}},
+		{args: []string{"--test", "foo", "-p=aws", "aws"}, remArgs: []string{"--test", "foo", "aws"}},
+		{args: []string{"--test", "foo", "--provider=aws", "foo"}, remArgs: []string{"--test", "foo", "foo"}},
+		{args: []string{"--example", "foo"}, remArgs: []string{"--example", "foo"}},
+		{args: []string{"--test", "--provider", "aws"}, remArgs: []string{"--test"}},
+		{args: []string{"--test", "--provider", "aws", "--test2"}, remArgs: []string{"--test", "--test2"}},
+		{args: []string{"--test", "bar", "--provider", "aws"}, remArgs: []string{"--test", "bar"}},
+		{args: []string{"--provider", "aws"}, remArgs: []string{}},
+		{args: []string{"--provider", "aws", "--test"}, remArgs: []string{"--test"}},
+		{args: []string{"--provider", "--test"}, remArgs: []string{"--test"}},
+		{args: []string{"--test", "--provider", "--test2", "aws"}, remArgs: []string{"--test", "--test2", "aws"}},
+	}
+
+	for _, args := range arguments {
+		remainingArgs := filterFlag("provider", args.args)
 
 		if !reflect.DeepEqual(remainingArgs, args.remArgs) {
 			t.Errorf("parsing and returning rem args: %v\n\twant: %s\n\tgot : %s\n",
