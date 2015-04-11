@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/awslabs/aws-sdk-go/aws"
-	"github.com/awslabs/aws-sdk-go/aws/awsutil"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
 )
@@ -136,14 +135,15 @@ Options:
 		return errors.New("no images are passed with [--image-ids]")
 	}
 
+	fmt.Printf("imageIds = %+v\n", imageIds)
+	fmt.Printf("createTags = %+v\n", createTags)
+	fmt.Printf("deleteTags = %+v\n", deleteTags)
+
 	if createTags != "" && deleteTags != "" {
 		return errors.New("not allowed to be used together: [--create-tags,--delete-tags]")
 	}
-	fmt.Printf("imageIds = %+v\n", imageIds)
 
 	if createTags != "" {
-		fmt.Printf("createTags = %+v\n", createTags)
-
 		keyVals := make(map[string]string, 0)
 
 		for _, keyVal := range strings.Split(createTags, ",") {
@@ -158,7 +158,6 @@ Options:
 	}
 
 	if deleteTags != "" {
-		fmt.Printf("deleteTags = %+v\n", deleteTags)
 	}
 
 	return nil
@@ -180,19 +179,8 @@ func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...strin
 		DryRun:    aws.Boolean(dryRun),
 	}
 
-	resp, err := a.svc.CreateTags(params)
-	if awserr := aws.Error(err); awserr != nil {
-		// A service error occurred.
-		// fmt.Println("Error:", awserr.Code, awserr.Message)
-		return err
-	} else if err != nil {
-		// A non-service error occurred.
-		return err
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(awsutil.StringValue(resp))
-	return nil
+	_, err := a.svc.CreateTags(params)
+	return err
 }
 
 //
