@@ -144,33 +144,41 @@ Options:
 	}
 
 	if createTags != "" {
-		keyVals := make(map[string]string, 0)
-		for _, keyVal := range strings.Split(createTags, ",") {
-			keys := strings.Split(keyVal, "=")
-			if len(keys) != 2 {
-				return fmt.Errorf("malformed value passed to --create-tags: %v", keys)
-			}
-			keyVals[keys[0]] = keys[1]
-		}
-
-		return a.AddTags(keyVals, dryRun, strings.Split(imageIds, ",")...)
+		return a.CreateTags(createTags, dryRun, strings.Split(imageIds, ",")...)
 	}
 
 	if deleteTags != "" {
-		a.DeleteTags(deleteTags, dryRun, strings.Split(imageIds, ",")...)
+		return a.DeleteTags(deleteTags, dryRun, strings.Split(imageIds, ",")...)
 	}
 
 	return nil
 }
 
-// Add tags adds or overwrites all tags for the specified images.
-func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...string) error {
+// CreateTags adds or overwrites all tags for the specified images. Tags is in
+// the form of "key1=val1,key2=val2,key3,key4=".
+// One or more tags. The value parameter is required, but if you don't want the
+// tag to have a value, specify the parameter with no value (i.e: "key3" or
+// "key4=" both works)
+func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error {
 	ec2Tags := make([]*ec2.Tag, 0)
-	for key, val := range tags {
-		ec2Tags = append(ec2Tags, &ec2.Tag{
-			Key:   aws.String(key),
-			Value: aws.String(val),
-		})
+
+	for _, keyVal := range strings.Split(tags, ",") {
+		keys := strings.Split(keyVal, "=")
+		ec2Tag := &ec2.Tag{
+			Key: aws.String(keys[0]), // index 0 is always available
+		}
+
+		// It's in the form "key4". The AWS API will create the key only if the
+		// value is being passed as an empty string.
+		if len(keys) == 1 {
+			ec2Tag.Value = aws.String("")
+		}
+
+		if len(keys) == 2 {
+			ec2Tag.Value = aws.String(keys[1])
+		}
+
+		ec2Tags = append(ec2Tags, ec2Tag)
 	}
 
 	params := &ec2.CreateTagsInput{
@@ -185,6 +193,10 @@ func (a *AwsImages) AddTags(tags map[string]string, dryRun bool, images ...strin
 
 // DeleteTags deletes the given tags for the given images. Tags is in the form
 // of "key1=val1,key2=val2,key3,key4="
+// One or more tags to delete. If you omit the value parameter(i.e "key3"), we
+// delete the tag regardless of its value. If you specify this parameter with
+// an empty string (i.e: "key4=" as the value, we delete the key only if its
+// value is an empty string.
 func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error {
 	ec2Tags := make([]*ec2.Tag, 0)
 
