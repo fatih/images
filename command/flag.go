@@ -103,7 +103,7 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 }
 
 // filterFlag filters the given valid flagName  with it's associated value (or
-// none) from the args. It returns the remaining arguments. If not flagName is
+// none) from the args. It returns the remaining arguments. If no flagName is
 // passed or if the flagName is invalid, remaining arguments are returned
 // without any change.
 func filterFlag(flagName string, args []string) []string {
