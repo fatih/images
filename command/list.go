@@ -26,10 +26,6 @@ Options:
 }
 
 func (l *List) Run(args []string) int {
-	var (
-		provider string
-	)
-
 	provider, err := providerFromEnvOrFlag(args)
 	if err != nil {
 		if len(args) == 0 {

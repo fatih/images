@@ -42,17 +42,13 @@ Options:
 }
 
 func (m *Modify) Run(args []string) int {
-	var (
-		provider string
-	)
-
-	if len(args) == 0 {
-		fmt.Print(m.Help())
-		return 1
-	}
-
 	provider, err := providerFromEnvOrFlag(os.Args)
 	if err != nil {
+		if len(args) == 0 {
+			fmt.Print(m.Help())
+			return 1
+		}
+
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
