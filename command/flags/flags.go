@@ -1,24 +1,39 @@
-package command
+// Package flags is low level package for parsing single flag arguments and
+// their associated values. It's useful for CLI applications or applications
+// that parses os.Args manually.
+package flags
 
 import (
 	"errors"
 	"fmt"
 )
 
-// isFlag checks whether the given argument is a valid flag or not
-func isFlag(arg string) bool {
-	if _, err := parseFlag(arg); err != nil {
+// HasFlag checks whether the given flag is available or not in the argument
+// list
+func HasFlag(args []string) bool {
+	for _, arg := range args {
+		if _, err := ParseFlag(arg); err == nil {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsFlag checks whether the given argument is a valid flag or not
+func IsFlag(arg string) bool {
+	if _, err := ParseFlag(arg); err != nil {
 		return false
 	}
 
 	return true
 }
 
-// parseFlag parses a flags name. A flag can be in form of --name=value,
+// ParseFlag parses a flags name. A flag can be in form of --name=value,
 // -name=value, -n=value, or --name, -name=, etc...  If it's a correct flag,
 // the name is returned. If not an empty string and an error message is
 // returned
-func parseFlag(arg string) (string, error) {
+func ParseFlag(arg string) (string, error) {
 	if arg == "" {
 		return "", errors.New("argument is empty")
 	}
@@ -48,9 +63,9 @@ func parseFlag(arg string) (string, error) {
 	return name, nil
 }
 
-// parseValue parses the value from the given flag. A flag name can be in
+// ParseValue parses the value from the given flag. A flag name can be in
 // form of name=value, n=value, n=, n.
-func parseValue(flag string) (name, value string) {
+func ParseValue(flag string) (name, value string) {
 	for i, r := range flag {
 		if r == '=' {
 			value = flag[i+1:]
@@ -66,21 +81,21 @@ func parseValue(flag string) (name, value string) {
 	return
 }
 
-// parseName parses the given flagName from the args slice and returns the
-// value passed to the flag. An example: args: ["--provider", "aws"], flagName:
-// "provider" will return "aws" and ["--foo"].
-func parseFlagValue(flagName string, args []string) (string, error) {
+// ParseName parses the given flagName from the args slice and returns the
+// value passed to the flag. An example: args: ["--provider", "aws"] will
+// return "aws".
+func ParseFlagValue(flagName string, args []string) (string, error) {
 	if len(args) == 0 {
 		return "", errors.New("argument slice is empty")
 	}
 
 	for i, arg := range args {
-		flag, err := parseFlag(arg)
+		flag, err := ParseFlag(arg)
 		if err != nil {
 			continue
 		}
 
-		name, value := parseValue(flag)
+		name, value := ParseValue(flag)
 		if name != flagName && name[0] != flagName[0] {
 			continue
 		}
@@ -93,7 +108,7 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 		// be present
 		if len(args) > i+1 {
 			// value must be next argument
-			if !isFlag(args[i+1]) {
+			if !IsFlag(args[i+1]) {
 				return args[i+1], nil
 			}
 		}
@@ -102,22 +117,22 @@ func parseFlagValue(flagName string, args []string) (string, error) {
 	return "", fmt.Errorf("argument is not passed to flag: %s", flagName)
 }
 
-// filterFlag filters the given valid flagName  with it's associated value (or
+// FilterFlag filters the given valid flagName  with it's associated value (or
 // none) from the args. It returns the remaining arguments. If no flagName is
 // passed or if the flagName is invalid, remaining arguments are returned
 // without any change.
-func filterFlag(flagName string, args []string) []string {
+func FilterFlag(flagName string, args []string) []string {
 	if len(args) == 0 {
 		return args
 	}
 
 	for i, arg := range args {
-		flag, err := parseFlag(arg)
+		flag, err := ParseFlag(arg)
 		if err != nil {
 			continue
 		}
 
-		name, value := parseValue(flag)
+		name, value := ParseValue(flag)
 		if name != flagName && name[0] != flagName[0] {
 			continue
 		}
@@ -146,7 +161,7 @@ func filterFlag(flagName string, args []string) []string {
 			return args[1:]
 		}
 
-		// flag is the latest item and has no value, return till the flagName,
+		// flag is the latest item and has no value, return til the flagName,
 		// ["--foo", "bar", "--flagName"]
 		if len(args) == i+1 {
 			return args[:i]
@@ -154,7 +169,7 @@ func filterFlag(flagName string, args []string) []string {
 
 		// next argument is a flag i.e: "--flagName --otherFlag", remove our
 		// flag and return the remainings
-		if isFlag(args[i+1]) {
+		if IsFlag(args[i+1]) {
 			// flag is between the first and the last, delete and return the
 			// remaining arguments
 			return append(args[:i], args[i+1:]...)

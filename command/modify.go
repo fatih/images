@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/images/command/flags"
 	"github.com/fatih/images/images"
 	"github.com/mitchellh/cli"
 )
@@ -56,7 +57,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	remainingArgs := filterFlag("provider", args)
+	remainingArgs := flags.FilterFlag("provider", args)
 
 	m.provider = provider
 

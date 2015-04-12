@@ -1,6 +1,10 @@
 package command
 
-import "os"
+import (
+	"os"
+
+	"github.com/fatih/images/command/flags"
+)
 
 var (
 	EnvName = "IMAGES_PROVIDER"
@@ -14,7 +18,7 @@ func providerFromEnvOrFlag(args []string) (string, error) {
 	}
 
 	// second from flag
-	p, err := parseFlagValue("provider", args)
+	p, err := flags.ParseFlagValue("provider", args)
 	if err != nil {
 		return "", err
 	}

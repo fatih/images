@@ -1,4 +1,4 @@
-package command
+package flags
 
 import (
 	"reflect"
@@ -23,7 +23,7 @@ func TestIsFlag(t *testing.T) {
 	}
 
 	for _, f := range flags {
-		is := isFlag(f.flag)
+		is := IsFlag(f.flag)
 		if is != f.isFlag {
 			t.Errorf("flag: %s\n\twant: %s\n\tgot : %s\n", f.flag, f.isFlag, is)
 		}
@@ -49,7 +49,7 @@ func TestParseFlag(t *testing.T) {
 	}
 
 	for _, f := range flags {
-		name, _ := parseFlag(f.flag)
+		name, _ := ParseFlag(f.flag)
 		if name != f.name {
 			t.Errorf("flag: %s\n\twant: %s\n\tgot : %s\n", f.flag, f.name, name)
 		}
@@ -71,7 +71,7 @@ func TestParseValue(t *testing.T) {
 	}
 
 	for _, f := range flags {
-		name, value := parseValue(f.flag)
+		name, value := ParseValue(f.flag)
 		if value != f.value {
 			t.Errorf("parsing value from flag: %s\n\twant: %s\n\tgot : %s\n",
 				f.flag, f.value, value)
@@ -106,7 +106,7 @@ func TestParseFlagValue(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, _ := parseFlagValue("provider", args.args)
+		value, _ := ParseFlagValue("provider", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
@@ -142,7 +142,7 @@ func TestFilterFlag(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		remainingArgs := filterFlag("provider", args.args)
+		remainingArgs := FilterFlag("provider", args.args)
 
 		if !reflect.DeepEqual(remainingArgs, args.remArgs) {
 			t.Errorf("parsing and returning rem args: %v\n\twant: %s\n\tgot : %s\n",
