@@ -5,6 +5,36 @@ import (
 	"testing"
 )
 
+func TestHasFlag(t *testing.T) {
+	var flags = []struct {
+		flag    string
+		args    []string
+		hasFlag bool
+	}{
+		{args: []string{"--foo"}, flag: "foo", hasFlag: true},
+		{args: []string{"--foo=bar"}, flag: "foo", hasFlag: true},
+		{args: []string{"--foo", "bar"}, flag: "foo", hasFlag: true},
+		{args: []string{"-foo"}, flag: "foo", hasFlag: true},
+		{args: []string{"-foo", "--bar"}, flag: "foo", hasFlag: true},
+		{args: []string{"-foo", "--bar", "deneme"}, flag: "foo", hasFlag: true},
+		{args: []string{"--bar", "bar", "-foo"}, flag: "foo", hasFlag: true},
+		{args: []string{"--bar", "val", "-foo", "--bar"}, flag: "foo", hasFlag: true},
+		{args: []string{"-f"}, flag: "foo", hasFlag: true},
+		{args: []string{"--foo=bar"}, flag: "foo", hasFlag: true},
+		{args: []string{"--foo"}, flag: "f", hasFlag: true},
+		{args: []string{"--foo=bar"}, flag: "f", hasFlag: true},
+		{args: []string{"--foo"}, flag: "bar", hasFlag: false},
+		{args: []string{"--foo"}, flag: "", hasFlag: false},
+	}
+
+	for _, f := range flags {
+		has := HasFlag(f.flag, f.args)
+		if has != f.hasFlag {
+			t.Errorf("hasFlag: arg: %v flag: %v \n\twant: %v\n\tgot : %v\n", f.flag, f.args, f.hasFlag, has)
+		}
+	}
+}
+
 func TestIsFlag(t *testing.T) {
 	var flags = []struct {
 		flag   string
@@ -57,7 +87,7 @@ func TestParseFlag(t *testing.T) {
 
 }
 
-func TestParseValue(t *testing.T) {
+func TestParseSingleFlagValue(t *testing.T) {
 	var flags = []struct {
 		flag  string
 		name  string
@@ -71,7 +101,7 @@ func TestParseValue(t *testing.T) {
 	}
 
 	for _, f := range flags {
-		name, value := ParseValue(f.flag)
+		name, value := parseSingleFlagValue(f.flag)
 		if value != f.value {
 			t.Errorf("parsing value from flag: %s\n\twant: %s\n\tgot : %s\n",
 				f.flag, f.value, value)
@@ -106,7 +136,7 @@ func TestParseFlagValue(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, _ := ParseFlagValue("provider", args.args)
+		value, _ := ParseValue("provider", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",

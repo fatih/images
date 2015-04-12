@@ -8,16 +8,15 @@ import (
 	"fmt"
 )
 
-// HasFlag checks whether the given flag is available or not in the argument
-// list
-func HasFlag(args []string) bool {
-	for _, arg := range args {
-		if _, err := ParseFlag(arg); err == nil {
-			return true
-		}
+// HasFlag checks whether the given flag name is available or not in the
+// argument list.
+func HasFlag(name string, args []string) bool {
+	_, err := ParseValue(name, args)
+	if err != nil {
+		return false
 	}
 
-	return false
+	return true
 }
 
 // IsFlag checks whether the given argument is a valid flag or not
@@ -65,7 +64,7 @@ func ParseFlag(arg string) (string, error) {
 
 // ParseValue parses the value from the given flag. A flag name can be in
 // form of name=value, n=value, n=, n.
-func ParseValue(flag string) (name, value string) {
+func parseSingleFlagValue(flag string) (name, value string) {
 	for i, r := range flag {
 		if r == '=' {
 			value = flag[i+1:]
@@ -83,47 +82,39 @@ func ParseValue(flag string) (name, value string) {
 
 // ParseName parses the given flagName from the args slice and returns the
 // value passed to the flag. An example: args: ["--provider", "aws"] will
-// return "aws".
-func ParseFlagValue(flagName string, args []string) (string, error) {
-	if len(args) == 0 {
-		return "", errors.New("argument slice is empty")
+// return "aws" for the flag name "provider". An empty string and non error
+// means the flag is in the boolean form, i.e: ["--provider", "--foo", "bar].
+func ParseValue(flagName string, args []string) (string, error) {
+	value, _, err := parseFlagAndValue(flagName, args)
+	if err != nil {
+		return "", err
 	}
 
-	for i, arg := range args {
-		flag, err := ParseFlag(arg)
-		if err != nil {
-			continue
-		}
-
-		name, value := ParseValue(flag)
-		if name != flagName && name[0] != flagName[0] {
-			continue
-		}
-
-		if value != "" {
-			return value, nil // found
-		}
-
-		// no value found, check out the next argument. at least two args must
-		// be present
-		if len(args) > i+1 {
-			// value must be next argument
-			if !IsFlag(args[i+1]) {
-				return args[i+1], nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("argument is not passed to flag: %s", flagName)
+	return value, nil
 }
 
-// FilterFlag filters the given valid flagName  with it's associated value (or
+// FilterFlag filters the given valid flagName with it's associated value (or
 // none) from the args. It returns the remaining arguments. If no flagName is
 // passed or if the flagName is invalid, remaining arguments are returned
 // without any change.
 func FilterFlag(flagName string, args []string) []string {
-	if len(args) == 0 {
+	_, remainingArgs, err := parseFlagAndValue(flagName, args)
+	if err != nil {
 		return args
+	}
+
+	return remainingArgs
+}
+
+// parseFlagAndValue is an internal function to parse the flag name, and return
+// the value and remaining args.
+func parseFlagAndValue(flagName string, args []string) (string, []string, error) {
+	if len(args) == 0 {
+		return "", nil, errors.New("argument slice is empty")
+	}
+
+	if flagName == "" {
+		return "", nil, errors.New("flag name is empty")
 	}
 
 	for i, arg := range args {
@@ -132,7 +123,7 @@ func FilterFlag(flagName string, args []string) []string {
 			continue
 		}
 
-		name, value := ParseValue(flag)
+		name, value := parseSingleFlagValue(flag)
 		if name != flagName && name[0] != flagName[0] {
 			continue
 		}
@@ -142,12 +133,12 @@ func FilterFlag(flagName string, args []string) []string {
 			// our flag is the first item in the argument list, so just return
 			// the remainings
 			if i <= 1 {
-				return args[i+1:]
+				return value, args[i+1:], nil
 			}
 
 			// flag is between the first and the last, delete it and return the
 			// remaining arguments
-			return append(args[:i], args[i+1:]...)
+			return value, append(args[:i], args[i+1:]...), nil
 		}
 
 		// no value found yet, check out the next argument. at least two args
@@ -158,13 +149,13 @@ func FilterFlag(flagName string, args []string) []string {
 
 		// only one flag is passed and it's ours in the form of ["--flagName"]
 		if len(args) == 1 {
-			return args[1:]
+			return "", args[1:], nil
 		}
 
 		// flag is the latest item and has no value, return til the flagName,
 		// ["--foo", "bar", "--flagName"]
 		if len(args) == i+1 {
-			return args[:i]
+			return "", args[:i], nil
 		}
 
 		// next argument is a flag i.e: "--flagName --otherFlag", remove our
@@ -172,14 +163,15 @@ func FilterFlag(flagName string, args []string) []string {
 		if IsFlag(args[i+1]) {
 			// flag is between the first and the last, delete and return the
 			// remaining arguments
-			return append(args[:i], args[i+1:]...)
+			return "", append(args[:i], args[i+1:]...), nil
 		}
 
 		// next flag is a value, +2 because the flag is in the form of
 		// "--flagName value".  This means we need to remove two items from the
 		// slice
-		return append(args[:i], args[i+2:]...)
+		// value := args[i+1]
+		return args[i+1], append(args[:i], args[i+2:]...), nil
 	}
 
-	return args // nothing found
+	return "", nil, fmt.Errorf("argument is not passed to flag: %s", flagName)
 }

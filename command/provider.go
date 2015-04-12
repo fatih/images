@@ -18,7 +18,7 @@ func providerFromEnvOrFlag(args []string) (string, error) {
 	}
 
 	// second from flag
-	p, err := flags.ParseFlagValue("provider", args)
+	p, err := flags.ParseValue("provider", args)
 	if err != nil {
 		return "", err
 	}
