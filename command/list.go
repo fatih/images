@@ -30,13 +30,13 @@ func (l *List) Run(args []string) int {
 		provider string
 	)
 
-	if len(args) == 0 {
-		fmt.Print(l.Help())
-		return 1
-	}
-
 	provider, err := providerFromEnvOrFlag(args)
 	if err != nil {
+		if len(args) == 0 {
+			fmt.Print(l.Help())
+			return 1
+		}
+
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
