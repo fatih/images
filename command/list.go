@@ -8,10 +8,16 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type List struct{}
+type List struct {
+	provider string
+}
 
-func NewList() (cli.Command, error) {
-	return &List{}, nil
+func NewList(config *Config) cli.CommandFactory {
+	return func() (cli.Command, error) {
+		return &List{
+			provider: config.Provider,
+		}, nil
+	}
 }
 
 func (l *List) Help() string {
@@ -21,23 +27,17 @@ func (l *List) Help() string {
 
 Options:
 
-  -provider                  Provider to be used to modify images
+  -provider [name]    Provider to be used to modify images
 `
 }
 
 func (l *List) Run(args []string) int {
-	provider, err := providerFromEnvOrFlag(args)
-	if err != nil {
-		if len(args) == 0 {
-			fmt.Print(l.Help())
-			return 1
-		}
-
-		fmt.Fprintln(os.Stderr, err.Error())
+	if l.provider == "" {
+		fmt.Print(l.Help())
 		return 1
 	}
 
-	if err := images.List(provider); err != nil {
+	if err := images.List(l.provider); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

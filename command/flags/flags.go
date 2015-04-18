@@ -6,6 +6,7 @@ package flags
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // HasFlag checks whether the given flag name is available or not in the
@@ -117,6 +118,10 @@ func parseFlagAndValue(flagName string, args []string) (string, []string, error)
 		return "", nil, errors.New("flag name is empty")
 	}
 
+	// Because we are trimming and parsing the flag name, trim dashes if the
+	// flagName is in the form of "--foo", or "-foo"
+	flagName = strings.TrimLeftFunc(flagName, func(r rune) bool { return r == '-' })
+
 	for i, arg := range args {
 		flag, err := ParseFlag(arg)
 		if err != nil {
@@ -170,7 +175,8 @@ func parseFlagAndValue(flagName string, args []string) (string, []string, error)
 		// "--flagName value".  This means we need to remove two items from the
 		// slice
 		// value := args[i+1]
-		return args[i+1], append(args[:i], args[i+2:]...), nil
+		val := args[i+1]
+		return val, append(args[:i], args[i+2:]...), nil
 	}
 
 	return "", nil, fmt.Errorf("argument is not passed to flag: %s", flagName)

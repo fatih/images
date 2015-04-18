@@ -13,14 +13,12 @@ type Modify struct {
 	provider string
 }
 
-func NewModify() (cli.Command, error) {
-	// if any provider is passed just get it, we don't care about errors. This
-	// is so we can create independent errors
-	provider, _ := providerFromEnvOrFlag(os.Args)
-
-	return &Modify{
-		provider: provider,
-	}, nil
+func NewModify(config *Config) cli.CommandFactory {
+	return func() (cli.Command, error) {
+		return &Modify{
+			provider: config.Provider,
+		}, nil
+	}
 }
 
 func (m *Modify) Help() string {
@@ -42,22 +40,14 @@ Options:
 }
 
 func (m *Modify) Run(args []string) int {
-	provider, err := providerFromEnvOrFlag(os.Args)
-	if err != nil {
-		if len(args) == 0 {
-			fmt.Print(m.Help())
-			return 1
-		}
-
-		fmt.Fprintln(os.Stderr, err.Error())
+	if m.provider == "" {
+		fmt.Print(m.Help())
 		return 1
 	}
 
 	remainingArgs := flags.FilterFlag("provider", args)
 
-	m.provider = provider
-
-	if err := images.Modify(provider, remainingArgs); err != nil {
+	if err := images.Modify(m.provider, remainingArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

@@ -23,9 +23,18 @@ func main() {
 func realMain() int {
 	c := cli.NewCLI(Name, Version)
 	c.Args = os.Args[1:]
+
+	config, err := command.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading global config : %s\n", err)
+		return 1
+	}
+
+	fmt.Printf("main config = %+v\n", config)
+
 	c.Commands = map[string]cli.CommandFactory{
-		"list":   command.NewList,
-		"modify": command.NewModify,
+		"list":   command.NewList(config),
+		"modify": command.NewModify(config),
 		"delete": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Delete images"}, nil
 		},
@@ -34,7 +43,7 @@ func realMain() int {
 		},
 	}
 
-	_, err := c.Run()
+	_, err = c.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error executing CLI: %s\n", err)
 		return 1
