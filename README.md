@@ -20,7 +20,7 @@ Download pre combiled binaries:
 
 Or if you have Go installed, just do:
 
-```go
+```bash
 go get github.com/fatih/images
 ```
 
@@ -30,7 +30,7 @@ go get github.com/fatih/images
 either a configuration file, from environment variables or command line flags.
 To list all commands just run `images`:
 
-```
+```bash
 $ images
 usage: images [--version] [--help] <command> [<args>]
 
