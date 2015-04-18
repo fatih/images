@@ -20,9 +20,13 @@ import (
 )
 
 type AwsConfig struct {
-	Region    string
-	AccessKey string
-	SecretKey string
+	// just so we can use the TOML loader more efficiently with out any
+	// complex hacks
+	Aws struct {
+		Region    string
+		AccessKey string
+		SecretKey string
+	}
 }
 
 type AwsImages struct {
@@ -38,10 +42,14 @@ func NewAwsImages(args []string) *AwsImages {
 	}
 
 	awsConfig := &aws.Config{
-		Credentials: aws.DetectCreds(conf.AccessKey, conf.SecretKey, ""),
-		HTTPClient:  http.DefaultClient,
-		Logger:      os.Stdout,
-		Region:      conf.Region,
+		Credentials: aws.DetectCreds(
+			conf.Aws.AccessKey,
+			conf.Aws.SecretKey,
+			"",
+		),
+		HTTPClient: http.DefaultClient,
+		Logger:     os.Stdout,
+		Region:     conf.Aws.Region,
 	}
 
 	return &AwsImages{
@@ -103,6 +111,10 @@ func (a *AwsImages) Help(command string) string {
 
 Options:
 
+  -region "..."                AWS Region (env: AWS_REGION)
+  -accesskey "..."             AWS Access Key (env: AWS_ACCESS_KEY)
+  -secretkey "..."             AWS Secret Key (env: AWS_SECRET_KEY)
+
   -image-ids   "ami-123,..."   Images to be used with below actions
 
   -create-tags "key=val,..."   Create or override tags
@@ -110,6 +122,16 @@ Options:
   -dry-run                     Don't run command, but show the action
 `
 	case "list":
+		return `Usage: images list --provider aws [options]
+
+  List AMI properties.
+
+Options:
+
+  -region "..."                AWS Region (env: AWS_REGION)
+  -accesskey "..."             AWS Access Key (env: AWS_ACCESS_KEY)
+  -secretkey "..."             AWS Secret Key (env: AWS_SECRET_KEY)
+`
 	}
 
 	return "no help found for command " + command

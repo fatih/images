@@ -21,7 +21,8 @@ func NewList(config *Config) cli.CommandFactory {
 }
 
 func (l *List) Help() string {
-	return `Usage: images list [options]
+	if l.provider == "" {
+		return `Usage: images list [options]
 
   Lists available images for the given provider.
 
@@ -29,6 +30,9 @@ Options:
 
   -provider [name]    Provider to be used to modify images
 `
+	}
+
+	return Help("list", l.provider)
 }
 
 func (l *List) Run(args []string) int {
