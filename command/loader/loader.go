@@ -2,7 +2,6 @@ package loader
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -22,30 +21,29 @@ func Load(conf interface{}, args []string) error {
 	// only pass the config's field names arguments
 	configArgs := []string{}
 
-	addField := func(field *structs.Field) {
-		fieldName := field.Name()
-		fName := strings.ToLower(fieldName)
+	// need to be declared so we can call it recursively :)
+	var addFields func(fields []*structs.Field)
 
-		fmt.Printf("fName = %+v\n", fName)
-		val, err := flags.ParseValue(fName, args)
-		if err != nil {
-			return
-		}
-
-		configArgs = append(configArgs, "--"+fName, val)
-	}
-
-	for _, field := range structs.Fields(conf) {
-		if field.Kind() == reflect.Struct {
-			for _, f := range field.Fields() {
-				addField(f)
+	addFields = func(fields []*structs.Field) {
+		for _, field := range fields {
+			// don't forget nested structs
+			if field.Kind() == reflect.Struct {
+				addFields(field.Fields())
 			}
-		}
 
-		addField(field)
+			fieldName := field.Name()
+			fName := strings.ToLower(fieldName)
+
+			val, err := flags.ParseValue(fName, args)
+			if err != nil {
+				return
+			}
+
+			configArgs = append(configArgs, "--"+fName, val)
+		}
 	}
 
-	fmt.Printf("configArgs = %+v\n", configArgs)
+	addFields(structs.Fields(conf))
 
 	loaders := []multiconfig.Loader{}
 
