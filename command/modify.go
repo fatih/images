@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/fatih/images/command/flags"
-	"github.com/fatih/images/images"
 	"github.com/mitchellh/cli"
 )
 
@@ -34,7 +33,7 @@ Options:
 		return defaultHelp
 	}
 
-	return images.Help("modify", m.provider)
+	return Help("modify", m.provider)
 }
 
 func (m *Modify) Run(args []string) int {
@@ -45,7 +44,20 @@ func (m *Modify) Run(args []string) int {
 
 	remainingArgs := flags.FilterFlag("provider", args)
 
-	if err := images.Modify(m.provider, remainingArgs); err != nil {
+	p, err := Provider(m.provider, remainingArgs)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	mr, ok := p.(Modifier)
+	if !ok {
+		err := fmt.Errorf("'%s' doesn't support listing images", m.provider)
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	if err := mr.Modify(remainingArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

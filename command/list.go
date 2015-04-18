@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/images/images"
+	"github.com/fatih/images/command/flags"
 	"github.com/mitchellh/cli"
 )
 
@@ -37,11 +37,27 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	if err := images.List(l.provider); err != nil {
+	remainingArgs := flags.FilterFlag("provider", args)
+
+	p, err := Provider(l.provider, remainingArgs)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 
+	f, ok := p.(Fetcher)
+	if !ok {
+		err := fmt.Errorf("'%s' doesn't support listing images", l.provider)
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	if err := f.Fetch(args); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
+	}
+
+	f.Print()
 	return 0
 }
 

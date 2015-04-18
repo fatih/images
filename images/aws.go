@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -15,7 +16,14 @@ import (
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
+	"github.com/fatih/images/command/loader"
 )
+
+type AwsConfig struct {
+	Region    string
+	AccessKey string
+	SecretKey string
+}
 
 type AwsImages struct {
 	svc *ec2.EC2
@@ -23,13 +31,25 @@ type AwsImages struct {
 	images []*ec2.Image
 }
 
-func NewAwsImages(region string) *AwsImages {
+func NewAwsImages(args []string) *AwsImages {
+	conf := new(AwsConfig)
+	if err := loader.Load(conf, args); err != nil {
+		panic(err)
+	}
+
+	awsConfig := &aws.Config{
+		Credentials: aws.DetectCreds(conf.AccessKey, conf.SecretKey, ""),
+		HTTPClient:  http.DefaultClient,
+		Logger:      os.Stdout,
+		Region:      conf.Region,
+	}
+
 	return &AwsImages{
-		svc: ec2.New(&aws.Config{Region: region}),
+		svc: ec2.New(awsConfig),
 	}
 }
 
-func (a *AwsImages) Fetch() error {
+func (a *AwsImages) Fetch(args []string) error {
 	input := &ec2.DescribeImagesInput{
 		Owners: stringSlice("self"),
 	}
