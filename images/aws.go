@@ -20,8 +20,8 @@ import (
 )
 
 type AwsConfig struct {
-	// just so we can use the TOML loader more efficiently with out any
-	// complex hacks
+	// just so we can use the Env and TOML loader more efficiently with out
+	// any complex hacks
 	Aws struct {
 		Region    string
 		AccessKey string

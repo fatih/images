@@ -2,8 +2,10 @@ package loader
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/fatih/images/command/flags"
@@ -19,15 +21,31 @@ var (
 func Load(conf interface{}, args []string) error {
 	// only pass the config's field names arguments
 	configArgs := []string{}
-	for _, fieldName := range structs.Names(conf) {
+
+	addField := func(field *structs.Field) {
+		fieldName := field.Name()
 		fName := strings.ToLower(fieldName)
+
+		fmt.Printf("fName = %+v\n", fName)
 		val, err := flags.ParseValue(fName, args)
 		if err != nil {
-			continue
+			return
 		}
 
 		configArgs = append(configArgs, "--"+fName, val)
 	}
+
+	for _, field := range structs.Fields(conf) {
+		if field.Kind() == reflect.Struct {
+			for _, f := range field.Fields() {
+				addField(f)
+			}
+		}
+
+		addField(field)
+	}
+
+	fmt.Printf("configArgs = %+v\n", configArgs)
 
 	loaders := []multiconfig.Loader{}
 
@@ -52,6 +70,7 @@ func Load(conf interface{}, args []string) error {
 	}
 	f := &multiconfig.FlagLoader{
 		Args:      configArgs,
+		Flatten:   true,
 		EnvPrefix: "IMAGES",
 	}
 	loaders = append(loaders, e, f)
