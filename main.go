@@ -30,8 +30,6 @@ func realMain() int {
 		return 1
 	}
 
-	fmt.Printf("main config = %+v\n", config)
-
 	c.Commands = map[string]cli.CommandFactory{
 		"list":   command.NewList(config),
 		"modify": command.NewModify(config),
