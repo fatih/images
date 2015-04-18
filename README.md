@@ -24,7 +24,7 @@ Or if you have Go installed, just do:
 go get github.com/fatih/images
 ```
 
-## Usage
+## Documentation
 
 `images` is a very flexible CLI tool. It can parse the necessary arguments from
 either a configuration file, from environment variables or command line flags.
@@ -41,12 +41,6 @@ Available commands are:
     modify    Modify image properties
 ```
 
-To show help message for a specific subcommand, attach the `--help` flag:
-
-```
-$ images modify --help
-```
-
 Because `images` is built around to support multiple providers, each provider
 has a specific set of features. To display the specific provider help message
 pass the provider name too:
@@ -55,7 +49,6 @@ pass the provider name too:
 $ images modify --provider aws --help
 
 	or via environment variable:
-
 
 $ IMAGES_PROVIDER=aws images modify --help
 ```
@@ -72,8 +65,38 @@ $ images delete
 ```
 
 #### Modify
+
+Modify modifies certain attributes of an image(s). The `modify` command might
+expose different usages based on the provider. This is mainly due the
+difference between each providers reflected API's. To get the usage for a
+provider call it with the `--provider NAME --help` flag:
+
 ```
-$ images modify
+$ images modify --provider aws --help
+```
+
+##### AWS
+
+`images` allows to change the tags of AWS images. The following commands are
+supposed to be executed with `IMAGES_PROVIDER=aws` or with `--provider aws`:
+
+To create or override a image tag:
+
+```
+$images modify --create-tags "Name=ImagesExample" --image-ids ami-f465e69d
+```
+
+To delete the tags of an image
+
+```
+$images modify --delete-tags "Name=ImagesExample" --image-ids ami-f465e69d
+```
+
+The commands also have support for batch action:
+
+```
+$images modify --create-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
+$images modify --delete-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
 ```
 
 #### Copy

@@ -31,9 +31,7 @@ Options:
 
   -provider                  Provider to be used to modify images
 `
-
 		return defaultHelp
-
 	}
 
 	return images.Help("modify", m.provider)
