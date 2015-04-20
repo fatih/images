@@ -36,13 +36,12 @@ func Load(conf interface{}, args []string) error {
 
 			val, err := flags.ParseValue(fName, args)
 			if err != nil {
-				return
+				continue
 			}
 
 			configArgs = append(configArgs, "--"+fName, val)
 		}
 	}
-
 	addFields(structs.Fields(conf))
 
 	loaders := []multiconfig.Loader{}
@@ -64,11 +63,13 @@ func Load(conf interface{}, args []string) error {
 	}
 
 	e := &multiconfig.EnvironmentLoader{
-		Prefix: "IMAGES",
+		Prefix:    "IMAGES",
+		CamelCase: true,
 	}
 	f := &multiconfig.FlagLoader{
 		Args:      configArgs,
 		Flatten:   true,
+		CamelCase: true,
 		EnvPrefix: "IMAGES",
 	}
 	loaders = append(loaders, e, f)
