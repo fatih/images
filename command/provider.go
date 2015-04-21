@@ -3,11 +3,11 @@ package command
 import (
 	"errors"
 
-	"github.com/fatih/images/images"
+	"github.com/fatih/images/provider"
 )
 
-func Provider(provider string, args []string) (interface{}, error) {
-	switch provider {
+func Provider(name string, args []string) (interface{}, error) {
+	switch name {
 	case "aws":
 		return images.NewAwsImages(args), nil
 	case "digitalocean":
@@ -33,15 +33,15 @@ type Helper interface {
 	Help(command string) string
 }
 
-func Help(command, provider string) string {
-	p, err := Provider(provider, nil)
+func Help(command, name string) string {
+	p, err := Provider(name, nil)
 	if err != nil {
-		return "Provider " + provider + " doesn't exists."
+		return "Provider " + name + " doesn't exists."
 	}
 
 	h, ok := p.(Helper)
 	if !ok {
-		return "No help context available for " + provider
+		return "No help context available for " + name
 	}
 
 	return h.Help(command)
