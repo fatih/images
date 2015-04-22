@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/fatih/images/command"
 	"github.com/mitchellh/cli"
 )
@@ -28,6 +29,11 @@ func realMain() int {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading global config : %s\n", err)
 		return 1
+	}
+
+	// completely shutdown colors
+	if config.NoColor {
+		color.NoColor = true
 	}
 
 	c.Commands = map[string]cli.CommandFactory{

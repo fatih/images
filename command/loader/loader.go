@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/fatih/camelcase"
 	"github.com/fatih/images/command/flags"
 	"github.com/fatih/structs"
 	"github.com/koding/multiconfig"
@@ -31,8 +32,7 @@ func Load(conf interface{}, args []string) error {
 				addFields(field.Fields())
 			}
 
-			fieldName := field.Name()
-			fName := strings.ToLower(fieldName)
+			fName := strings.ToLower(strings.Join(camelcase.Split(field.Name()), "-"))
 
 			val, err := flags.ParseValue(fName, args)
 			if err != nil {
