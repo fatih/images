@@ -19,12 +19,14 @@ var (
 
 // Load loads the given config to the rules of images CLI
 func Load(conf interface{}, args []string) error {
-	// only pass the config's field names arguments
 	configArgs := []string{}
 
 	// need to be declared so we can call it recursively :)
 	var addFields func(fields []*structs.Field)
 
+	// only pass the config's field names arguments. This means we create an
+	// argument list that contains flag names and their values which are only
+	// declared in the passed "conf" struct. Any other argument is discarded
 	addFields = func(fields []*structs.Field) {
 		for _, field := range fields {
 			// don't forget nested structs
