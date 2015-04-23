@@ -42,7 +42,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	remainingArgs := flags.FilterFlag("provider", args)
+	remainingArgs := flags.ExcludeFlag("provider", args)
 
 	p, err := Provider(m.provider, remainingArgs)
 	if err != nil {

@@ -104,7 +104,7 @@ func TestParseSingleFlagValue(t *testing.T) {
 
 }
 
-func TestParseFlagValue(t *testing.T) {
+func TestValueFromFlag(t *testing.T) {
 	var arguments = []struct {
 		args  []string
 		value string
@@ -130,7 +130,7 @@ func TestParseFlagValue(t *testing.T) {
 	}
 }
 
-func TestParseFlagValueDash(t *testing.T) {
+func TestValueFromDashFlag(t *testing.T) {
 	var arguments = []struct {
 		args  []string
 		value string
@@ -155,7 +155,7 @@ func TestParseFlagValueDash(t *testing.T) {
 	}
 }
 
-func TestFilterFlag(t *testing.T) {
+func TestExcludeFlag(t *testing.T) {
 	var arguments = []struct {
 		args    []string
 		remArgs []string
@@ -180,7 +180,7 @@ func TestFilterFlag(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		remainingArgs := FilterFlag("provider", args.args)
+		remainingArgs := ExcludeFlag("provider", args.args)
 
 		if !reflect.DeepEqual(remainingArgs, args.remArgs) {
 			t.Errorf("parsing and returning rem args: %v\n\twant: %s\n\tgot : %s\n",

@@ -1,6 +1,7 @@
-// Package flags is low level package for parsing single flag arguments and
-// their associated values. It's useful for CLI applications or building custom
-// logic on parsing os.Args manually.
+// Package flags is a low level package for parsing single flag arguments and
+// their associated values from an argument list. It's useful for CLI
+// applications or creating logic for parsing arguments(custom or os.Args)
+// manually.
 package flags
 
 import (
@@ -63,24 +64,6 @@ func ParseFlag(arg string) (string, error) {
 	return name, nil
 }
 
-// ParseValue parses the value from the given flag. A flag name can be in form
-// of "name=value", "name=" or "name".
-func parseSingleFlagValue(flag string) (name, value string) {
-	for i, r := range flag {
-		if r == '=' {
-			value = flag[i+1:]
-			name = flag[0:i]
-		}
-	}
-
-	// special case of "name"
-	if name == "" {
-		name = flag
-	}
-
-	return
-}
-
 // ValueFromFlag parses the given flagName from the args slice and returns the
 // value passed to the flag. An example: args: ["--provider", "aws"] will
 // return "aws" for the flag name "provider". An empty string and non error
@@ -95,11 +78,11 @@ func ValueFromFlag(flagName string, args []string) (string, error) {
 	return value, nil
 }
 
-// FilterFlag filters the given valid flagName with it's associated value (or
-// none) from the args. It returns the remaining arguments. If no flagName is
-// passed or if the flagName is invalid, remaining arguments are returned
-// without any change.
-func FilterFlag(flagName string, args []string) []string {
+// ExcludeFlag excludes/removes the given valid flagName with it's associated
+// value (or none) from the args. It returns the remaining arguments. If no
+// flagName is passed or if the flagName is invalid, remaining arguments are
+// returned without any change.
+func ExcludeFlag(flagName string, args []string) []string {
 	_, remainingArgs, err := parseFlagAndValue(flagName, args)
 	if err != nil {
 		return args
@@ -181,4 +164,22 @@ func parseFlagAndValue(flagName string, args []string) (string, []string, error)
 	}
 
 	return "", nil, fmt.Errorf("argument is not passed to flag: %s", flagName)
+}
+
+// ParseValue parses the value from the given flag. A flag name can be in form
+// of "name=value", "name=" or "name".
+func parseSingleFlagValue(flag string) (name, value string) {
+	for i, r := range flag {
+		if r == '=' {
+			value = flag[i+1:]
+			name = flag[0:i]
+		}
+	}
+
+	// special case of "name"
+	if name == "" {
+		name = flag
+	}
+
+	return
 }

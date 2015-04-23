@@ -41,7 +41,7 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	remainingArgs := flags.FilterFlag("provider", args)
+	remainingArgs := flags.ExcludeFlag("provider", args)
 
 	p, err := Provider(l.provider, remainingArgs)
 	if err != nil {
