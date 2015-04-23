@@ -12,7 +12,7 @@ import (
 // HasFlag checks whether the given flag name is available or not in the
 // argument list.
 func HasFlag(name string, args []string) bool {
-	_, err := ParseValue(name, args)
+	_, err := ValueFromFlag(name, args)
 	if err != nil {
 		return false
 	}
@@ -30,8 +30,9 @@ func IsFlag(arg string) bool {
 }
 
 // ParseFlag parses a flags name. A flag can be in form of --name=value,
-// -name=value,  or --name, -name=, etc...  If it's a correct flag, the name is
-// returned. If not an empty string and an error message is returned
+// -name=value,  or a boolean flag --name, -name=, etc...  If it's a correct
+// flag, the name is returned. If not an empty string and an error message is
+// returned
 func ParseFlag(arg string) (string, error) {
 	if arg == "" {
 		return "", errors.New("argument is empty")
@@ -80,11 +81,12 @@ func parseSingleFlagValue(flag string) (name, value string) {
 	return
 }
 
-// ParseName parses the given flagName from the args slice and returns the
+// ValueFromFlag parses the given flagName from the args slice and returns the
 // value passed to the flag. An example: args: ["--provider", "aws"] will
 // return "aws" for the flag name "provider". An empty string and non error
-// means the flag is in the boolean form, i.e: ["--provider", "--foo", "bar].
-func ParseValue(flagName string, args []string) (string, error) {
+// means the flag is in the boolean form, i.e: ["--provider", "--foo", "bar],
+// will return "" as value for the flag name "provider.
+func ValueFromFlag(flagName string, args []string) (string, error) {
 	value, _, err := parseFlagAndValue(flagName, args)
 	if err != nil {
 		return "", err

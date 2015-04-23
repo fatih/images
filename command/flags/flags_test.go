@@ -121,7 +121,7 @@ func TestParseFlagValue(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, _ := ParseValue("provider", args.args)
+		value, _ := ValueFromFlag("provider", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
@@ -146,7 +146,7 @@ func TestParseFlagValueDash(t *testing.T) {
 	}
 
 	for _, args := range arguments {
-		value, _ := ParseValue("access-key", args.args)
+		value, _ := ValueFromFlag("access-key", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing dash args value: %v\n\twant: %s\n\tgot : %s\n",
