@@ -32,10 +32,10 @@ func Load(conf interface{}, args []string) error {
 			// don't forget nested structs
 			if field.Kind() == reflect.Struct {
 				addFields(field.Fields())
+				continue
 			}
 
 			fName := strings.ToLower(strings.Join(camelcase.Split(field.Name()), "-"))
-
 			val, err := flags.ParseValue(fName, args)
 			if err != nil {
 				continue
