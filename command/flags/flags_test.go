@@ -19,10 +19,7 @@ func TestHasFlag(t *testing.T) {
 		{args: []string{"-foo", "--bar", "deneme"}, flag: "foo", hasFlag: true},
 		{args: []string{"--bar", "bar", "-foo"}, flag: "foo", hasFlag: true},
 		{args: []string{"--bar", "val", "-foo", "--bar"}, flag: "foo", hasFlag: true},
-		{args: []string{"-f"}, flag: "foo", hasFlag: true},
 		{args: []string{"--foo=bar"}, flag: "foo", hasFlag: true},
-		{args: []string{"--foo"}, flag: "f", hasFlag: true},
-		{args: []string{"--foo=bar"}, flag: "f", hasFlag: true},
 		{args: []string{"--foo"}, flag: "bar", hasFlag: false},
 		{args: []string{"--foo"}, flag: "", hasFlag: false},
 	}
@@ -44,11 +41,7 @@ func TestIsFlag(t *testing.T) {
 		{flag: "--foo=bar", isFlag: true},
 		{flag: "-foo", isFlag: true},
 		{flag: "-foo=bar", isFlag: true},
-		{flag: "-f", isFlag: true},
 		{flag: "-f=bar", isFlag: true},
-		{flag: "f=bar", isFlag: false},
-		{flag: "f=", isFlag: false},
-		{flag: "f", isFlag: false},
 		{flag: "", isFlag: false},
 	}
 
@@ -70,8 +63,6 @@ func TestParseFlag(t *testing.T) {
 		{name: "foo=bar", flag: "-foo=bar"},
 		{name: "foo=", flag: "-foo="},
 		{name: "foo=b", flag: "-foo=b"},
-		{name: "f", flag: "-f"},
-		{name: "f", flag: "--f"},
 		{name: "", flag: "---f"},
 		{name: "", flag: "f"},
 		{name: "", flag: "--"},
@@ -95,8 +86,6 @@ func TestParseSingleFlagValue(t *testing.T) {
 	}{
 		{flag: "foo=bar", name: "foo", value: "bar"},
 		{flag: "foo=b", name: "foo", value: "b"},
-		{flag: "f=", name: "f", value: ""},
-		{flag: "f", name: "f", value: ""},
 		{flag: "", name: "", value: ""},
 	}
 
@@ -123,16 +112,12 @@ func TestParseFlagValue(t *testing.T) {
 		{args: []string{"--provider=aws", "foo"}, value: "aws"},
 		{args: []string{"-provider=aws", "foo", "bar"}, value: "aws"},
 		{args: []string{"-provider=aws,do"}, value: "aws,do"},
-		{args: []string{"-p=aws", "aws"}, value: "aws"},
 		{args: []string{"--provider", "aws"}, value: "aws"},
 		{args: []string{"-provider", "aws"}, value: "aws"},
-		{args: []string{"-p", "aws"}, value: "aws"},
-		{args: []string{"-p"}, value: ""},
-		{args: []string{"-p="}, value: ""},
-		{args: []string{"-p=", "--foo"}, value: ""},
-		{args: []string{"-p", "--foo"}, value: ""},
 		{args: []string{"-provider", "--foo"}, value: ""},
 		{args: []string{"--provider", "--foo"}, value: ""},
+		{args: []string{"--foo"}, value: ""},
+		{args: []string{"--foo", "--provider"}, value: ""},
 	}
 
 	for _, args := range arguments {
@@ -140,6 +125,31 @@ func TestParseFlagValue(t *testing.T) {
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
+				args.args, args.value, value)
+		}
+	}
+}
+
+func TestParseFlagValueDash(t *testing.T) {
+	var arguments = []struct {
+		args  []string
+		value string
+	}{
+		{args: []string{"--access-key=aws", "foo"}, value: "aws"},
+		{args: []string{"-access-key=aws", "foo", "bar"}, value: "aws"},
+		{args: []string{"-access-key=aws,do"}, value: "aws,do"},
+		{args: []string{"--access-key", "aws"}, value: "aws"},
+		{args: []string{"-access-key", "aws"}, value: "aws"},
+		{args: []string{"-access-key", "--foo"}, value: ""},
+		{args: []string{"--access-key", "--foo"}, value: ""},
+		{args: []string{"--asdasd"}, value: ""},
+	}
+
+	for _, args := range arguments {
+		value, _ := ParseValue("access-key", args.args)
+
+		if value != args.value {
+			t.Errorf("parsing dash args value: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.value, value)
 		}
 	}
@@ -156,8 +166,6 @@ func TestFilterFlag(t *testing.T) {
 		{args: []string{"--provider=aws", "foo"}, remArgs: []string{"foo"}},
 		{args: []string{"-provider=aws", "foo", "bar"}, remArgs: []string{"foo", "bar"}},
 		{args: []string{"-provider=aws,do"}, remArgs: []string{}},
-		{args: []string{"-p=aws", "aws"}, remArgs: []string{"aws"}},
-		{args: []string{"--test", "foo", "-p=aws", "aws"}, remArgs: []string{"--test", "foo", "aws"}},
 		{args: []string{"--test", "foo", "--provider=aws", "foo"}, remArgs: []string{"--test", "foo", "foo"}},
 		{args: []string{"--example", "foo"}, remArgs: []string{"--example", "foo"}},
 		{args: []string{"--test", "--provider", "aws"}, remArgs: []string{"--test"}},

@@ -30,9 +30,8 @@ func IsFlag(arg string) bool {
 }
 
 // ParseFlag parses a flags name. A flag can be in form of --name=value,
-// -name=value, -n=value, or --name, -name=, etc...  If it's a correct flag,
-// the name is returned. If not an empty string and an error message is
-// returned
+// -name=value,  or --name, -name=, etc...  If it's a correct flag, the name is
+// returned. If not an empty string and an error message is returned
 func ParseFlag(arg string) (string, error) {
 	if arg == "" {
 		return "", errors.New("argument is empty")
@@ -63,8 +62,8 @@ func ParseFlag(arg string) (string, error) {
 	return name, nil
 }
 
-// ParseValue parses the value from the given flag. A flag name can be in
-// form of name=value, n=value, n=, n.
+// ParseValue parses the value from the given flag. A flag name can be in form
+// of "name=value", "name=" or "name".
 func parseSingleFlagValue(flag string) (name, value string) {
 	for i, r := range flag {
 		if r == '=' {
@@ -73,7 +72,7 @@ func parseSingleFlagValue(flag string) (name, value string) {
 		}
 	}
 
-	// special case of "n"
+	// special case of "name"
 	if name == "" {
 		name = flag
 	}
@@ -129,7 +128,7 @@ func parseFlagAndValue(flagName string, args []string) (string, []string, error)
 		}
 
 		name, value := parseSingleFlagValue(flag)
-		if name != flagName && name[0] != flagName[0] {
+		if name != flagName {
 			continue
 		}
 
