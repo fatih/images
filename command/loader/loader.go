@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/fatih/camelcase"
-	"github.com/fatih/images/command/flags"
+	"github.com/fatih/flags"
 	"github.com/fatih/structs"
 	"github.com/koding/multiconfig"
 )

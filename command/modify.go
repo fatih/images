@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/images/command/flags"
+	"github.com/fatih/flags"
 	"github.com/mitchellh/cli"
 )
 
