@@ -40,9 +40,7 @@ func realMain() int {
 		"list":   command.NewList(config),
 		"modify": command.NewModify(config),
 		"delete": command.NewDelete(config),
-		"copy": func() (cli.Command, error) {
-			return &cli.MockCommand{SynopsisText: "Copy images to different region"}, nil
-		},
+		"copy":   command.NewCopy(config),
 	}
 
 	_, err = c.Run()

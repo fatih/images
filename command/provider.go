@@ -25,6 +25,10 @@ type Fetcher interface {
 	Print()
 }
 
+type Copyier interface {
+	Copy(args []string) error
+}
+
 type Deleter interface {
 	Delete(args []string) error
 }
