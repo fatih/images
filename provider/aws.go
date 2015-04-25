@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
 	"github.com/fatih/images/command/loader"
+	"github.com/hashicorp/go-multierror"
 )
 
 type AwsConfig struct {
@@ -137,6 +139,46 @@ Options:
 	return "no help found for command " + command
 }
 
+func (a *AwsImages) Delete(args []string) error {
+	var (
+		imageIds string
+		dryRun   bool
+	)
+
+	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
+	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be used with actions")
+	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
+	flagSet.Usage = func() {
+		helpMsg := `Usage: images delete --provider aws [options]
+
+  Deregister AMI's.
+
+Options:
+
+  -image-ids   "ami-123,..."   Images to be deregistered
+
+  -dry-run                     Don't run command, but show the action
+`
+		fmt.Fprintf(os.Stderr, helpMsg)
+	}
+
+	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
+	if err := flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		flagSet.Usage()
+		return nil
+	}
+
+	if imageIds == "" {
+		return errors.New("no images are passed with [--image-ids]")
+	}
+
+	return a.Deregister(dryRun, strings.Split(imageIds, ",")...)
+}
+
 func (a *AwsImages) Modify(args []string) error {
 	var (
 		createTags string
@@ -193,6 +235,36 @@ Options:
 	}
 
 	return nil
+}
+
+func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
+	var (
+		wg sync.WaitGroup
+		mu sync.Mutex
+
+		multiErrors error
+	)
+
+	for _, imageId := range images {
+		wg.Add(1)
+
+		go func(id string) {
+			defer wg.Done()
+
+			input := &ec2.DeregisterImageInput{
+				ImageID: aws.String(imageId),
+				DryRun:  aws.Boolean(dryRun),
+			}
+
+			_, err := a.svc.DeregisterImage(input)
+			mu.Lock()
+			multiErrors = multierror.Append(multiErrors, err)
+			mu.Unlock()
+		}(imageId)
+	}
+
+	wg.Wait()
+	return multiErrors
 }
 
 // CreateTags adds or overwrites all tags for the specified images. Tags is in
