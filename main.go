@@ -39,9 +39,7 @@ func realMain() int {
 	c.Commands = map[string]cli.CommandFactory{
 		"list":   command.NewList(config),
 		"modify": command.NewModify(config),
-		"delete": func() (cli.Command, error) {
-			return &cli.MockCommand{SynopsisText: "Delete images"}, nil
-		},
+		"delete": command.NewDelete(config),
 		"copy": func() (cli.Command, error) {
 			return &cli.MockCommand{SynopsisText: "Copy images to different region"}, nil
 		},
