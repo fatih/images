@@ -105,38 +105,50 @@ func (a *AwsImages) Print() {
 }
 
 func (a *AwsImages) Help(command string) string {
+	var help string
 	switch command {
 	case "modify":
-		return `Usage: images modify --provider aws [options]
+		help = `Usage: images modify --provider aws [options]
 
   Modify AMI properties.
 
 Options:
 
-  -region "..."                AWS Region (env: AWS_REGION)
-  -accesskey "..."             AWS Access Key (env: AWS_ACCESS_KEY)
-  -secretkey "..."             AWS Secret Key (env: AWS_SECRET_KEY)
-
   -image-ids   "ami-123,..."   Images to be used with below actions
-
   -create-tags "key=val,..."   Create or override tags
   -delete-tags "key,..."       Delete tags
   -dry-run                     Don't run command, but show the action
 `
+	case "delete":
+		help = `Usage: images delete --provider aws [options]
+
+  Delete (deregister) AMI images.
+
+Options:
+
+  -image-ids   "ami-123,..."   Images to be deleted with the given ids
+  -tags        "key=val,..."   Images to be deleted with the given tags
+  -dry-run                     Don't run command, but show the action
+`
 	case "list":
-		return `Usage: images list --provider aws [options]
+		help = `Usage: images list --provider aws [options]
 
   List AMI properties.
 
 Options:
+`
+	default:
+		return "no help found for command " + command
+	}
 
+	global := `
   -region "..."                AWS Region (env: AWS_REGION)
   -accesskey "..."             AWS Access Key (env: AWS_ACCESS_KEY)
   -secretkey "..."             AWS Secret Key (env: AWS_SECRET_KEY)
 `
-	}
 
-	return "no help found for command " + command
+	help += global
+	return help
 }
 
 func (a *AwsImages) Delete(args []string) error {
@@ -146,7 +158,8 @@ func (a *AwsImages) Delete(args []string) error {
 	)
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be used with actions")
+	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be deleted with the given ids")
+	flagSet.StringVar(&imageIds, "tags", "", "Images to be deleted with the given tags")
 	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
 	flagSet.Usage = func() {
 		helpMsg := `Usage: images delete --provider aws [options]
@@ -155,8 +168,8 @@ func (a *AwsImages) Delete(args []string) error {
 
 Options:
 
-  -image-ids   "ami-123,..."   Images to be deregistered
-
+  -image-ids   "ami-123,..."   Images to be deleted with the given ids
+  -tags        "key=val,..."   Images to be deleted with the given tags
   -dry-run                     Don't run command, but show the action
 `
 		fmt.Fprintf(os.Stderr, helpMsg)

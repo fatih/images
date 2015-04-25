@@ -42,6 +42,11 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
+	if flags.HasFlag("help", args) {
+		fmt.Print(m.Help())
+		return 1
+	}
+
 	remainingArgs := flags.ExcludeFlag("provider", args)
 
 	p, err := Provider(m.provider, remainingArgs)
