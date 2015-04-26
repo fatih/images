@@ -36,7 +36,7 @@ func Load(conf interface{}, args []string) error {
 			}
 
 			fName := strings.ToLower(strings.Join(camelcase.Split(field.Name()), "-"))
-			val, err := flags.ValueFromFlag(fName, args)
+			val, err := flags.Value(fName, args)
 			if err != nil {
 				continue
 			}

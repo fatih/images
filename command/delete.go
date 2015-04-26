@@ -41,12 +41,12 @@ func (d *Delete) Run(args []string) int {
 		return 1
 	}
 
-	if flags.HasFlag("help", args) {
+	if flags.Has("help", args) {
 		fmt.Print(d.Help())
 		return 1
 	}
 
-	remainingArgs := flags.ExcludeFlag("provider", args)
+	remainingArgs := flags.Exclude("provider", args)
 
 	p, err := Provider(d.provider, remainingArgs)
 	if err != nil {
