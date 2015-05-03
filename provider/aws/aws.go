@@ -19,6 +19,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/fatih/images/command/loader"
 	"github.com/hashicorp/go-multierror"
+	"github.com/shiena/ansicolor"
 )
 
 type AwsConfig struct {
@@ -112,13 +113,18 @@ func (a *AwsImages) Print() {
 		return
 	}
 
+	green := color.New(color.FgGreen).SprintfFunc()
+
+	w := new(tabwriter.Writer)
+	w.Init(ansicolor.NewAnsiColorWriter(os.Stdout), 10, 8, 0, '\t', 0)
+	defer w.Flush()
+
 	for region, images := range a.images {
-		color.Green("AWS: Region: %s (%d images)\n\n", region, len(images))
+		if len(images) == 0 {
+			continue
+		}
 
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 10, 8, 0, '\t', 0)
-		defer w.Flush()
-
+		fmt.Fprintln(w, green("AWS: Region: %s (%d images):", region, len(images)))
 		fmt.Fprintln(w, "    Name\tID\tState\tTags")
 
 		for i, image := range images {
@@ -130,6 +136,8 @@ func (a *AwsImages) Print() {
 			fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
 				i, *image.Name, *image.ImageID, *image.State, tags)
 		}
+
+		fmt.Fprintln(w, "")
 	}
 }
 
