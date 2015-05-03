@@ -3,13 +3,13 @@ package command
 import (
 	"errors"
 
-	"github.com/fatih/images/provider"
+	"github.com/fatih/images/provider/aws"
 )
 
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
-		return images.NewAwsImages(args), nil
+		return awsimages.New(args), nil
 	case "digitalocean":
 		return nil, errors.New("not supported yet")
 	default:

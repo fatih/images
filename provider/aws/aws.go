@@ -1,4 +1,4 @@
-package images
+package awsimages
 
 import (
 	"errors"
@@ -37,7 +37,7 @@ type AwsImages struct {
 	images []*ec2.Image
 }
 
-func NewAwsImages(args []string) *AwsImages {
+func New(args []string) *AwsImages {
 	conf := new(AwsConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
