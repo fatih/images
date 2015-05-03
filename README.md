@@ -7,6 +7,7 @@ CLI interface. Think of it's as a companion to the popular image creation tool
 ## Features
 
 - Multiple provider support: `AWS`
+- Multi region support
 - List images from a provider
 - Modify image attributes, such as tags or names
 - Delete images

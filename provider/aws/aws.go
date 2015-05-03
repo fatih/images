@@ -25,22 +25,28 @@ type AwsConfig struct {
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Aws struct {
-		Region    string
-		AccessKey string
-		SecretKey string
+		Region        string
+		RegionExclude string `toml:"region_exclude"`
+		AccessKey     string
+		SecretKey     string
 	}
 }
 
 type AwsImages struct {
-	svc *ec2.EC2
+	services *multiRegion
 
-	images []*ec2.Image
+	images map[string][]*ec2.Image
 }
 
 func New(args []string) *AwsImages {
 	conf := new(AwsConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
+	}
+
+	if conf.Aws.Region == "" {
+		fmt.Fprintln(os.Stderr, "region is not set")
+		os.Exit(1)
 	}
 
 	awsConfig := &aws.Config{
@@ -51,11 +57,13 @@ func New(args []string) *AwsImages {
 		),
 		HTTPClient: http.DefaultClient,
 		Logger:     os.Stdout,
-		Region:     conf.Aws.Region,
 	}
 
+	m := newMultiRegion(awsConfig, parseRegions(conf.Aws.Region, conf.Aws.RegionExclude))
+
 	return &AwsImages{
-		svc: ec2.New(awsConfig),
+		services: m,
+		images:   make(map[string][]*ec2.Image),
 	}
 }
 
@@ -64,43 +72,64 @@ func (a *AwsImages) Fetch(args []string) error {
 		Owners: stringSlice("self"),
 	}
 
-	resp, err := a.svc.DescribeImages(input)
-	if err != nil {
-		return err
+	var (
+		wg sync.WaitGroup
+		mu sync.Mutex
+
+		multiErrors error
+	)
+
+	for r, s := range a.services.regions {
+		wg.Add(1)
+		go func(region string, svc *ec2.EC2) {
+			resp, err := svc.DescribeImages(input)
+			mu.Lock()
+
+			if err != nil {
+				multiErrors = multierror.Append(multiErrors, err)
+			} else {
+				// sort from oldest to newest
+				if len(resp.Images) > 1 {
+					sort.Sort(byTime(resp.Images))
+				}
+
+				a.images[region] = resp.Images
+			}
+
+			mu.Unlock()
+			wg.Done()
+		}(r, s)
 	}
 
-	a.images = resp.Images
+	wg.Wait()
 
-	// sort from oldest to newest
-	if len(a.images) > 1 {
-		sort.Sort(a)
-	}
-
-	return nil
+	return multiErrors
 }
 
 func (a *AwsImages) Print() {
 	if len(a.images) == 0 {
-		fmt.Println("no images found")
+		fmt.Fprintln(os.Stderr, "no images found")
 		return
 	}
 
-	color.Green("AWS: Region: %s (%d images)\n\n", a.svc.Config.Region, len(a.images))
+	for region, images := range a.images {
+		color.Green("AWS: Region: %s (%d images)\n\n", region, len(images))
 
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 10, 8, 0, '\t', 0)
-	defer w.Flush()
+		w := new(tabwriter.Writer)
+		w.Init(os.Stdout, 10, 8, 0, '\t', 0)
+		defer w.Flush()
 
-	fmt.Fprintln(w, "    Name\tID\tState\tTags")
+		fmt.Fprintln(w, "    Name\tID\tState\tTags")
 
-	for i, image := range a.images {
-		tags := make([]string, len(image.Tags))
-		for i, tag := range image.Tags {
-			tags[i] = *tag.Key + ":" + *tag.Value
+		for i, image := range images {
+			tags := make([]string, len(image.Tags))
+			for i, tag := range image.Tags {
+				tags[i] = *tag.Key + ":" + *tag.Value
+			}
+
+			fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
+				i, *image.Name, *image.ImageID, *image.State, tags)
 		}
-
-		fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
-			i, *image.Name, *image.ImageID, *image.State, tags)
 	}
 }
 
@@ -250,6 +279,19 @@ Options:
 	return nil
 }
 
+func (a *AwsImages) singleSvc() (*ec2.EC2, error) {
+	if len(a.services.regions) > 1 {
+		return nil, errors.New("deleting images for multiple regions is not supported")
+	}
+
+	var svc *ec2.EC2
+	for _, s := range a.services.regions {
+		svc = s
+	}
+
+	return svc, nil
+}
+
 func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 	var (
 		wg sync.WaitGroup
@@ -257,6 +299,11 @@ func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 
 		multiErrors error
 	)
+
+	svc, err := a.singleSvc()
+	if err != nil {
+		return err
+	}
 
 	for _, imageId := range images {
 		wg.Add(1)
@@ -269,7 +316,7 @@ func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 				DryRun:  aws.Boolean(dryRun),
 			}
 
-			_, err := a.svc.DeregisterImage(input)
+			_, err := svc.DeregisterImage(input)
 			mu.Lock()
 			multiErrors = multierror.Append(multiErrors, err)
 			mu.Unlock()
@@ -313,7 +360,12 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 		DryRun:    aws.Boolean(dryRun),
 	}
 
-	_, err := a.svc.CreateTags(params)
+	svc, err := a.singleSvc()
+	if err != nil {
+		return err
+	}
+
+	_, err = svc.CreateTags(params)
 	return err
 }
 
@@ -347,34 +399,32 @@ func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error
 		DryRun:    aws.Boolean(dryRun),
 	}
 
-	_, err := a.svc.DeleteTags(params)
+	svc, err := a.singleSvc()
+	if err != nil {
+		return err
+	}
+
+	_, err = svc.DeleteTags(params)
 	return err
 }
 
-//
-// Sort interface
-//
+// byTime implements sort.Interface for []*ec2.Image based on the CreationDate field.
+type byTime []*ec2.Image
 
-func (a *AwsImages) Len() int {
-	return len(a.images)
-}
-
-func (a *AwsImages) Less(i, j int) bool {
-	it, err := time.Parse(time.RFC3339, *a.images[i].CreationDate)
+func (a byTime) Len() int      { return len(a) }
+func (a byTime) Swap(i, j int) { *a[i], *a[j] = *a[j], *a[i] }
+func (a byTime) Less(i, j int) bool {
+	it, err := time.Parse(time.RFC3339, *a[i].CreationDate)
 	if err != nil {
 		log.Println("aws: sorting err: ", err)
 	}
 
-	jt, err := time.Parse(time.RFC3339, *a.images[j].CreationDate)
+	jt, err := time.Parse(time.RFC3339, *a[j].CreationDate)
 	if err != nil {
 		log.Println("aws: sorting err: ", err)
 	}
 
 	return it.Before(jt)
-}
-
-func (a *AwsImages) Swap(i, j int) {
-	a.images[i], a.images[j] = a.images[j], a.images[i]
 }
 
 //
