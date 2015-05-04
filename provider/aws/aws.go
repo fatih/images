@@ -356,7 +356,7 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 	if len(a.services.regions) == 1 {
 		params := &ec2.CreateTagsInput{
 			Resources: stringSlice(images...),
-			Tags:      populateEC2Tags(tags),
+			Tags:      populateEC2Tags(tags, true),
 			DryRun:    aws.Boolean(dryRun),
 		}
 
@@ -375,32 +375,18 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 		return err
 	}
 
+	matchedImages, err := a.matchImages(images...)
+	if err != nil {
+		return err
+	}
+
 	var (
 		wg          sync.WaitGroup
 		mu          sync.Mutex // protects multiErrors
 		multiErrors error
 	)
 
-	matchedImages := make(map[string][]string)
-	for _, imageId := range images {
-		region, err := a.imageRegion(imageId)
-		if err != nil {
-			multiErrors = multierror.Append(multiErrors, err)
-			continue
-		}
-
-		ids := matchedImages[region]
-		ids = append(ids, imageId)
-		matchedImages[region] = ids
-	}
-
-	// return early if we have any error while checking the ids
-	if multiErrors != nil {
-		return multiErrors
-	}
-
-	ec2Tags := populateEC2Tags(tags)
-
+	ec2Tags := populateEC2Tags(tags, true)
 	for r, i := range matchedImages {
 		wg.Add(1)
 		go func(region string, images []string) {
@@ -445,7 +431,27 @@ func (a *AwsImages) imageRegion(imageId string) (string, error) {
 	return "", fmt.Errorf("no region found for image id '%s'", imageId)
 }
 
-func populateEC2Tags(tags string) []*ec2.Tag {
+// matchImages matches the given images to their respective regions and returns
+// map of region to images.
+func (a *AwsImages) matchImages(images ...string) (map[string][]string, error) {
+	matchedImages := make(map[string][]string)
+	for _, imageId := range images {
+		region, err := a.imageRegion(imageId)
+		if err != nil {
+			return nil, err
+		}
+
+		ids := matchedImages[region]
+		ids = append(ids, imageId)
+		matchedImages[region] = ids
+	}
+
+	return matchedImages, nil
+}
+
+// populateEC2Tags returns a list of *ec2.Tag. tags is in the form of
+// "key1=val1,key2=val2,key3,key4="
+func populateEC2Tags(tags string, create bool) []*ec2.Tag {
 	ec2Tags := make([]*ec2.Tag, 0)
 	for _, keyVal := range strings.Split(tags, ",") {
 		keys := strings.Split(keyVal, "=")
@@ -455,7 +461,7 @@ func populateEC2Tags(tags string) []*ec2.Tag {
 
 		// It's in the form "key4". The AWS API will create the key only if the
 		// value is being passed as an empty string.
-		if len(keys) == 1 {
+		if create && len(keys) == 1 {
 			ec2Tag.Value = aws.String("")
 		}
 
@@ -476,36 +482,73 @@ func populateEC2Tags(tags string) []*ec2.Tag {
 // an empty string (i.e: "key4=" as the value, we delete the key only if its
 // value is an empty string.
 func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error {
-	ec2Tags := make([]*ec2.Tag, 0)
-
-	for _, keyVal := range strings.Split(tags, ",") {
-		keys := strings.Split(keyVal, "=")
-		ec2Tag := &ec2.Tag{
-			Key: aws.String(keys[0]), // index 0 is always available
+	// for one region just assume all image ids belong to the this region
+	// (which `list` returns already)
+	if len(a.services.regions) == 1 {
+		params := &ec2.DeleteTagsInput{
+			Resources: stringSlice(images...),
+			Tags:      populateEC2Tags(tags, false),
+			DryRun:    aws.Boolean(dryRun),
 		}
 
-		// means value is not omitted. We don't care if value is empty or not,
-		// the AWS API takes care of it.
-		if len(keys) == 2 {
-			ec2Tag.Value = aws.String(keys[1])
+		svc, err := a.singleSvc()
+		if err != nil {
+			return err
 		}
 
-		ec2Tags = append(ec2Tags, ec2Tag)
+		_, err = svc.DeleteTags(params)
+		return err
 	}
 
-	params := &ec2.DeleteTagsInput{
-		Resources: stringSlice(images...),
-		Tags:      ec2Tags,
-		DryRun:    aws.Boolean(dryRun),
+	// so we have multiple regions, the given images might belong to different
+	// regions. Fetch all images and match each image id to the given region.
+	if err := a.Fetch(nil); err != nil {
+		return err
 	}
 
-	svc, err := a.singleSvc()
+	matchedImages, err := a.matchImages(images...)
 	if err != nil {
 		return err
 	}
 
-	_, err = svc.DeleteTags(params)
-	return err
+	var (
+		wg          sync.WaitGroup
+		mu          sync.Mutex // protects multiErrors
+		multiErrors error
+	)
+
+	ec2Tags := populateEC2Tags(tags, false)
+	for r, i := range matchedImages {
+		wg.Add(1)
+		go func(region string, images []string) {
+			defer wg.Done()
+
+			params := &ec2.DeleteTagsInput{
+				Resources: stringSlice(images...),
+				Tags:      ec2Tags,
+				DryRun:    aws.Boolean(dryRun),
+			}
+
+			svc, err := a.svcFromRegion(region)
+			if err != nil {
+				mu.Lock()
+				multiErrors = multierror.Append(multiErrors, err)
+				mu.Unlock()
+				return
+			}
+
+			_, err = svc.DeleteTags(params)
+			if err != nil {
+				mu.Lock()
+				multiErrors = multierror.Append(multiErrors, err)
+				mu.Unlock()
+			}
+		}(r, i)
+	}
+	wg.Wait()
+
+	return multiErrors
+
 }
 
 // byTime implements sort.Interface for []*ec2.Image based on the CreationDate field.
