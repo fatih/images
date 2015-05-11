@@ -24,7 +24,7 @@ func (c *Copy) Help() string {
 	if c.provider == "" {
 		return `Usage: images copy [options]
 
-  Copy images to different regions
+  Copy images to regions
 
 Options:
 
@@ -70,5 +70,5 @@ func (c *Copy) Run(args []string) int {
 }
 
 func (c *Copy) Synopsis() string {
-	return "Copy images to different regions"
+	return "Copy images to regions"
 }

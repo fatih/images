@@ -347,6 +347,78 @@ func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 	return multiErrors
 }
 
+func (a *AwsImages) Copy(args []string) error {
+	var (
+		imageIds string
+		dryRun   bool
+	)
+
+	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
+	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be copied with the given ids")
+	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
+	flagSet.Usage = func() {
+		helpMsg := `Usage: images copy --provider aws [options]
+
+  Deregister AMI's.
+
+Options:
+
+  -image-ids   "ami-123,..."   Images to be copied with the given ids
+  -dry-run                     Don't run command, but show the action
+`
+		fmt.Fprintf(os.Stderr, helpMsg)
+	}
+
+	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
+	if err := flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		flagSet.Usage()
+		return nil
+	}
+
+	if imageIds == "" {
+		return errors.New("no images are passed with [--image-ids]")
+	}
+
+	var (
+		wg sync.WaitGroup
+		mu sync.Mutex
+
+		multiErrors error
+	)
+
+	svc, err := a.singleSvc()
+	if err != nil {
+		return err
+	}
+
+	images := strings.Split(imageIds, ",")
+
+	for _, imageId := range images {
+		wg.Add(1)
+
+		go func(id string) {
+			defer wg.Done()
+
+			input := &ec2.CopyImageInput{
+				SourceImageID: aws.String(imageId),
+				DryRun:        aws.Boolean(dryRun),
+			}
+
+			_, err := svc.CopyImage(input)
+			mu.Lock()
+			multiErrors = multierror.Append(multiErrors, err)
+			mu.Unlock()
+		}(imageId)
+	}
+
+	wg.Wait()
+	return multiErrors
+}
+
 // imageRegion returns the given imageId's region
 func (a *AwsImages) imageRegion(imageId string) (string, error) {
 	if len(a.images) == 0 {
