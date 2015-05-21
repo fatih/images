@@ -1,0 +1,88 @@
+{
+	"ImportPath": "github.com/fatih/images",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/BurntSushi/toml",
+			"Comment": "v0.1.0-21-g056c9bc",
+			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/aws",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/apierr",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/endpoints",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/protocol/ec2query",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/protocol/query/queryutil",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/protocol/rest",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/protocol/xml/xmlutil",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/internal/signer/v4",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/awslabs/aws-sdk-go/service/ec2",
+			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
+		},
+		{
+			"ImportPath": "github.com/fatih/camelcase",
+			"Rev": "332844f2fb0193cce955f4687646abbdcc43ceeb"
+		},
+		{
+			"ImportPath": "github.com/fatih/color",
+			"Comment": "v0.1",
+			"Rev": "1b35f289c47d5c73c398cea8e006b7bcb6234a96"
+		},
+		{
+			"ImportPath": "github.com/fatih/flags",
+			"Rev": "412311caef593412da1cafbcf543a3ee491255fb"
+		},
+		{
+			"ImportPath": "github.com/fatih/structs",
+			"Rev": "b4641b79cf37cd07961c25c5460be637ab27da76"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/go-multierror",
+			"Rev": "fcdddc395df1ddf4247c69bd436e84cfa0733f7e"
+		},
+		{
+			"ImportPath": "github.com/koding/multiconfig",
+			"Rev": "7e1d5552d0b616f2134e0c98ce2d66e54f09a8a6"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/cli",
+			"Rev": "6cc8bc522243675a2882b81662b0b0d2e04b99c9"
+		},
+		{
+			"ImportPath": "github.com/shiena/ansicolor",
+			"Rev": "8368d3b31cf6f2c2464c7a91675342c9a0ac6658"
+		},
+		{
+			"ImportPath": "github.com/vaughan0/go-ini",
+			"Rev": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "4d48e5fa3d62b5e6e71260571bf76c767198ca02"
+		}
+	]
+}
