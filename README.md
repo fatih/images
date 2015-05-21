@@ -52,14 +52,17 @@ provider name, such as "aws".
 `images` is a very flexible CLI tool. It can parse the necessary configuration from
 either a file, from environment variables or command line flags. Examples:
 
-```
+```bash
 $ images list --provider aws --region "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
+```
 
-	or via environment variable:
+or via environment variable:
 
+```bash
 $ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1,eu-west-2" IMAGES_AWS_ACCESS_KEY="..." images list
 ```
-	or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
+
+or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
 
 ```toml
 provider = "aws"
@@ -75,7 +78,7 @@ and execute simply:
 $ images list
 ```
 
-## Command examples
+## Examples
 
 `images` has multi provider support. The following examples are for the
 provider "aws".  The following commands are supposed to be executed with
