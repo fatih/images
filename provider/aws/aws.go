@@ -27,7 +27,7 @@ type AwsConfig struct {
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Aws struct {
-		Region        string
+		Region        string `toml:"region" json:"region"`
 		RegionExclude string `toml:"region_exclude" json:"region_exclude"`
 		AccessKey     string `toml:"access_key" json:"access_key"`
 		SecretKey     string `toml:"secret_key" json:"secret_key"`
@@ -148,6 +148,7 @@ func (a *AwsImages) Print() {
 	}
 }
 
+// TODO(arslan): generate dynamically, I hate writing them myself
 func (a *AwsImages) Help(command string) string {
 	var help string
 	switch command {
@@ -187,8 +188,8 @@ Options:
 
 	global := `
   -region "..."                AWS Region (env: AWS_REGION)
-  -accesskey "..."             AWS Access Key (env: AWS_ACCESS_KEY)
-  -secretkey "..."             AWS Secret Key (env: AWS_SECRET_KEY)
+  -access-key "..."            AWS Access Key (env: AWS_ACCESS_KEY)
+  -secret-key "..."            AWS Secret Key (env: AWS_SECRET_KEY)
 `
 
 	help += global

@@ -6,8 +6,9 @@ CLI interface. Think of it's as a companion to the popular image creation tool
 
 ## Features
 
-- Multiple provider support: `AWS`
+- Multiple provider backend support: `AWS`
 - Multi region support
+- Commands are executed concurrently (delete, list, etc..).
 - List images from a provider
 - Modify image attributes, such as tags or names
 - Delete images
@@ -19,16 +20,15 @@ CLI interface. Think of it's as a companion to the popular image creation tool
 Download pre combiled binaries:
 
 
-Or if you have Go installed, just do:
+Or if you have Go installed, just do (note that it fetches not vendored
+dependencies, so you might end with a different binary.):
 
 ```bash
 go get github.com/fatih/images
 ```
 
-## Documentation
+## Intro
 
-`images` is a very flexible CLI tool. It can parse the necessary arguments from
-either a configuration file, from environment variables or command line flags.
 To list all commands just run `images`:
 
 ```bash
@@ -44,42 +44,74 @@ Available commands are:
 
 Because `images` is built around to support multiple providers, each provider
 has a specific set of features. To display the specific provider help message
-pass the provider name too:
+pass the "--provider name --help" flags at any time, where `name` is the
+provider name, such as "aws".
+
+# Configuration
+
+`images` is a very flexible CLI tool. It can parse the necessary configuration from
+either a file, from environment variables or command line flags. Examples:
 
 ```
-$ images modify --provider aws --help
+$ images list --provider aws --region "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
 
 	or via environment variable:
 
-$ IMAGES_PROVIDER=aws images modify --help
+$ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1,eu-west-2" IMAGES_AWS_ACCESS_KEY="..." images list
 ```
+	or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
 
-#### List
+```toml
+provider = "aws"
 
+[aws]
+region     = "us-east-1,eu-west-2"
+access_key "..."
+secret_key "..."
 ```
+and execute simply:
+
+```bash
 $ images list
 ```
 
+## Command examples
+
+`images` has multi provider support. The following examples are for the
+provider "aws".  The following commands are supposed to be executed with
+`IMAGES_PROVIDER=aws` or with `--provider aws` or add it the provider to your
+`.imagesrc` file.
+
+
+#### List
+
+List images for a given provider. Examples:
+
+```
+$ images list -region "us-east-1"
+```
+
+List from all regions (fetches concurrently):
+
+```
+$ images list -region "all"
+```
+
 #### Delete
+
+Delete images from the given provider. Examples:
+
 ```
-$ images delete
+$ images delete -image-ids "ami-1ec4d766,ami-c3h207b4,ami-26f1d9r37"
 ```
+
+Note that you don't need to specify a region if you define multiple ids.
+`images` is automatically matching the correct region and deletes it. Plus they
+all are deleted concurrently.
 
 #### Modify
 
-Modify modifies certain attributes of an image(s). The `modify` command might
-expose different usages based on the provider. This is mainly due the
-difference between each providers reflected API's. To get the usage for a
-provider call it with the `--provider NAME --help` flag:
-
-```
-$ images modify --provider aws --help
-```
-
-##### AWS
-
-`images` allows to change the tags of AWS images. The following commands are
-supposed to be executed with `IMAGES_PROVIDER=aws` or with `--provider aws`:
+`images` allows to change the tags of AWS images for the provider "aws".
 
 To create or override a image tag:
 
@@ -99,6 +131,11 @@ The commands also have support for batch action:
 $images modify --create-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
 $images modify --delete-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
 ```
+
+Just like for the `delete` command, all you need to give is the ami ids.
+`images` will automatically match the region for the given id. You don't need
+to define any region information.
+
 
 #### Copy
 ```
