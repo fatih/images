@@ -28,9 +28,9 @@ type AwsConfig struct {
 	// any complex hacks
 	Aws struct {
 		Region        string
-		RegionExclude string `toml:"region_exclude"`
-		AccessKey     string
-		SecretKey     string
+		RegionExclude string `toml:"region_exclude" json:"region_exclude"`
+		AccessKey     string `toml:"access_key" json:"access_key"`
+		SecretKey     string `toml:"secret_key" json:"secret_key"`
 	}
 }
 
@@ -51,6 +51,16 @@ func New(args []string) *AwsImages {
 		os.Exit(1)
 	}
 
+	if conf.Aws.AccessKey == "" {
+		fmt.Fprintln(os.Stderr, "access key is not set")
+		os.Exit(1)
+	}
+
+	if conf.Aws.SecretKey == "" {
+		fmt.Fprintln(os.Stderr, "secret key is not set")
+		os.Exit(1)
+	}
+
 	creds := credentials.NewStaticCredentials(conf.Aws.AccessKey, conf.Aws.SecretKey, "")
 	awsConfig := &aws.Config{
 		Credentials: creds,
@@ -59,7 +69,6 @@ func New(args []string) *AwsImages {
 	}
 
 	m := newMultiRegion(awsConfig, parseRegions(conf.Aws.Region, conf.Aws.RegionExclude))
-
 	return &AwsImages{
 		services: m,
 		images:   make(map[string][]*ec2.Image),
