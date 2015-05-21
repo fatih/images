@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/awslabs/aws-sdk-go/aws"
+	"github.com/awslabs/aws-sdk-go/aws/credentials"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
 	"github.com/fatih/images/command/loader"
@@ -50,14 +51,11 @@ func New(args []string) *AwsImages {
 		os.Exit(1)
 	}
 
+	creds := credentials.NewStaticCredentials(conf.Aws.AccessKey, conf.Aws.SecretKey, "")
 	awsConfig := &aws.Config{
-		Credentials: aws.DetectCreds(
-			conf.Aws.AccessKey,
-			conf.Aws.SecretKey,
-			"",
-		),
-		HTTPClient: http.DefaultClient,
-		Logger:     os.Stdout,
+		Credentials: creds,
+		HTTPClient:  http.DefaultClient,
+		Logger:      os.Stdout,
 	}
 
 	m := newMultiRegion(awsConfig, parseRegions(conf.Aws.Region, conf.Aws.RegionExclude))
@@ -350,11 +348,15 @@ func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 func (a *AwsImages) Copy(args []string) error {
 	var (
 		imageIds string
+		regions  string
+		desc     string
 		dryRun   bool
 	)
 
 	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
 	flagSet.StringVar(&imageIds, "image-ids", "", "Images to be copied with the given ids")
+	flagSet.StringVar(&regions, "regions", "", "Images to be copied to the given regions")
+	flagSet.StringVar(&desc, "description", "", "Description for the new AMI")
 	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
 	flagSet.Usage = func() {
 		helpMsg := `Usage: images copy --provider aws [options]
