@@ -59,7 +59,7 @@ $ images list --provider aws --region "us-east-1,eu-west-2" --access-key "..." -
 or via environment variable:
 
 ```bash
-$ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1,eu-west-2" IMAGES_AWS_ACCESS_KEY="..." images list
+$ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1" IMAGES_AWS_ACCESS_KEY=".." images list
 ```
 
 or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
@@ -69,8 +69,8 @@ provider = "aws"
 
 [aws]
 region     = "us-east-1,eu-west-2"
-access_key "..."
-secret_key "..."
+access_key = "..."
+secret_key = "..."
 ```
 and execute simply:
 
