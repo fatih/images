@@ -2,11 +2,9 @@ package awsimages
 
 import (
 	"strings"
-	"sync"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
-	"github.com/hashicorp/go-multierror"
 )
 
 // CreateTags adds or overwrites all tags for the specified images. Tags is in
@@ -24,53 +22,7 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 		return err
 	}
 
-	// for one region just assume all image ids belong to the this region
-	// (which `list` returns already)
-	if len(a.services.regions) == 1 {
-		svc, err := a.singleSvc()
-		if err != nil {
-			return err
-		}
-
-		return createTags(svc, images)
-	}
-
-	// so we have multiple regions, the given images might belong to different
-	// regions. Fetch all images and match each image id to the given region.
-	matchedImages, err := a.matchImages(images...)
-	if err != nil {
-		return err
-	}
-
-	var (
-		wg          sync.WaitGroup
-		mu          sync.Mutex // protects multiErrors
-		multiErrors error
-	)
-
-	for r, i := range matchedImages {
-		wg.Add(1)
-		go func(region string, images []string) {
-			defer wg.Done()
-
-			svc, err := a.svcFromRegion(region)
-			if err != nil {
-				mu.Lock()
-				multiErrors = multierror.Append(multiErrors, err)
-				mu.Unlock()
-				return
-			}
-
-			if err := createTags(svc, images); err != nil {
-				mu.Lock()
-				multiErrors = multierror.Append(multiErrors, err)
-				mu.Unlock()
-			}
-		}(r, i)
-	}
-
-	wg.Wait()
-	return multiErrors
+	return a.multiCall(createTags, images...)
 }
 
 // DeleteTags deletes the given tags for the given images. Tags is in the form
@@ -89,54 +41,7 @@ func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error
 		return err
 	}
 
-	// for one region just assume all image ids belong to the this region
-	// (which `list` returns already)
-	if len(a.services.regions) == 1 {
-		svc, err := a.singleSvc()
-		if err != nil {
-			return err
-		}
-
-		return deleteTags(svc, images)
-	}
-
-	// so we have multiple regions, the given images might belong to different
-	// regions. Fetch all images and match each image id to the given region.
-	matchedImages, err := a.matchImages(images...)
-	if err != nil {
-		return err
-	}
-
-	var (
-		wg          sync.WaitGroup
-		mu          sync.Mutex // protects multiErrors
-		multiErrors error
-	)
-
-	for r, i := range matchedImages {
-		wg.Add(1)
-		go func(region string, images []string) {
-			defer wg.Done()
-
-			svc, err := a.svcFromRegion(region)
-			if err != nil {
-				mu.Lock()
-				multiErrors = multierror.Append(multiErrors, err)
-				mu.Unlock()
-				return
-			}
-
-			if err := deleteTags(svc, images); err != nil {
-				mu.Lock()
-				multiErrors = multierror.Append(multiErrors, err)
-				mu.Unlock()
-			}
-		}(r, i)
-	}
-
-	wg.Wait()
-
-	return multiErrors
+	return a.multiCall(deleteTags, images...)
 }
 
 // populateEC2Tags returns a list of *ec2.Tag. tags is in the form of
