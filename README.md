@@ -47,7 +47,7 @@ has a specific set of features. To display the specific provider help message
 pass the "--provider name --help" flags at any time, where `name` is the
 provider name, such as "aws".
 
-# Configuration
+## Configuration
 
 `images` is a very flexible CLI tool. It can parse the necessary configuration from
 either a file, from environment variables or command line flags. Examples:
