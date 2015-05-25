@@ -321,6 +321,34 @@ func (a *AwsImages) svcFromRegion(region string) (*ec2.EC2, error) {
 }
 
 func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
+	deleteImages := func(svc *ec2.EC2, images []string) error {
+		for _, image := range images {
+			input := &ec2.DeregisterImageInput{
+				ImageID: aws.String(image),
+				DryRun:  aws.Boolean(dryRun),
+			}
+
+			_, err := svc.DeregisterImage(input)
+			return err
+		}
+
+		return nil
+	}
+
+	if len(a.services.regions) == 1 {
+		svc, err := a.singleSvc()
+		if err != nil {
+			return err
+		}
+
+		return deleteImages(svc, images)
+	}
+
+	matchedImages, err := a.matchImages(images...)
+	if err != nil {
+		return err
+	}
+
 	var (
 		wg sync.WaitGroup
 		mu sync.Mutex
@@ -328,27 +356,28 @@ func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
 		multiErrors error
 	)
 
-	svc, err := a.singleSvc()
-	if err != nil {
-		return err
-	}
-
-	for _, imageId := range images {
+	for r, i := range matchedImages {
 		wg.Add(1)
 
-		go func(id string) {
+		go func(region string, images []string) {
 			defer wg.Done()
 
-			input := &ec2.DeregisterImageInput{
-				ImageID: aws.String(imageId),
-				DryRun:  aws.Boolean(dryRun),
+			svc, err := a.svcFromRegion(region)
+			if err != nil {
+				mu.Lock()
+				multiErrors = multierror.Append(multiErrors, err)
+				mu.Unlock()
+				return
 			}
 
-			_, err := svc.DeregisterImage(input)
-			mu.Lock()
-			multiErrors = multierror.Append(multiErrors, err)
-			mu.Unlock()
-		}(imageId)
+			if err := deleteImages(svc, images); err != nil {
+				mu.Lock()
+				multiErrors = multierror.Append(multiErrors, err)
+				mu.Unlock()
+				return
+			}
+
+		}(r, i)
 	}
 
 	wg.Wait()

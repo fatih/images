@@ -23,6 +23,7 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 		})
 		return err
 	}
+
 	// for one region just assume all image ids belong to the this region
 	// (which `list` returns already)
 	if len(a.services.regions) == 1 {
@@ -69,7 +70,6 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 	}
 
 	wg.Wait()
-
 	return multiErrors
 }
 
