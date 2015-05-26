@@ -141,8 +141,23 @@ to define any region information.
 
 
 #### Copy
+
+Copy supports copying an AMI to the same or different regions. Below is a simple example:
+
 ```
-$ images copy
+$ images copy -image "ami-530ay345" -to "us-east-1"
+```
+
+Copy supports concurrent copying to multiple regions.:
+
+```
+$ images copy -image "ami-530ay345" -to "us-east-1,ap-southeast-1,eu-central-1"
+```
+
+Description can be given too (optional):
+
+```
+$ images copy -image "ami-530ay345" -to "us-east-1"  -desc "My new AMI"
 ```
 
 ## License

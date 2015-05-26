@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"text/tabwriter"
+	"time"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/aws/credentials"
@@ -60,10 +61,14 @@ func New(args []string) *AwsImages {
 		os.Exit(1)
 	}
 
+	client := &http.Client{
+		Timeout: time.Second * 30,
+	}
+
 	creds := credentials.NewStaticCredentials(conf.Aws.AccessKey, conf.Aws.SecretKey, "")
 	awsConfig := &aws.Config{
 		Credentials: creds,
-		HTTPClient:  http.DefaultClient,
+		HTTPClient:  client,
 		Logger:      os.Stdout,
 	}
 
@@ -139,8 +144,18 @@ func (a *AwsImages) Print() {
 				tags[i] = *tag.Key + ":" + *tag.Value
 			}
 
+			name := ""
+			if image.Name != nil {
+				name = *image.Name
+			}
+
+			state := *image.State
+			if *image.State == "failed" {
+				state += " (" + *image.StateReason.Message + ")"
+			}
+
 			fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
-				i, *image.Name, *image.ImageID, *image.State, tags)
+				i, name, *image.ImageID, state, tags)
 		}
 
 		fmt.Fprintln(w, "")
@@ -181,12 +196,24 @@ Options:
 
 Options:
 `
+	case "copy":
+		help = `Usage: images copy --provider aws [options]
+
+  Copy image to regions
+
+Options:
+
+  -image   "ami-123"           Image to be copied with the given id
+  -to      "us-east-1,..."     Image to be copied to the given regions 
+  -desc    "My New Image"      Description for the new AMI's (optional)
+  -dry-run                     Don't run command, but show the action
+`
 	default:
 		return "no help found for command " + command
 	}
 
 	global := `
-  -region "..."                AWS Region (env: AWS_REGION)
+  -region     "..."            AWS Region (env: AWS_REGION)
   -access-key "..."            AWS Access Key (env: AWS_ACCESS_KEY)
   -secret-key "..."            AWS Secret Key (env: AWS_SECRET_KEY)
 `
@@ -326,7 +353,7 @@ func (a *AwsImages) Copy(args []string) error {
 
 	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
 	flagSet.StringVar(&imageID, "image", "", "Image to be copied with the given id")
-	flagSet.StringVar(&sourceRegions, "regions", "", "Images to be copied to the given regions")
+	flagSet.StringVar(&sourceRegions, "to", "", "Images to be copied to the given regions")
 	flagSet.StringVar(&desc, "desc", "", "Description for the new AMI (optional)")
 	flagSet.BoolVar(&dryRun, "dry-run", false, "Don't run command, but show the action")
 	flagSet.Usage = func() {
@@ -336,10 +363,10 @@ func (a *AwsImages) Copy(args []string) error {
 
 Options:
 
-  -image   "ami-123"        Image to be copied with the given id
-  -regions "us-east-1,..."  Image to be copied to the given regions 
-  -desc    "My New Image"   Description for the new AMI's (optional)
-  -dry-run                  Don't run command, but show the action
+  -image   "ami-123"           Image to be copied with the given id
+  -to      "us-east-1,..."     Image to be copied to the given regions 
+  -desc    "My New Image"      Description for the new AMI's (optional)
+  -dry-run                     Don't run command, but show the action
 `
 		fmt.Fprintf(os.Stderr, helpMsg)
 	}
@@ -411,9 +438,11 @@ Options:
 			}
 
 			_, err := svc.CopyImage(input)
-			mu.Lock()
-			multiErrors = multierror.Append(multiErrors, err)
-			mu.Unlock()
+			if err != nil {
+				mu.Lock()
+				multiErrors = multierror.Append(multiErrors, err)
+				mu.Unlock()
+			}
 
 			wg.Done()
 		}(r)

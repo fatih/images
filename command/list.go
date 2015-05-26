@@ -62,8 +62,9 @@ func (l *List) Run(args []string) int {
 	}
 
 	if err := f.Fetch(args); err != nil {
+		// we don't return here, because Print might display at least
+		// successfull results.
 		fmt.Fprintln(os.Stderr, err.Error())
-		return 1
 	}
 
 	f.Print()
