@@ -55,13 +55,10 @@ func New(args []string) *AwsImages {
 		os.Exit(1)
 	}
 
+	// increase the timeout
 	timeout := time.Second * 30
-	tr := &http.Transport{
-		TLSHandshakeTimeout: timeout,
-	}
-
 	client := &http.Client{
-		Transport: tr,
+		Transport: &http.Transport{TLSHandshakeTimeout: timeout},
 		Timeout:   timeout,
 	}
 
