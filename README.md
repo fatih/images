@@ -2,11 +2,12 @@
 
 Images is a tool to manage machine images from multiple providers with a single
 CLI interface. Think of it's as a companion to the popular image creation tool
-[Packer](https://packer.io/).
+[Packer](https://packer.io/). I'm developing it on my spare times, so feedback
+and contributions are welcome!
 
 ## Features
 
-- Multiple provider backend support: `AWS`
+- Multiple provider backend support: `AWS`, `DO`, etc...
 - Multi region support
 - List images from a provider
 - Modify image attributes, such as tags or names
