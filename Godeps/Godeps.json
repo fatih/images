@@ -44,6 +44,11 @@
 			"Rev": "7ed94058247b6bf4058d540b39cf10740c2580ee"
 		},
 		{
+			"ImportPath": "github.com/digitalocean/godo",
+			"Comment": "v0.7.0-36-ge5677d6",
+			"Rev": "e5677d69e862ba0772eacfbb67dde9ebfd041698"
+		},
+		{
 			"ImportPath": "github.com/fatih/camelcase",
 			"Rev": "332844f2fb0193cce955f4687646abbdcc43ceeb"
 		},
@@ -59,6 +64,10 @@
 		{
 			"ImportPath": "github.com/fatih/structs",
 			"Rev": "b4641b79cf37cd07961c25c5460be637ab27da76"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "547ef5ac979778feb2f760cdb5f4eae1a2207b86"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/go-multierror",
@@ -77,12 +86,24 @@
 			"Rev": "8368d3b31cf6f2c2464c7a91675342c9a0ac6658"
 		},
 		{
+			"ImportPath": "github.com/tent/http-link-go",
+			"Rev": "ac974c61c2f990f4115b119354b5e0b47550e888"
+		},
+		{
 			"ImportPath": "github.com/vaughan0/go-ini",
 			"Rev": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",
 			"Rev": "4d48e5fa3d62b5e6e71260571bf76c767198ca02"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "589db58a47224e5786650dac2677b9c302bab6c2"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "b5adcc2dcdf009d0391547edc6ecbaff889f5bb9"
 		}
 	]
 }

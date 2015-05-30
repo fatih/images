@@ -4,14 +4,15 @@ import (
 	"errors"
 
 	"github.com/fatih/images/provider/awsimages"
+	"github.com/fatih/images/provider/doimages"
 )
 
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
 		return awsimages.New(args), nil
-	case "digitalocean":
-		return nil, errors.New("not supported yet")
+	case "do":
+		return doimages.New(args), nil
 	default:
 		return nil, errors.New("no such provider available")
 	}
