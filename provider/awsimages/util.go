@@ -111,7 +111,7 @@ func (a *AwsImages) svcFromRegion(region string) (*ec2.EC2, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("no svc found for region '%s'")
+	return nil, fmt.Errorf("no svc found for region '%s'", region)
 }
 
 // imageRegion returns the given imageId's region
