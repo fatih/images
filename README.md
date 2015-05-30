@@ -1,7 +1,7 @@
 # Images
 
 Images is a tool to manage machine images from multiple providers with a single
-CLI interface. Think of it's as a companion to the popular image creation tool
+CLI interface. Think of it as a companion to the popular image creation tool
 [Packer](https://packer.io/). I'm developing it on my spare times, so feedback
 and contributions are welcome!
 

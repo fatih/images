@@ -116,19 +116,21 @@ func (d *DoImages) Help(command string) string {
 	switch command {
 	case "delete":
 		help = newDeleteFlags().helpMsg
+	case "modify":
+		help = newModifyFlags().helpMsg
 	case "list":
 		help = `Usage: images list --provider do [options]
 
-	  List Image properties.
+ List images
 
-	Options:
+Options:
 	`
 	default:
 		return "no help found for command " + command
 	}
 
 	global := `
-  -token       "..."       DigitalOcean Access Token (env: DO_TOKEN)
+  -token       "..."           DigitalOcean Access Token (env: DO_TOKEN)
 `
 
 	help += global
@@ -137,8 +139,4 @@ func (d *DoImages) Help(command string) string {
 
 func (d *DoImages) Copy(args []string) error {
 	return errors.New("copy it not implemented yet")
-}
-
-func (d *DoImages) Modify(args []string) error {
-	return errors.New("modify it not implemented yet")
 }
