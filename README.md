@@ -8,11 +8,11 @@ CLI interface. Think of it's as a companion to the popular image creation tool
 
 - Multiple provider backend support: `AWS`
 - Multi region support
-- Commands are executed concurrently (delete, list, etc..).
 - List images from a provider
 - Modify image attributes, such as tags or names
 - Delete images
 - Copy images from one region to another region
+- Commands are executed concurrently (delete, list, etc..).
 - Flexible configuration system. Read from file, environment variables or command line flags.
 
 ## Installation
@@ -81,9 +81,9 @@ $ images list
 ## Examples
 
 `images` has multi provider support. The following examples are for the
-provider "aws".  The following commands are supposed to be executed with
-`IMAGES_PROVIDER=aws` or with `--provider aws` or add it the provider to your
-`.imagesrc` file.
+provider "aws".  The commands are supposed to be executed with
+`IMAGES_PROVIDER=aws` or with `--provider aws` or added to `.imagesrc` file via
+`provider = "aws"`
 
 
 #### List
