@@ -1,6 +1,7 @@
 package doimages
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -96,9 +97,9 @@ func (d *DoImages) Print() {
 	}
 
 	fmt.Fprintln(w, green("DO: (%d %s):", len(d.images), imageDesc))
+	fmt.Fprintln(w, "    Name\tID\tDistribution\tType\tRegions")
 
 	for i, image := range d.images {
-		fmt.Fprintln(w, "    Name\tID\tDistribution\tType\tRegions")
 
 		regions := make([]string, len(image.Regions))
 		for i, region := range image.Regions {
@@ -107,7 +108,37 @@ func (d *DoImages) Print() {
 
 		fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s (%d)\t%+v\n",
 			i, image.Name, image.ID, image.Distribution, image.Type, image.MinDiskSize, regions)
-
-		fmt.Fprintln(w, "")
 	}
+}
+
+func (d *DoImages) Help(command string) string {
+	var help string
+	switch command {
+	case "delete":
+		help = newDeleteFlags().helpMsg
+	case "list":
+		help = `Usage: images list --provider do [options]
+
+	  List Image properties.
+
+	Options:
+	`
+	default:
+		return "no help found for command " + command
+	}
+
+	global := `
+  -token       "..."       DigitalOcean Access Token (env: DO_TOKEN)
+`
+
+	help += global
+	return help
+}
+
+func (d *DoImages) Copy(args []string) error {
+	return errors.New("copy it not implemented yet")
+}
+
+func (d *DoImages) Modify(args []string) error {
+	return errors.New("modify it not implemented yet")
 }
