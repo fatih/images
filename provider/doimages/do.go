@@ -1,7 +1,6 @@
 package doimages
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -118,6 +117,8 @@ func (d *DoImages) Help(command string) string {
 		help = newDeleteFlags().helpMsg
 	case "modify":
 		help = newModifyFlags().helpMsg
+	case "copy":
+		help = newCopyFlags().helpMsg
 	case "list":
 		help = `Usage: images list --provider do [options]
 
@@ -135,8 +136,4 @@ Options:
 
 	help += global
 	return help
-}
-
-func (d *DoImages) Copy(args []string) error {
-	return errors.New("copy it not implemented yet")
 }
