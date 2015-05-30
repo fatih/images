@@ -56,7 +56,7 @@ func (l *List) Run(args []string) int {
 
 	f, ok := p.(Fetcher)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support listing images", l.provider)
+		err := fmt.Errorf("Provider '%s' doesn't support listing images", l.provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

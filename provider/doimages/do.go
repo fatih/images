@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"text/tabwriter"
 	"time"
 
 	"github.com/digitalocean/godo"
+	"github.com/fatih/color"
 	"github.com/fatih/images/command/loader"
+	"github.com/shiena/ansicolor"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
@@ -33,7 +36,7 @@ type DoConfig struct {
 
 type DoImages struct {
 	client *godo.Client
-	images map[string][]godo.Image
+	images []godo.Image
 }
 
 func New(args []string) *DoImages {
@@ -65,6 +68,41 @@ func New(args []string) *DoImages {
 
 	return &DoImages{
 		client: godoClient,
-		images: make(map[string][]godo.Image),
+		images: make([]godo.Image, 0),
+	}
+}
+
+func (d *DoImages) Fetch(args []string) error {
+	var err error
+	d.images, _, err = d.client.Images.ListUser(nil)
+	return err
+}
+
+func (d *DoImages) Print() {
+	if len(d.images) == 0 {
+		fmt.Fprintln(os.Stderr, "no images found")
+		return
+	}
+
+	green := color.New(color.FgGreen).SprintfFunc()
+
+	w := new(tabwriter.Writer)
+	w.Init(ansicolor.NewAnsiColorWriter(os.Stdout), 10, 8, 0, '\t', 0)
+	defer w.Flush()
+
+	fmt.Fprintln(w, green("DO: (%d images):", len(d.images)))
+
+	for i, image := range d.images {
+		fmt.Fprintln(w, "    Name\tID\tDistribution\tType\tRegions")
+
+		regions := make([]string, len(image.Regions))
+		for i, region := range image.Regions {
+			regions[i] = region
+		}
+
+		fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s (%d)\t%+v\n",
+			i, image.Name, image.ID, image.Distribution, image.Type, image.MinDiskSize, regions)
+
+		fmt.Fprintln(w, "")
 	}
 }

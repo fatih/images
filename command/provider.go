@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/images/provider/doimages"
 )
 
+// Provider returns the provider with the given name
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
@@ -18,6 +19,7 @@ func Provider(name string, args []string) (interface{}, error) {
 	}
 }
 
+// Fecher fetches and prints the
 type Fetcher interface {
 	// Fetch fetches the information from the provider
 	Fetch(args []string) error
@@ -30,14 +32,17 @@ type Copyier interface {
 	Copy(args []string) error
 }
 
+// Deleter delets images
 type Deleter interface {
 	Delete(args []string) error
 }
 
+// Modifier modifies image attributes
 type Modifier interface {
 	Modify(args []string) error
 }
 
+// Helper returns the help message
 type Helper interface {
 	Help(command string) string
 }
