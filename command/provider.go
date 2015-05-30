@@ -3,7 +3,7 @@ package command
 import (
 	"errors"
 
-	"github.com/fatih/images/provider/aws"
+	"github.com/fatih/images/provider/awsimages"
 )
 
 func Provider(name string, args []string) (interface{}, error) {

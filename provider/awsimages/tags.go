@@ -1,11 +1,85 @@
 package awsimages
 
 import (
+	"errors"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 )
+
+type modifyFlags struct {
+	createTags string
+	deleteTags string
+	imageIds   string
+	dryRun     bool
+	helpMsg    string
+
+	flagSet *flag.FlagSet
+}
+
+func newModifyFlags() *modifyFlags {
+	m := &modifyFlags{}
+
+	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
+	flagSet.StringVar(&m.createTags, "create-tags", "", "Create  or override tags")
+	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
+	flagSet.StringVar(&m.imageIds, "image-ids", "", "Images to be used with actions")
+	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
+	m.helpMsg = `Usage: images modify --provider aws [options]
+
+  Modify AMI properties.
+
+Options:
+
+  -image-ids   "ami-123,..."   Images to be used with below actions
+
+  -create-tags "key=val,..."   Create or override tags
+  -delete-tags "key,..."       Delete tags
+  -dry-run                     Don't run command, but show the action
+`
+	flagSet.Usage = func() {
+		fmt.Fprintf(os.Stderr, m.helpMsg)
+	}
+
+	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
+	m.flagSet = flagSet
+	return m
+}
+
+func (a *AwsImages) Modify(args []string) error {
+	m := newModifyFlags()
+	if err := m.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		m.flagSet.Usage()
+		return nil
+	}
+
+	if m.imageIds == "" {
+		return errors.New("no images are passed with [--image-ids]")
+	}
+
+	if m.createTags != "" && m.deleteTags != "" {
+		return errors.New("not allowed to be used together: [--create-tags,--delete-tags]")
+	}
+
+	if m.createTags != "" {
+		return a.CreateTags(m.createTags, m.dryRun, strings.Split(m.imageIds, ",")...)
+	}
+
+	if m.deleteTags != "" {
+		return a.DeleteTags(m.deleteTags, m.dryRun, strings.Split(m.imageIds, ",")...)
+	}
+
+	return nil
+}
 
 // CreateTags adds or overwrites all tags for the specified images. Tags is in
 // the form of "key1=val1,key2=val2,key3,key4=".
