@@ -162,5 +162,4 @@ $ images copy -image "ami-530ay345" -to "us-east-1"  -desc "My new AMI"
 
 ## License
 
-The MIT License (MIT) - see LICENSE.md for more details
-
+The BSD 3-Clause License - see `LICENSE` for more details
