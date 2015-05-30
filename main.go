@@ -9,11 +9,6 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-const (
-	Version = "0.0.1"
-	Name    = "images"
-)
-
 func main() {
 	// Call realMain instead of doing the work here so we can use
 	// `defer` statements within the function and have them work properly.
@@ -22,7 +17,7 @@ func main() {
 }
 
 func realMain() int {
-	c := cli.NewCLI(Name, Version)
+	c := cli.NewCLI("images", Version)
 	c.Args = os.Args[1:]
 
 	config, err := command.Load()
