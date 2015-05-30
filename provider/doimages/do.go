@@ -90,7 +90,12 @@ func (d *DoImages) Print() {
 	w.Init(ansicolor.NewAnsiColorWriter(os.Stdout), 10, 8, 0, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, green("DO: (%d images):", len(d.images)))
+	imageDesc := "image"
+	if len(d.images) > 1 {
+		imageDesc = "images"
+	}
+
+	fmt.Fprintln(w, green("DO: (%d %s):", len(d.images), imageDesc))
 
 	for i, image := range d.images {
 		fmt.Fprintln(w, "    Name\tID\tDistribution\tType\tRegions")
