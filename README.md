@@ -1,4 +1,4 @@
-# Images
+# Images ![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square) ![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)
 
 Images is a tool to manage machine images from multiple providers with a single
 CLI interface. Think of it as a companion to the popular image creation tool
@@ -18,14 +18,13 @@ and contributions are welcome!
 
 ## Installation
 
-Download pre combiled binaries:
+Download the binary release suitable for your system:
 
 
-Or if you have Go installed, just do (note that it fetches not vendored
-dependencies, so you might end with a different binary.):
+Or if you have Go installed, install latest version:
 
 ```bash
-go get github.com/fatih/images
+go get -u github.com/fatih/images
 ```
 
 ## Intro
