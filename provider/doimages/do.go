@@ -1,6 +1,7 @@
 package doimages
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -39,15 +40,14 @@ type DoImages struct {
 	images []godo.Image
 }
 
-func New(args []string) *DoImages {
+func New(args []string) (*DoImages, error) {
 	conf := new(DoConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
 	}
 
 	if conf.Do.Token == "" {
-		fmt.Fprintln(os.Stderr, "Access Token is not set. Please check your configuration.")
-		os.Exit(1)
+		return nil, errors.New("Access Token is not set. Please check your configuration.")
 	}
 
 	// increase the timeout
@@ -69,7 +69,7 @@ func New(args []string) *DoImages {
 	return &DoImages{
 		client: godoClient,
 		images: make([]godo.Image, 0),
-	}
+	}, nil
 }
 
 func (d *DoImages) Fetch(args []string) error {

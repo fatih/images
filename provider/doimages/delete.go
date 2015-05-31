@@ -31,7 +31,7 @@ func newDeleteFlags() *deleteFlags {
 
 Options:
 
-  -image-ids   "123,..."   Images to be deleted with the given ids
+  -image-ids   "123,..."       Images to be deleted with the given ids
 `
 	flagSet.Usage = func() {
 		fmt.Fprintf(os.Stderr, d.helpMsg)

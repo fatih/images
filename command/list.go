@@ -37,12 +37,12 @@ Options:
 
 func (l *List) Run(args []string) int {
 	if l.provider == "" {
-		fmt.Print(l.Help())
+		fmt.Println(l.Help())
 		return 1
 	}
 
 	if flags.Has("help", args) {
-		fmt.Print(l.Help())
+		fmt.Println(l.Help())
 		return 1
 	}
 

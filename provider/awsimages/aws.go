@@ -1,6 +1,7 @@
 package awsimages
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -34,7 +35,7 @@ type AwsImages struct {
 	images   map[string][]*ec2.Image
 }
 
-func New(args []string) *AwsImages {
+func New(args []string) (*AwsImages, error) {
 	conf := new(AwsConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
@@ -43,18 +44,15 @@ func New(args []string) *AwsImages {
 	checkCfg := "Please check your configuration"
 
 	if conf.Aws.Region == "" {
-		fmt.Fprintln(os.Stderr, "AWS Region is not set. "+checkCfg)
-		os.Exit(1)
+		return nil, errors.New("AWS Region is not set. " + checkCfg)
 	}
 
 	if conf.Aws.AccessKey == "" {
-		fmt.Fprintln(os.Stderr, "AWS Access Key is not set. "+checkCfg)
-		os.Exit(1)
+		return nil, errors.New("AWS Access Key is not set. " + checkCfg)
 	}
 
 	if conf.Aws.SecretKey == "" {
-		fmt.Fprintln(os.Stderr, "AWS Secret Key is not set. "+checkCfg)
-		os.Exit(1)
+		return nil, errors.New("AWS Secret Key is not set. " + checkCfg)
 	}
 
 	// increase the timeout
@@ -75,7 +73,7 @@ func New(args []string) *AwsImages {
 	return &AwsImages{
 		services: m,
 		images:   make(map[string][]*ec2.Image),
-	}
+	}, nil
 }
 
 func (a *AwsImages) Fetch(args []string) error {
@@ -163,6 +161,13 @@ func (a *AwsImages) Print() {
 
 func (a *AwsImages) Help(command string) string {
 	var help string
+
+	global := `
+  -access-key      "..."       AWS Access Key (env: AWS_ACCESS_KEY)
+  -secret-key      "..."       AWS Secret Key (env: AWS_SECRET_KEY)
+  -region          "..."       AWS Region (env: AWS_REGION)
+  -region-exclude  "..."       AWS Region to be excluded (env: AWS_REGION_EXCLUDE)
+`
 	switch command {
 	case "modify":
 		help = newModifyFlags().helpMsg
@@ -171,21 +176,15 @@ func (a *AwsImages) Help(command string) string {
 	case "list":
 		help = `Usage: images list --provider aws [options]
 
-	  List AMI properties.
+ List AMI properties.
 
-	Options:
+Options:
 	`
 	case "copy":
 		help = newCopyFlags().helpMsg
 	default:
 		return "no help found for command " + command
 	}
-
-	global := `
-  -region     "..."            AWS Region (env: AWS_REGION)
-  -access-key "..."            AWS Access Key (env: AWS_ACCESS_KEY)
-  -secret-key "..."            AWS Secret Key (env: AWS_SECRET_KEY)
-`
 
 	help += global
 	return help

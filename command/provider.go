@@ -2,24 +2,27 @@ package command
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/fatih/images/provider/awsimages"
 	"github.com/fatih/images/provider/doimages"
 )
 
+var errNoProvider = errors.New("no such provider available")
+
 // Provider returns the provider with the given name
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
-		return awsimages.New(args), nil
+		return awsimages.New(args)
 	case "do":
-		return doimages.New(args), nil
+		return doimages.New(args)
 	default:
-		return nil, errors.New("no such provider available")
+		return nil, errNoProvider
 	}
 }
 
-// Fecher fetches and prints the
+// Fecher fetches and prints the images
 type Fetcher interface {
 	// Fetch fetches the information from the provider
 	Fetch(args []string) error
@@ -28,6 +31,7 @@ type Fetcher interface {
 	Print()
 }
 
+// Copyier copyies the image.
 type Copyier interface {
 	Copy(args []string) error
 }
@@ -50,7 +54,12 @@ type Helper interface {
 func Help(command, name string) string {
 	p, err := Provider(name, nil)
 	if err != nil {
-		return "Provider " + name + " doesn't exists."
+		if err == errNoProvider {
+			return "Provider '" + name + "' doesn't exists."
+		}
+
+		// provider exists but failed, print the help for it
+		fmt.Println(err, "\n")
 	}
 
 	h, ok := p.(Helper)
