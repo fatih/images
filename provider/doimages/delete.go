@@ -42,6 +42,7 @@ Options:
 	return d
 }
 
+// Delete deletes the given images.
 func (d *DoImages) Delete(args []string) error {
 	df := newDeleteFlags()
 
@@ -67,7 +68,7 @@ func (d *DoImages) Delete(args []string) error {
 	)
 
 	for _, id := range images {
-		imageId, err := strconv.Atoi(id)
+		imageID, err := strconv.Atoi(id)
 		if err != nil {
 			mu.Lock()
 			multiErrors = multierror.Append(multiErrors, err)
@@ -85,7 +86,7 @@ func (d *DoImages) Delete(args []string) error {
 			}
 
 			wg.Done()
-		}(imageId)
+		}(imageID)
 	}
 
 	wg.Wait()

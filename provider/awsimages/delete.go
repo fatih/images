@@ -47,6 +47,7 @@ Options:
 	return d
 }
 
+// Delete deletes the given images.
 func (a *AwsImages) Delete(args []string) error {
 	d := newDeleteFlags()
 
@@ -63,10 +64,10 @@ func (a *AwsImages) Delete(args []string) error {
 		return errors.New("no images are passed with [--ids]")
 	}
 
-	return a.Deregister(d.dryRun, strings.Split(d.imageIds, ",")...)
+	return a.deregister(d.dryRun, strings.Split(d.imageIds, ",")...)
 }
 
-func (a *AwsImages) Deregister(dryRun bool, images ...string) error {
+func (a *AwsImages) deregister(dryRun bool, images ...string) error {
 	deleteImages := func(svc *ec2.EC2, images []string) error {
 		var multiErrors error
 

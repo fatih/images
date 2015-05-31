@@ -50,6 +50,8 @@ Options:
 	return m
 }
 
+// Modify manages the tags of the given images. It can create, override or
+// delete tags associated with the given AMI ids.
 func (a *AwsImages) Modify(args []string) error {
 	m := newModifyFlags()
 	if err := m.flagSet.Parse(args); err != nil {

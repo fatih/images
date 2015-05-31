@@ -46,6 +46,7 @@ Options:
 	return m
 }
 
+// Modify renames the given images
 func (d *DoImages) Modify(args []string) error {
 	m := newModifyFlags()
 	if err := m.flagSet.Parse(args); err != nil {
@@ -74,7 +75,7 @@ func (d *DoImages) Modify(args []string) error {
 	images := strings.Split(m.imageIds, ",")
 
 	for _, id := range images {
-		imageId, err := strconv.Atoi(id)
+		imageID, err := strconv.Atoi(id)
 		if err != nil {
 			mu.Lock()
 			multiErrors = multierror.Append(multiErrors, err)
@@ -92,7 +93,7 @@ func (d *DoImages) Modify(args []string) error {
 			}
 
 			wg.Done()
-		}(imageId)
+		}(imageID)
 	}
 
 	wg.Wait()

@@ -27,7 +27,7 @@ func (t *tokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-type DoConfig struct {
+type doConfig struct {
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Do struct {
@@ -35,13 +35,15 @@ type DoConfig struct {
 	}
 }
 
+// DoImages is responsible of managing DigitalOcean images
 type DoImages struct {
 	client *godo.Client
 	images []godo.Image
 }
 
+// New returns a new instance of DoImages
 func New(args []string) (*DoImages, error) {
-	conf := new(DoConfig)
+	conf := new(doConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
 	}
@@ -72,12 +74,15 @@ func New(args []string) (*DoImages, error) {
 	}, nil
 }
 
+// Fetch fetches the given images and stores them internally. Call Print()
+// method to output them.
 func (d *DoImages) Fetch(args []string) error {
 	var err error
 	d.images, _, err = d.client.Images.ListUser(nil)
 	return err
 }
 
+// Print prints the stored images to standard output.
 func (d *DoImages) Print() {
 	if len(d.images) == 0 {
 		fmt.Fprintln(os.Stderr, "no images found")
@@ -110,6 +115,7 @@ func (d *DoImages) Print() {
 	}
 }
 
+// Help prints the help message for the given command
 func (d *DoImages) Help(command string) string {
 	var help string
 	switch command {

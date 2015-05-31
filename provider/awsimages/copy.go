@@ -55,6 +55,7 @@ Options:
 	return c
 }
 
+// Copy transfers the images to other regions
 func (a *AwsImages) Copy(args []string) error {
 	c := newCopyFlags()
 

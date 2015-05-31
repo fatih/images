@@ -19,7 +19,7 @@ import (
 	"github.com/shiena/ansicolor"
 )
 
-type AwsConfig struct {
+type awsConfig struct {
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Aws struct {
@@ -30,13 +30,15 @@ type AwsConfig struct {
 	}
 }
 
+// AwsImages is responsible of managing AWS images (AMI's)
 type AwsImages struct {
 	services *multiRegion
 	images   map[string][]*ec2.Image
 }
 
+// New returns a new instance of AwsImages
 func New(args []string) (*AwsImages, error) {
-	conf := new(AwsConfig)
+	conf := new(awsConfig)
 	if err := loader.Load(conf, args); err != nil {
 		panic(err)
 	}
@@ -63,19 +65,21 @@ func New(args []string) (*AwsImages, error) {
 	}
 
 	creds := credentials.NewStaticCredentials(conf.Aws.AccessKey, conf.Aws.SecretKey, "")
-	awsConfig := &aws.Config{
+	awsCfg := &aws.Config{
 		Credentials: creds,
 		HTTPClient:  client,
 		Logger:      os.Stdout,
 	}
 
-	m := newMultiRegion(awsConfig, parseRegions(conf.Aws.Region, conf.Aws.RegionExclude))
+	m := newMultiRegion(awsCfg, parseRegions(conf.Aws.Region, conf.Aws.RegionExclude))
 	return &AwsImages{
 		services: m,
 		images:   make(map[string][]*ec2.Image),
 	}, nil
 }
 
+// Fetch fetches the given images and stores them internally. Call Print()
+// method to output them.
 func (a *AwsImages) Fetch(args []string) error {
 	input := &ec2.DescribeImagesInput{
 		Owners: stringSlice("self"),
@@ -115,6 +119,7 @@ func (a *AwsImages) Fetch(args []string) error {
 	return multiErrors
 }
 
+// Print prints the stored images to standard output.
 func (a *AwsImages) Print() {
 	if len(a.images) == 0 {
 		fmt.Fprintln(os.Stderr, "no images found")
@@ -159,6 +164,7 @@ func (a *AwsImages) Print() {
 	}
 }
 
+// Help prints the help message for the given command
 func (a *AwsImages) Help(command string) string {
 	var help string
 

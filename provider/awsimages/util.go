@@ -75,14 +75,14 @@ func (a *AwsImages) matchImages(images ...string) (map[string][]string, error) {
 	}
 
 	matchedImages := make(map[string][]string)
-	for _, imageId := range images {
-		region, err := a.imageRegion(imageId)
+	for _, imageID := range images {
+		region, err := a.imageRegion(imageID)
 		if err != nil {
 			return nil, err
 		}
 
 		ids := matchedImages[region]
-		ids = append(ids, imageId)
+		ids = append(ids, imageID)
 		matchedImages[region] = ids
 	}
 
@@ -114,21 +114,21 @@ func (a *AwsImages) svcFromRegion(region string) (*ec2.EC2, error) {
 	return nil, fmt.Errorf("no svc found for region '%s'", region)
 }
 
-// imageRegion returns the given imageId's region
-func (a *AwsImages) imageRegion(imageId string) (string, error) {
+// imageRegion returns the given imageID's region
+func (a *AwsImages) imageRegion(imageID string) (string, error) {
 	if len(a.images) == 0 {
 		return "", errors.New("images are not fetched")
 	}
 
 	for region, images := range a.images {
 		for _, image := range images {
-			if *image.ImageID == imageId {
+			if *image.ImageID == imageID {
 				return region, nil
 			}
 		}
 	}
 
-	return "", fmt.Errorf("no region found for image id '%s'", imageId)
+	return "", fmt.Errorf("no region found for image id '%s'", imageID)
 }
 
 // byTime implements sort.Interface for []*ec2.Image based on the CreationDate field.

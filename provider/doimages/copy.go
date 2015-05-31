@@ -50,6 +50,7 @@ Options:
 	return c
 }
 
+// Copy transfers the images to other regions
 func (d *DoImages) Copy(args []string) error {
 	c := newCopyFlags()
 
@@ -73,7 +74,7 @@ func (d *DoImages) Copy(args []string) error {
 		multiErrors error
 	)
 
-	imageId, err := strconv.Atoi(c.imageID)
+	imageID, err := strconv.Atoi(c.imageID)
 	if err != nil {
 		return err
 	}
@@ -83,7 +84,7 @@ func (d *DoImages) Copy(args []string) error {
 	for _, r := range regions {
 		wg.Add(1)
 		go func(region string) {
-			_, _, err := d.client.ImageActions.Transfer(imageId, &godo.ActionRequest{
+			_, _, err := d.client.ImageActions.Transfer(imageID, &godo.ActionRequest{
 				"type":   "transfer",
 				"region": region,
 			})
