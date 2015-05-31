@@ -1,9 +1,9 @@
 # Images ![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square) [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)](https://github.com/fatih/images/blob/master/LICENSE.md)
 
-Images is a tool to manage machine images from multiple providers with a single
-CLI interface. Think of it as a companion to the popular image creation tool
-[Packer](https://packer.io/). I'm developing it on my spare times, so feedback
-and contributions are welcome!
+Images is a tool to manage machine images from multiple providers over a single
+CLI interface. Its fast(concurrent actions), simple to use and and very
+flexible. Think of it as a companion to the popular image creation tool
+[Packer](https://packer.io/).
 
 ## Features
 
@@ -36,10 +36,14 @@ $ images
 usage: images [--version] [--help] <command> [<args>]
 
 Available commands are:
-    copy      Copy images to different region
-    delete    Delete images
-    list      List available images
-    modify    Modify image properties
+    copy        Copy images to regions
+    delete      Delete available images
+    list        List available images
+    modify      Modify image properties
+
+Available global flags are:
+   -provider    Provider to be used
+   -no-color    No color disables color output
 ```
 
 Because `images` is built around to support multiple providers, each provider
