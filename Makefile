@@ -3,17 +3,15 @@ OK_COLOR=\033[0;32m
 ERR_COLOR=\033[0;31m
 GITCOMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
 GOPATH:=$(PWD)/Godeps/_workspace:$(GOPATH)
-BUILD_PLATFORMS ?= -os="linux" -os="darwin" -os="windows"
-VARIABLE ?= value
 
-all: format vet lint
+all: format vet lint 
 
 build:
 	@echo "$(OK_COLOR)==> Building the project $(NO_COLOR)"
 ifndef IMAGES_VERSION
-	@`which go` build
+	@`which go` build -o bin/images
 else
-	@`which go` build -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'"
+	@`which go` build -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -o bin/images
 endif
 
 format:
@@ -39,6 +37,7 @@ else
 endif
 
 check_goxc:
+	@echo "$(OK_COLOR)==> Checking goxc availability $(NO_COLOR)"
 	@which goxc > /dev/null
 
 clean:

@@ -78,7 +78,7 @@ and execute simply:
 $ images list
 ```
 
-## Examples
+## Usage
 
 `images` has multi provider support. The following examples are for the
 provider "aws".  The commands are supposed to be executed with
@@ -158,6 +158,28 @@ Description can be given too (optional):
 
 ```
 $ images copy -image "ami-530ay345" -to "us-east-1"  -desc "My new AMI"
+```
+
+## Build & Development
+
+To build `images` just run:
+
+```sh
+$ make build
+```
+
+This will put images binary in the bin folder. Development builds doesn't have
+a version, so if called with "--version" it'll output `dev`:
+
+```sh
+$ .bin/images --version
+dev
+```
+
+For creating `release` binaries run ([goxc](https://github.com/laher/goxc) required):
+
+```sh
+IMAGES_VERSION="0.1.0" make release
 ```
 
 ## License
