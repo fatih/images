@@ -1,4 +1,4 @@
-# Images ![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square) ![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)
+# Images ![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square) [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)](https://github.com/fatih/images/blob/master/LICENSE.md)
 
 Images is a tool to manage machine images from multiple providers with a single
 CLI interface. Think of it as a companion to the popular image creation tool

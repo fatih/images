@@ -4,7 +4,7 @@ ERR_COLOR=\033[0;31m
 GITCOMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
 GOPATH:=$(PWD)/Godeps/_workspace:$(GOPATH)
 
-all: format vet lint 
+all: build
 
 build:
 	@echo "$(OK_COLOR)==> Building the project $(NO_COLOR)"
@@ -13,19 +13,6 @@ ifndef IMAGES_VERSION
 else
 	@`which go` build -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -o bin/images
 endif
-
-format:
-	@echo "$(OK_COLOR)==> Formatting the project $(NO_COLOR)"
-	@gofmt -s -w *.go
-	@goimports -w *.go || true
-
-vet:
-	@echo "$(OK_COLOR)==> Running go vet $(NO_COLOR)"
-	@`which go` vet .
-
-lint:
-	@echo "$(OK_COLOR)==> Running golint $(NO_COLOR)"
-	@`which golint` . || true
 
 release: check_goxc clean
 ifdef IMAGES_VERSION
@@ -46,4 +33,4 @@ clean:
 	@rm -rf debian/
 	@rm -rf images
 
-.PHONY: all format test vet lint clean
+.PHONY: all clean
