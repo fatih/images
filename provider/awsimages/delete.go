@@ -25,7 +25,7 @@ func newDeleteFlags() *deleteFlags {
 	d := &deleteFlags{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&d.imageIds, "image-ids", "", "Images to be deleted with the given ids")
+	flagSet.StringVar(&d.imageIds, "ids", "", "Images to be deleted with the given ids")
 	flagSet.StringVar(&d.imageIds, "tags", "", "Images to be deleted with the given tags")
 	flagSet.BoolVar(&d.dryRun, "dry-run", false, "Don't run command, but show the action")
 	d.helpMsg = `Usage: images delete --provider aws [options]
@@ -34,7 +34,7 @@ func newDeleteFlags() *deleteFlags {
 
 Options:
 
-  -image-ids   "ami-123,..."   Images to be deleted with the given ids
+  -ids         "ami-123,..."   Images to be deleted with the given ids
   -tags        "key=val,..."   Images to be deleted with the given tags
   -dry-run                     Don't run command, but show the action
 `
@@ -60,7 +60,7 @@ func (a *AwsImages) Delete(args []string) error {
 	}
 
 	if d.imageIds == "" {
-		return errors.New("no images are passed with [--image-ids]")
+		return errors.New("no images are passed with [--ids]")
 	}
 
 	return a.Deregister(d.dryRun, strings.Split(d.imageIds, ",")...)

@@ -26,7 +26,7 @@ func newModifyFlags() *modifyFlags {
 	m := &modifyFlags{}
 
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
-	flagSet.StringVar(&m.imageIds, "image-ids", "", "Images to be renamed")
+	flagSet.StringVar(&m.imageIds, "ids", "", "Images to be renamed")
 	flagSet.StringVar(&m.name, "name", "", "New name for the images")
 	m.helpMsg = `Usage: images modify --provider do [options]
 
@@ -34,8 +34,8 @@ func newModifyFlags() *modifyFlags {
 
 Options:
 
-  -image-ids   "ami-123,..."   Images to be renamed
-  -name                        New name for the images
+  -ids         "ami-123,..."   Images to be renamed
+  -name        "example"       New name for the images
 `
 	flagSet.Usage = func() {
 		fmt.Fprintf(os.Stderr, m.helpMsg)
@@ -58,7 +58,7 @@ func (d *DoImages) Modify(args []string) error {
 	}
 
 	if m.imageIds == "" {
-		return errors.New("no images are passed with [--image-ids]")
+		return errors.New("no images are passed with [--ids]")
 	}
 
 	if m.name == "" {

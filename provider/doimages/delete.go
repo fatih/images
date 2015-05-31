@@ -24,14 +24,14 @@ func newDeleteFlags() *deleteFlags {
 	d := &deleteFlags{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&d.imageIds, "image-ids", "", "Images to be deleted with the given ids")
+	flagSet.StringVar(&d.imageIds, "ids", "", "Images to be deleted with the given ids")
 	d.helpMsg = `Usage: images delete --provider do [options]
 
   Delete images
 
 Options:
 
-  -image-ids   "123,..."       Images to be deleted with the given ids
+  -ids         "123,..."       Images to be deleted with the given ids
 `
 	flagSet.Usage = func() {
 		fmt.Fprintf(os.Stderr, d.helpMsg)
@@ -55,7 +55,7 @@ func (d *DoImages) Delete(args []string) error {
 	}
 
 	if df.imageIds == "" {
-		return errors.New("no images are passed with [--image-ids]")
+		return errors.New("no images are passed with [--ids]")
 	}
 
 	images := strings.Split(df.imageIds, ",")

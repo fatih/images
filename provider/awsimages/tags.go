@@ -28,7 +28,7 @@ func newModifyFlags() *modifyFlags {
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.StringVar(&m.createTags, "create-tags", "", "Create  or override tags")
 	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
-	flagSet.StringVar(&m.imageIds, "image-ids", "", "Images to be used with actions")
+	flagSet.StringVar(&m.imageIds, "ids", "", "Images to be used with actions")
 	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
 	m.helpMsg = `Usage: images modify --provider aws [options]
 
@@ -36,8 +36,7 @@ func newModifyFlags() *modifyFlags {
 
 Options:
 
-  -image-ids   "ami-123,..."   Images to be used with below actions
-
+  -ids         "ami-123,..."   Images to be used with below actions
   -create-tags "key=val,..."   Create or override tags
   -delete-tags "key,..."       Delete tags
   -dry-run                     Don't run command, but show the action
@@ -63,7 +62,7 @@ func (a *AwsImages) Modify(args []string) error {
 	}
 
 	if m.imageIds == "" {
-		return errors.New("no images are passed with [--image-ids]")
+		return errors.New("no images are passed with [--ids]")
 	}
 
 	if m.createTags != "" && m.deleteTags != "" {

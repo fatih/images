@@ -131,7 +131,7 @@ Options:
 	}
 
 	global := `
-  -token       "..."           DigitalOcean Access Token (env: DO_TOKEN)
+  -token       "..."           DigitalOcean Access Token (env: IMAGES_DO_TOKEN)
 `
 
 	help += global

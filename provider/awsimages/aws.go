@@ -163,10 +163,10 @@ func (a *AwsImages) Help(command string) string {
 	var help string
 
 	global := `
-  -access-key      "..."       AWS Access Key (env: AWS_ACCESS_KEY)
-  -secret-key      "..."       AWS Secret Key (env: AWS_SECRET_KEY)
-  -region          "..."       AWS Region (env: AWS_REGION)
-  -region-exclude  "..."       AWS Region to be excluded (env: AWS_REGION_EXCLUDE)
+  -access-key      "..."       AWS Access Key (env: IMAGES_AWS_ACCESS_KEY)
+  -secret-key      "..."       AWS Secret Key (env: IMAGES_AWS_SECRET_KEY)
+  -region          "..."       AWS Region (env: IMAGES_AWS_REGION)
+  -region-exclude  "..."       AWS Region to be excluded (env: IMAGES_AWS_REGION_EXCLUDE)
 `
 	switch command {
 	case "modify":
