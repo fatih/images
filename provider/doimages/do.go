@@ -95,7 +95,7 @@ func (d *DoImages) Print() {
 		imageDesc = "images"
 	}
 
-	fmt.Fprintln(w, green("DO: (%d %s):", len(d.images), imageDesc))
+	fmt.Fprintln(w, green("DO (%d %s):", len(d.images), imageDesc))
 	fmt.Fprintln(w, "    Name\tID\tDistribution\tType\tRegions")
 
 	for i, image := range d.images {
@@ -106,7 +106,7 @@ func (d *DoImages) Print() {
 		}
 
 		fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s (%d)\t%+v\n",
-			i, image.Name, image.ID, image.Distribution, image.Type, image.MinDiskSize, regions)
+			i+1, image.Name, image.ID, image.Distribution, image.Type, image.MinDiskSize, regions)
 	}
 }
 

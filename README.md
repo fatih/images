@@ -168,8 +168,8 @@ To build `images` just run:
 $ make build
 ```
 
-This will put images binary in the bin folder. Development builds doesn't have
-a version, so if called with "--version" it'll output `dev`:
+This will put the `images` binary in the bin folder. Development builds doesn't
+have a version, so if called with "--version" it'll output `dev`:
 
 ```sh
 $ .bin/images --version

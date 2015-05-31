@@ -132,7 +132,7 @@ func (a *AwsImages) Print() {
 			continue
 		}
 
-		fmt.Fprintln(w, green("AWS: Region: %s (%d images):", region, len(images)))
+		fmt.Fprintln(w, green("AWS Region: %s (%d images):", region, len(images)))
 		fmt.Fprintln(w, "    Name\tID\tState\tTags")
 
 		for i, image := range images {
@@ -152,7 +152,7 @@ func (a *AwsImages) Print() {
 			}
 
 			fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
-				i, name, *image.ImageID, state, tags)
+				i+1, name, *image.ImageID, state, tags)
 		}
 
 		fmt.Fprintln(w, "")
