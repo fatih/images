@@ -46,7 +46,7 @@ func New(args []string) *DoImages {
 	}
 
 	if conf.Do.Token == "" {
-		fmt.Fprintln(os.Stderr, "token is not set")
+		fmt.Fprintln(os.Stderr, "Access Token is not set. Please check your configuration.")
 		os.Exit(1)
 	}
 

@@ -40,18 +40,20 @@ func New(args []string) *AwsImages {
 		panic(err)
 	}
 
+	checkCfg := "Please check your configuration"
+
 	if conf.Aws.Region == "" {
-		fmt.Fprintln(os.Stderr, "region is not set")
+		fmt.Fprintln(os.Stderr, "AWS Region is not set. "+checkCfg)
 		os.Exit(1)
 	}
 
 	if conf.Aws.AccessKey == "" {
-		fmt.Fprintln(os.Stderr, "access key is not set")
+		fmt.Fprintln(os.Stderr, "AWS Access Key is not set. "+checkCfg)
 		os.Exit(1)
 	}
 
 	if conf.Aws.SecretKey == "" {
-		fmt.Fprintln(os.Stderr, "secret key is not set")
+		fmt.Fprintln(os.Stderr, "AWS Secret Key is not set. "+checkCfg)
 		os.Exit(1)
 	}
 
