@@ -14,7 +14,8 @@ flexible. Think of it as a companion to the popular image creation tool
 - Delete images
 - Copy images from one region to another region
 - Commands are executed concurrently (delete, list, etc..).
-- Flexible configuration system. Read from file, environment variables or command line flags.
+- Flexible configuration system. Read from file, environment variables or
+  command line flags.
 
 ## Installation
 
@@ -40,6 +41,7 @@ Available commands are:
     delete      Delete available images
     list        List available images
     modify      Modify image properties
+    version     Prints the Images version
 
 Available global flags are:
    -provider    Provider to be used
@@ -48,8 +50,8 @@ Available global flags are:
 
 Because `images` is built around to support multiple providers, each provider
 has a specific set of features. To display the specific provider help message
-pass the "--provider name --help" flags at any time, where `name` is the
-provider name, such as "aws".
+pass the `-provider name -help` flags at any time, where `name` is the provider
+name, such as "aws".
 
 ## Configuration
 

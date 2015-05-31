@@ -36,10 +36,11 @@ func realMain() int {
 	}
 
 	c.Commands = map[string]cli.CommandFactory{
-		"list":   command.NewList(config),
-		"modify": command.NewModify(config),
-		"delete": command.NewDelete(config),
-		"copy":   command.NewCopy(config),
+		"list":    command.NewList(config),
+		"modify":  command.NewModify(config),
+		"delete":  command.NewDelete(config),
+		"copy":    command.NewCopy(config),
+		"version": command.NewVersion(Version),
 	}
 
 	c.HelpFunc = imagesHelp
