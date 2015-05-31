@@ -32,7 +32,7 @@ lint:
 release: check_goxc clean
 ifdef IMAGES_VERSION
 	@echo "$(OK_COLOR)==> Creating new release $(IMAGES_VERSION) $(NO_COLOR)"
-	@goxc -os="linux windows darwin" -d "out" -pr $(IMAGES_VERSION) -pr "" -build-ldflags="-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -n images
+	@goxc -arch "386 amd64" -os="linux windows darwin" -d "out" -pv $(IMAGES_VERSION) -pr "" -build-ldflags="-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -n images -q
 	@rm -rf debian/
 else
 	@echo "$(ERR_COLOR)Please set IMAGES_VERRSION environment variable to create a release $(NO_COLOR)"
@@ -47,4 +47,4 @@ clean:
 	@rm -rf debian/
 	@rm -rf images
 
-.PHONY: all format test vet lint
+.PHONY: all format test vet lint clean
