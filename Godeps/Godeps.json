@@ -75,7 +75,7 @@
 		},
 		{
 			"ImportPath": "github.com/koding/multiconfig",
-			"Rev": "7e1d5552d0b616f2134e0c98ce2d66e54f09a8a6"
+			"Rev": "a12a8bb918d25b35c0b364378422f6c8714f5cb4"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/cli",
