@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fatih/images/command/loader"
+	"github.com/mitchellh/go-homedir"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -17,14 +18,14 @@ import (
 
 // GceImages is responsible of managing GCE images
 type GceImages struct {
-	svc *compute.ImagesService
-
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Gce struct {
 		ProjectID   string `toml:"project_id" json:"project_id"`
 		AccountFile string `toml:"account_file" json:"account_file"`
-	} `structs:"gce"`
+	}
+
+	svc *compute.ImagesService
 }
 
 // New returns a new instance of GceImages
@@ -55,7 +56,13 @@ func New(args []string) (*GceImages, error) {
 	// downloaded from console.developers.google under APIs & Auth/Credentials
 	// section
 	if cfg.Gce.AccountFile != "" {
-		jsonContent, err := ioutil.ReadFile(cfg.Gce.AccountFile)
+		// expand shell meta character
+		path, err := homedir.Expand(cfg.Gce.AccountFile)
+		if err != nil {
+			return nil, err
+		}
+
+		jsonContent, err := ioutil.ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
@@ -67,19 +74,7 @@ func New(args []string) (*GceImages, error) {
 
 		client = jtwConfig.Client(ctx)
 	} else {
-		// It looks for credentials in the following places,
-		// preferring the first location found:
-		//
-		//   1. A JSON file whose path is specified by the
-		//      GOOGLE_APPLICATION_CREDENTIALS environment variable.
-		//   2. A JSON file in a location known to the gcloud command-line tool.
-		//      On Windows, this is %APPDATA%/gcloud/application_default_credentials.json.
-		//      On other systems, $HOME/.config/gcloud/application_default_credentials.json.
-		//   3. On Google App Engine it uses the appengine.AccessToken function.
-		//   4. On Google Compute Engine, it fetches credentials from the metadata server.
-		//      (In this final case any provided scopes are ignored.)
-		//
-		// For more details, see:
+		// Look for application default credentials, for more details, see:
 		// https://developers.google.com/accounts/docs/application-default-credentials
 		client, err = google.DefaultClient(ctx, scopes...)
 		if err != nil {
