@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/images/provider/awsimages"
 	"github.com/fatih/images/provider/doimages"
+	"github.com/fatih/images/provider/gceimages"
 )
 
 var errNoProvider = errors.New("no such provider available")
@@ -17,6 +18,8 @@ func Provider(name string, args []string) (interface{}, error) {
 		return awsimages.New(args)
 	case "do":
 		return doimages.New(args)
+	case "gce":
+		return gceimages.New(args)
 	default:
 		return nil, errNoProvider
 	}

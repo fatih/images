@@ -2,6 +2,7 @@ package gceimages
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -14,46 +15,28 @@ import (
 	compute "google.golang.org/api/compute/v1"
 )
 
-type tokenSource struct {
-	AccessToken string
-}
+// GceImages is responsible of managing GCE images
+type GceImages struct {
+	svc *compute.ImagesService
 
-type gceConfig struct {
 	// just so we can use the Env and TOML loader more efficiently with out
 	// any complex hacks
 	Gce struct {
 		ProjectID   string `toml:"project_id" json:"project_id"`
 		AccountFile string `toml:"account_file" json:"account_file"`
-		Region      string `toml:"region" json:"region"`
-	}
-}
-
-func (t *tokenSource) Token() (*oauth2.Token, error) {
-	token := &oauth2.Token{
-		AccessToken: t.AccessToken,
-	}
-	return token, nil
-}
-
-// GceImages is responsible of managing GCE images
-type GceImages struct {
-	svc *compute.ImagesService
+	} `structs:"gce"`
 }
 
 // New returns a new instance of GceImages
 func New(args []string) (*GceImages, error) {
-	conf := new(gceConfig)
-	err := loader.Load(conf, args)
+	cfg := new(GceImages)
+	err := loader.Load(cfg, args)
 	if err != nil {
 		return nil, err
 	}
 
-	if conf.Gce.ProjectID == "" {
+	if cfg.Gce.ProjectID == "" {
 		return nil, errors.New("ProjectID is not set. Please check your configuration.")
-	}
-
-	if conf.Gce.Region == "" {
-		return nil, errors.New("Region is not set. Please check your configuration.")
 	}
 
 	// increase the timeout. Also we need to pass the client with the context itself
@@ -65,13 +48,14 @@ func New(args []string) (*GceImages, error) {
 
 	var client *http.Client
 
+	// allowed scopes
 	scopes := []string{compute.ComputeScope}
 
 	// Recommended way is explicit passing of credentials json which can be
 	// downloaded from console.developers.google under APIs & Auth/Credentials
 	// section
-	if conf.Gce.AccountFile != "" {
-		jsonContent, err := ioutil.ReadFile(conf.Gce.AccountFile)
+	if cfg.Gce.AccountFile != "" {
+		jsonContent, err := ioutil.ReadFile(cfg.Gce.AccountFile)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +92,28 @@ func New(args []string) (*GceImages, error) {
 		return nil, err
 	}
 
-	return &GceImages{
-		svc: compute.NewImagesService(svc),
-	}, nil
+	cfg.svc = compute.NewImagesService(svc)
+	return cfg, nil
+}
+
+// Fetch fetches the given images and stores them internally. Call Print()
+// method to output them.
+func (g *GceImages) Fetch(args []string) error {
+	var err error
+	list, err := g.svc.List(g.Gce.ProjectID).Do()
+	if err != nil {
+		fmt.Printf("err = %+v\n", err)
+		return err
+	}
+
+	fmt.Printf("list = %+v\n", list)
+	for _, item := range list.Items {
+		fmt.Printf("item = %+v\n", item)
+	}
+
+	return err
+}
+
+// Print prints the stored images to standard output.
+func (g *GceImages) Print() {
 }
