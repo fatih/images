@@ -7,7 +7,7 @@ flexible. Think of it as a companion to the popular image creation tool
 
 ## Features
 
-- Multiple provider backend support: `AWS`, `DO`, etc...
+- Multiple provider backend support: `AWS`, `DO`, `GCE`, etc...
 - Multi region support
 - List images from a provider
 - Modify image attributes, such as tags or names
