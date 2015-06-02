@@ -133,3 +133,33 @@ func (g *GceImages) Print() {
 		)
 	}
 }
+
+// Help prints the help message for the given command
+func (g *GceImages) Help(command string) string {
+	var help string
+	switch command {
+	case "delete":
+		help = newDeleteFlags().helpMsg
+	// case "modify":
+	// 	help = newModifyFlags().helpMsg
+	// case "copy":
+	// 	help = newCopyFlags().helpMsg
+	case "list":
+		help = `Usage: images list --provider gce [options]
+
+ List images
+
+Options:
+	`
+	default:
+		return "no help found for command " + command
+	}
+
+	global := `
+  -project-id      "..."              Project Id (env: IMAGES_GCE_PROJECT_ID)
+  -account-file    "..."              Account file (env: IMAGES_GCE_ACCOUNT_FILE)
+`
+
+	help += global
+	return help
+}
