@@ -9,9 +9,9 @@ all: build
 build:
 	@echo "$(OK_COLOR)==> Building the project $(NO_COLOR)"
 ifndef IMAGES_VERSION
-	@`which go` build -o bin/images
+	@`which go` build -v -o bin/images
 else
-	@`which go` build -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -o bin/images
+	@`which go` build -v -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -o bin/images
 endif
 
 release: check_goxc clean

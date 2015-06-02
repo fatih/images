@@ -46,9 +46,7 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	remainingArgs := flags.Exclude("provider", args)
-
-	p, err := Provider(c.provider, remainingArgs)
+	p, err := Provider(c.provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1

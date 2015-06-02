@@ -121,13 +121,22 @@ func TestValueFromFlag(t *testing.T) {
 	}
 
 	for _, args := range arguments {
+		before := make([]string, len(args.args))
+		copy(before, args.args)
+
 		value, _ := Value("provider", args.args)
 
 		if value != args.value {
 			t.Errorf("parsing args value: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.value, value)
 		}
+
+		if !reflect.DeepEqual(before, args.args) {
+			t.Errorf("parsing args modified the underlying slice for value: %v\n\twant: %s\n\tgot : %s\n",
+				value, before, args.args)
+		}
 	}
+
 }
 
 func TestValueFromDashFlag(t *testing.T) {
@@ -152,6 +161,7 @@ func TestValueFromDashFlag(t *testing.T) {
 			t.Errorf("parsing dash args value: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.value, value)
 		}
+
 	}
 }
 
@@ -180,11 +190,19 @@ func TestExcludeFlag(t *testing.T) {
 	}
 
 	for _, args := range arguments {
+		before := make([]string, len(args.args))
+		copy(before, args.args)
+
 		remainingArgs := Exclude("provider", args.args)
 
 		if !reflect.DeepEqual(remainingArgs, args.remArgs) {
 			t.Errorf("parsing and returning rem args: %v\n\twant: %s\n\tgot : %s\n",
 				args.args, args.remArgs, remainingArgs)
+		}
+
+		if !reflect.DeepEqual(before, args.args) {
+			t.Errorf("parsing args modified the underlying slice: \n\twant: %s\n\tgot : %s\n",
+				before, args.args)
 		}
 	}
 }

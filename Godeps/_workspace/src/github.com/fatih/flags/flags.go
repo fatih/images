@@ -86,7 +86,10 @@ func Exclude(flagName string, args []string) []string {
 
 // parseFlagAndValue is an internal function to parse the flag name, and return
 // the value and remaining args.
-func parseFlagAndValue(flagName string, args []string) (string, []string, error) {
+func parseFlagAndValue(flagName string, flagArgs []string) (string, []string, error) {
+	args := make([]string, len(flagArgs))
+	copy(args, flagArgs)
+
 	if len(args) == 0 {
 		return "", nil, errors.New("argument slice is empty")
 	}

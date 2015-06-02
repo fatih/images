@@ -59,7 +59,7 @@
 		},
 		{
 			"ImportPath": "github.com/fatih/flags",
-			"Rev": "412311caef593412da1cafbcf543a3ee491255fb"
+			"Rev": "31efa8ff9c58ddb91c2403c3a55a81b83423bffe"
 		},
 		{
 			"ImportPath": "github.com/fatih/structs",
@@ -75,11 +75,15 @@
 		},
 		{
 			"ImportPath": "github.com/koding/multiconfig",
-			"Rev": "7e1d5552d0b616f2134e0c98ce2d66e54f09a8a6"
+			"Rev": "a12a8bb918d25b35c0b364378422f6c8714f5cb4"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/cli",
 			"Rev": "6cc8bc522243675a2882b81662b0b0d2e04b99c9"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/go-homedir",
+			"Rev": "1f6da4a72e57d4e7edd4a7295a585e0a3999a2d4"
 		},
 		{
 			"ImportPath": "github.com/shiena/ansicolor",
@@ -104,6 +108,22 @@
 		{
 			"ImportPath": "golang.org/x/oauth2",
 			"Rev": "b5adcc2dcdf009d0391547edc6ecbaff889f5bb9"
+		},
+		{
+			"ImportPath": "google.golang.org/api/compute/v1",
+			"Rev": "d56f328dc27a4097cd0fc535e7c77807f48a2e84"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi",
+			"Rev": "d56f328dc27a4097cd0fc535e7c77807f48a2e84"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/compute/metadata",
+			"Rev": "faa320c66cedce7c0cc2f8ffd892d9cee4804c33"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/internal",
+			"Rev": "faa320c66cedce7c0cc2f8ffd892d9cee4804c33"
 		}
 	]
 }
