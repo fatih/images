@@ -14,21 +14,22 @@ import (
 var Version = "dev"
 
 func main() {
-	// Call realMain instead of doing the work here so we can use
-	// `defer` statements within the function and have them work properly.
-	// (defers aren't called with os.Exit)
-	os.Exit(realMain())
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 }
 
-func realMain() int {
+func run() error {
 	// Create our global configuration and pre-process the argument list to
 	// return anything except our global flags. The global flags are passed
 	// into the config struct
 	config, remainingArgs, err := command.Load(os.Args[1:])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading global config : %s\n", err)
-		return 1
+		return fmt.Errorf("Error loading global config : %s\n", err)
 	}
+
+	fmt.Printf("remainingArgs = %+v\n", remainingArgs)
 
 	// completely shutdown colors
 	if config.NoColor {
@@ -51,9 +52,8 @@ func realMain() int {
 
 	_, err = c.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing CLI: %s\n", err)
-		return 1
+		return fmt.Errorf("Error executing CLI: %s\n", err)
 	}
 
-	return 0
+	return nil
 }
