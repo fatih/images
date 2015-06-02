@@ -9,7 +9,16 @@ import (
 	"github.com/fatih/images/provider/gceimages"
 )
 
-var errNoProvider = errors.New("no such provider available")
+var (
+	errNoProvider = errors.New("no such provider available")
+
+	// providerList is used when the provider name is set as "all"
+	providerList = []string{
+		"aws",
+		"do",
+		"gce",
+	}
+)
 
 // Provider returns the provider with the given name
 func Provider(name string, args []string) (interface{}, error) {

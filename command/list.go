@@ -51,6 +51,9 @@ func (l *List) Run(args []string) int {
 	}
 
 	providers := strings.Split(l.provider, ",")
+	if l.provider == "all" {
+		providers = providerList
+	}
 
 	var (
 		wg          sync.WaitGroup

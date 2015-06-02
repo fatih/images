@@ -112,6 +112,12 @@ List from multiple providers (fetches concurrently):
 $ images list -provider "aws,do"
 ```
 
+List from all supported providers
+
+```
+$ images list -provider "all"
+```
+
 #### Delete
 
 Delete images from the given provider. Examples:
