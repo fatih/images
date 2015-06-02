@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"text/tabwriter"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/fatih/images/command/loader"
 	"github.com/mitchellh/go-homedir"
+	"github.com/shiena/ansicolor"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -25,7 +29,8 @@ type GceImages struct {
 		AccountFile string `toml:"account_file" json:"account_file"`
 	}
 
-	svc *compute.ImagesService
+	svc    *compute.ImagesService
+	images *compute.ImageList
 }
 
 // New returns a new instance of GceImages
@@ -95,20 +100,36 @@ func New(args []string) (*GceImages, error) {
 // method to output them.
 func (g *GceImages) Fetch(args []string) error {
 	var err error
-	list, err := g.svc.List(g.Gce.ProjectID).Do()
-	if err != nil {
-		fmt.Printf("err = %+v\n", err)
-		return err
-	}
-
-	fmt.Printf("list = %+v\n", list)
-	for _, item := range list.Items {
-		fmt.Printf("item = %+v\n", item)
-	}
-
+	g.images, err = g.svc.List(g.Gce.ProjectID).Do()
 	return err
 }
 
 // Print prints the stored images to standard output.
 func (g *GceImages) Print() {
+	if len(g.images.Items) == 0 {
+		fmt.Fprintln(os.Stderr, "no images found")
+		return
+	}
+
+	green := color.New(color.FgGreen).SprintfFunc()
+
+	w := new(tabwriter.Writer)
+	w.Init(ansicolor.NewAnsiColorWriter(os.Stdout), 10, 8, 0, '\t', 0)
+	defer w.Flush()
+
+	imageDesc := "image"
+	if len(g.images.Items) > 1 {
+		imageDesc = "images"
+	}
+
+	fmt.Fprintln(w, green("GCE (%d %s):", len(g.images.Items), imageDesc))
+	fmt.Fprintln(w, "    Name\tID\tStatus\tType\tCreation Timestamp")
+
+	for i, image := range g.images.Items {
+		fmt.Fprintf(w, "[%d] %s (%s)\t%d\t%s\t%s (%d)\t%s\n",
+			i+1, image.Name, image.Description, image.Id,
+			image.Status, image.SourceType, image.DiskSizeGb,
+			image.CreationTimestamp,
+		)
+	}
 }

@@ -29,8 +29,6 @@ func run() error {
 		return fmt.Errorf("Error loading global config : %s\n", err)
 	}
 
-	fmt.Printf("remainingArgs = %+v\n", remainingArgs)
-
 	// completely shutdown colors
 	if config.NoColor {
 		color.NoColor = true
