@@ -21,10 +21,10 @@ func main() {
 }
 
 func realMain() int {
-	c := cli.NewCLI("images", Version)
-	c.Args = os.Args[1:]
-
-	config, err := command.Load()
+	// Create our global configuration and pre-process the argument list to
+	// return anything except our global flags. The global flags are passed
+	// into the config struct
+	config, remainingArgs, err := command.Load(os.Args[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading global config : %s\n", err)
 		return 1
@@ -35,15 +35,19 @@ func realMain() int {
 		color.NoColor = true
 	}
 
-	c.Commands = map[string]cli.CommandFactory{
-		"list":    command.NewList(config),
-		"modify":  command.NewModify(config),
-		"delete":  command.NewDelete(config),
-		"copy":    command.NewCopy(config),
-		"version": command.NewVersion(Version),
+	c := &cli.CLI{
+		Name:     "images",
+		Version:  Version,
+		Args:     remainingArgs,
+		HelpFunc: command.HelpFunc,
+		Commands: map[string]cli.CommandFactory{
+			"list":    command.NewList(config),
+			"modify":  command.NewModify(config),
+			"delete":  command.NewDelete(config),
+			"copy":    command.NewCopy(config),
+			"version": command.NewVersion(Version),
+		},
 	}
-
-	c.HelpFunc = command.HelpFunc
 
 	_, err = c.Run()
 	if err != nil {

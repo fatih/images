@@ -47,9 +47,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	remainingArgs := flags.Exclude("provider", args)
-
-	p, err := Provider(m.provider, remainingArgs)
+	p, err := Provider(m.provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -62,7 +60,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	if err := mr.Modify(remainingArgs); err != nil {
+	if err := mr.Modify(args); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

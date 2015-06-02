@@ -1,10 +1,6 @@
 package command
 
-import (
-	"os"
-
-	"github.com/fatih/images/command/loader"
-)
+import "github.com/fatih/images/command/loader"
 
 // Config defines the global flag set of images
 type Config struct {
@@ -20,16 +16,14 @@ func (c *Config) Help() map[string]string {
 	}
 }
 
-// Load tries to read the global configurations from flag, env or a toml file
-func Load() (*Config, error) {
-	// only pass our flags that are defined in the config, the rest will be
-	// handled by the appropriate provider dispatchers
-	currentArgs := os.Args[1:]
-
+// Load tries to read the global configurations from flag, env or a toml file.
+func Load(args []string) (*Config, []string, error) {
 	conf := new(Config)
-	if err := loader.Load(conf, currentArgs); err != nil {
+	if err := loader.Load(conf, args); err != nil {
 		panic(err)
 	}
 
-	return conf, nil
+	remainingArgs := loader.ExcludeArgs(conf, args)
+
+	return conf, remainingArgs, nil
 }

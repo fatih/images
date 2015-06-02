@@ -17,16 +17,15 @@ var (
 	DefaultConfigName = "imagesrc"
 )
 
-// Load loads the given config to the rules of images CLI
-func Load(conf interface{}, args []string) error {
+// FilterArgs filters the given arguments and returns a filtered argument list.
+// It only contains the arguments which are declared in the given configuration
+// struct.
+func FilterArgs(conf interface{}, args []string) []string {
 	configArgs := []string{}
 
-	// need to be declared so we can call it recursively :)
+	// need to be declared so we can call it recursively
 	var addFields func(fields []*structs.Field)
 
-	// only pass the config's field names arguments. This means we create an
-	// argument list that contains flag names and their values which are only
-	// declared in the passed "conf" struct. Any other argument is discarded
 	addFields = func(fields []*structs.Field) {
 		for _, field := range fields {
 			// don't forget nested structs
@@ -45,6 +44,36 @@ func Load(conf interface{}, args []string) error {
 		}
 	}
 	addFields(structs.Fields(conf))
+
+	return configArgs
+}
+
+// ExcludeArgs exludes the given arguments declared in the configuration and
+// returns the remaining arguments. It's the opposite of FilterArgs
+func ExcludeArgs(conf interface{}, args []string) []string {
+	// need to be declared so we can call it recursively
+	var addFields func(fields []*structs.Field)
+
+	addFields = func(fields []*structs.Field) {
+		for _, field := range fields {
+			// don't forget nested structs
+			if field.Kind() == reflect.Struct {
+				addFields(field.Fields())
+				continue
+			}
+
+			fName := strings.ToLower(strings.Join(camelcase.Split(field.Name()), "-"))
+			args = flags.Exclude(fName, args)
+		}
+	}
+	addFields(structs.Fields(conf))
+
+	return args
+}
+
+// Load loads the given config to the rules of images CLI
+func Load(conf interface{}, args []string) error {
+	configArgs := FilterArgs(conf, args)
 
 	loaders := []multiconfig.Loader{}
 
