@@ -148,8 +148,6 @@ func (g *GceImages) Help(command string) string {
 		help = newDeleteFlags().helpMsg
 	case "modify":
 		help = newModifyFlags().helpMsg
-	// case "copy":
-	// 	help = newCopyFlags().helpMsg
 	case "list":
 		help = `Usage: images list --provider gce [options]
 
