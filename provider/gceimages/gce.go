@@ -123,15 +123,21 @@ func (g *GceImages) Print() {
 	}
 
 	fmt.Fprintln(w, green("GCE (%d %s):", len(g.images.Items), imageDesc))
-	fmt.Fprintln(w, "    Name\tID\tStatus\tType\tCreation Timestamp")
+	fmt.Fprintln(w, "    Name\tID\tStatus\tType\tDeprecated\tCreation Timestamp")
 
 	for i, image := range g.images.Items {
-		fmt.Fprintf(w, "[%d] %s (%s)\t%d\t%s\t%s (%d)\t%s\n",
+		deprecatedState := ""
+		if image.Deprecated != nil {
+			deprecatedState = image.Deprecated.State
+		}
+
+		fmt.Fprintf(w, "[%d] %s (%s)\t%d\t%s\t%s (%d)\t%s\t%s\n",
 			i+1, image.Name, image.Description, image.Id,
 			image.Status, image.SourceType, image.DiskSizeGb,
-			image.CreationTimestamp,
+			deprecatedState, image.CreationTimestamp,
 		)
 	}
+
 }
 
 // Help prints the help message for the given command
@@ -140,8 +146,8 @@ func (g *GceImages) Help(command string) string {
 	switch command {
 	case "delete":
 		help = newDeleteFlags().helpMsg
-	// case "modify":
-	// 	help = newModifyFlags().helpMsg
+	case "modify":
+		help = newModifyFlags().helpMsg
 	// case "copy":
 	// 	help = newCopyFlags().helpMsg
 	case "list":
