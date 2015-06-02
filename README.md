@@ -9,7 +9,7 @@ flexible. Think of it as a companion to the popular image creation tool
 
 - Multiple provider backend support: `AWS`, `DO`, `GCE`, etc...
 - Multi region support
-- List images from a provider
+- List images from multiple providers
 - Modify image attributes, such as tags or names
 - Delete images
 - Copy images from one region to another region
@@ -104,6 +104,12 @@ List from all regions (fetches concurrently):
 
 ```
 $ images list -region "all"
+```
+
+List from multiple providers (fetches concurrently):
+
+```
+$ images list -provider "aws,do"
 ```
 
 #### Delete
