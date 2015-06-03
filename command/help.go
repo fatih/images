@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"strings"
+	"text/tabwriter"
 
 	"github.com/mitchellh/cli"
 )
@@ -13,19 +13,15 @@ import (
 // Help is a custom help func for the cli. It's the same as
 // cli.BasicHelpFunc but contains our global configuration
 func HelpFunc(commands map[string]cli.CommandFactory) string {
-	var buf bytes.Buffer
-	buf.WriteString("usage: images [--version] [--help] <command> [<args>]\n\n")
-	buf.WriteString("Available commands are:\n")
+	buf := new(bytes.Buffer)
+	w := tabwriter.NewWriter(buf, 10, 8, 0, '\t', 0)
 
-	// Get the list of keys so we can sort them, and also get the maximum
-	// key length so they can be aligned properly.
+	fmt.Fprintf(w, "usage: images [--version] [--help] <command> [<args>]\n\n")
+	fmt.Fprintf(w, "Available commands are:\n")
+
+	// Get the list of keys so we can sort them
 	keys := make([]string, 0, len(commands))
-	maxKeyLen := 0
-	for key, _ := range commands {
-		if len(key) > maxKeyLen {
-			maxKeyLen = len(key)
-		}
-
+	for key := range commands {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
@@ -45,17 +41,23 @@ func HelpFunc(commands map[string]cli.CommandFactory) string {
 			continue
 		}
 
-		// +2 just comes from the global configuration name, which is longer
-		// than the commands above, hacky I know but for now it does the work
-		key = fmt.Sprintf("%s%s", key, strings.Repeat(" ", maxKeyLen-len(key)+2))
-		buf.WriteString(fmt.Sprintf("    %s    %s\n", key, command.Synopsis()))
+		fmt.Fprintf(w, "    %s\t%s\n", key, command.Synopsis())
 	}
 
-	buf.WriteString("\nAvailable global flags are:\n")
+	fmt.Fprintf(w, "\nAvailable global flags are:\n")
+
 	cfg := Config{}
-	for key, synopsis := range cfg.Help() {
-		buf.WriteString(fmt.Sprintf("   -%s    %s\n", key, synopsis))
+	helps := cfg.Help()
+	globals := make([]string, 0, len(helps))
+	for key := range helps {
+		globals = append(globals, key)
+	}
+	sort.Strings(globals)
+
+	for _, flag := range globals {
+		fmt.Fprintf(w, "   -%s\t%s\n", flag, helps[flag])
 	}
 
+	w.Flush()
 	return buf.String()
 }
