@@ -9,19 +9,19 @@ import (
 )
 
 type Delete struct {
-	provider string
+	*Config
 }
 
 func NewDelete(config *Config) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return &Delete{
-			provider: config.Provider,
+			Config: config,
 		}, nil
 	}
 }
 
 func (d *Delete) Help() string {
-	if d.provider == "" {
+	if d.Provider == "" {
 		return `Usage: images delete [options]
 
   Delete images
@@ -32,11 +32,11 @@ Options:
 `
 	}
 
-	return Help("delete", d.provider)
+	return Help("delete", d.Provider)
 }
 
 func (d *Delete) Run(args []string) int {
-	if d.provider == "" {
+	if d.Provider == "" {
 		fmt.Print(d.Help())
 		return 1
 	}
@@ -46,7 +46,7 @@ func (d *Delete) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(d.provider, args)
+	p, err := Provider(d.Provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -54,9 +54,23 @@ func (d *Delete) Run(args []string) int {
 
 	deleter, ok := p.(Deleter)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support deleting images", d.provider)
+		err := fmt.Errorf("'%s' doesn't support deleting images", d.Provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
+	}
+
+	// Don't ask for question if --force is enabled
+	if !d.Force {
+		response, err := d.Ui.Ask("Do you really want to delete? (Type 'yes' to continue):")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			return 1
+		}
+
+		if response != "yes" {
+			d.Ui.Output("Delete cancelled.")
+			return 0
+		}
 	}
 
 	if err := deleter.Delete(args); err != nil {

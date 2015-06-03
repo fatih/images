@@ -13,19 +13,19 @@ import (
 )
 
 type List struct {
-	provider string
+	*Config
 }
 
 func NewList(config *Config) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return &List{
-			provider: config.Provider,
+			Config: config,
 		}, nil
 	}
 }
 
 func (l *List) Help() string {
-	if l.provider == "" {
+	if l.Provider == "" {
 		return `Usage: images list [options]
 
   Lists available images for the given provider.
@@ -36,11 +36,11 @@ Options:
 `
 	}
 
-	return Help("list", l.provider)
+	return Help("list", l.Provider)
 }
 
 func (l *List) Run(args []string) int {
-	if l.provider == "" {
+	if l.Provider == "" {
 		fmt.Println(l.Help())
 		return 1
 	}
@@ -50,8 +50,8 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	providers := strings.Split(l.provider, ",")
-	if l.provider == "all" {
+	providers := strings.Split(l.Provider, ",")
+	if l.Provider == "all" {
 		providers = providerList
 	}
 
@@ -71,7 +71,7 @@ func (l *List) Run(args []string) int {
 
 		f, ok := p.(Fetcher)
 		if !ok {
-			return fmt.Errorf("Provider '%s' doesn't support listing images", l.provider)
+			return fmt.Errorf("Provider '%s' doesn't support listing images", l.Provider)
 		}
 
 		if err := f.Fetch(args); err != nil {

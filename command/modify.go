@@ -9,19 +9,19 @@ import (
 )
 
 type Modify struct {
-	provider string
+	*Config
 }
 
 func NewModify(config *Config) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return &Modify{
-			provider: config.Provider,
+			Config: config,
 		}, nil
 	}
 }
 
 func (m *Modify) Help() string {
-	if m.provider == "" {
+	if m.Provider == "" {
 		defaultHelp := `Usage: images modify [options]
 
   Modifies images properties. Each providers sub options are different.
@@ -33,11 +33,11 @@ Options:
 		return defaultHelp
 	}
 
-	return Help("modify", m.provider)
+	return Help("modify", m.Provider)
 }
 
 func (m *Modify) Run(args []string) int {
-	if m.provider == "" {
+	if m.Provider == "" {
 		fmt.Print(m.Help())
 		return 1
 	}
@@ -47,7 +47,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(m.provider, args)
+	p, err := Provider(m.Provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -55,7 +55,7 @@ func (m *Modify) Run(args []string) int {
 
 	mr, ok := p.(Modifier)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support listing images", m.provider)
+		err := fmt.Errorf("'%s' doesn't support listing images", m.Provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

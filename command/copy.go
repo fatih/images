@@ -9,19 +9,19 @@ import (
 )
 
 type Copy struct {
-	provider string
+	*Config
 }
 
 func NewCopy(config *Config) cli.CommandFactory {
 	return func() (cli.Command, error) {
 		return &Copy{
-			provider: config.Provider,
+			Config: config,
 		}, nil
 	}
 }
 
 func (c *Copy) Help() string {
-	if c.provider == "" {
+	if c.Provider == "" {
 		return `Usage: images copy [options]
 
   Copy images to regions
@@ -32,11 +32,11 @@ Options:
 `
 	}
 
-	return Help("copy", c.provider)
+	return Help("copy", c.Provider)
 }
 
 func (c *Copy) Run(args []string) int {
-	if c.provider == "" {
+	if c.Provider == "" {
 		fmt.Print(c.Help())
 		return 1
 	}
@@ -46,7 +46,7 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(c.provider, args)
+	p, err := Provider(c.Provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -54,7 +54,7 @@ func (c *Copy) Run(args []string) int {
 
 	copyier, ok := p.(Copyier)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support copying images", c.provider)
+		err := fmt.Errorf("'%s' doesn't support copying images", c.Provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
@@ -68,5 +68,5 @@ func (c *Copy) Run(args []string) int {
 }
 
 func (c *Copy) Synopsis() string {
-	return "Copy images to regions"
+	return "Copy/transfer images"
 }
