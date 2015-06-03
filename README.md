@@ -43,9 +43,7 @@ Available commands are:
     modify      Modify image properties
     version     Prints the Images version
 
-Available global flags are:
-   -provider    Provider to be used
-   -no-color    No color disables color output
+...
 ```
 
 Because `images` is built around to support multiple providers, each provider
@@ -123,7 +121,7 @@ $ images list -provider "all"
 Delete images from the given provider. Examples:
 
 ```
-$ images delete -image-ids "ami-1ec4d766,ami-c3h207b4,ami-26f1d9r37"
+$ images delete -ids "ami-1ec4d766,ami-c3h207b4,ami-26f1d9r37"
 ```
 
 Note that you don't need to specify a region if you define multiple ids.
@@ -137,20 +135,20 @@ all are deleted concurrently.
 To create or override a image tag:
 
 ```
-$images modify --create-tags "Name=ImagesExample" --image-ids ami-f465e69d
+$images modify --create-tags "Name=ImagesExample" --ids ami-f465e69d
 ```
 
 To delete the tags of an image
 
 ```
-$images modify --delete-tags "Name=ImagesExample" --image-ids ami-f465e69d
+$images modify --delete-tags "Name=ImagesExample" --ids ami-f465e69d
 ```
 
 The commands also have support for batch action:
 
 ```
-$images modify --create-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
-$images modify --delete-tags "Name=Example" --image-ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
+$images modify --create-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
+$images modify --delete-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
 ```
 
 Just like for the `delete` command, all you need to give is the ami ids.
