@@ -69,18 +69,17 @@ func (l *List) Run(args []string) int {
 			}
 		}
 
-		f, ok := p.(Fetcher)
+		lister, ok := p.(Lister)
 		if !ok {
 			return fmt.Errorf("Provider '%s' doesn't support listing images", l.Provider)
 		}
 
-		if err := f.Fetch(args); err != nil {
+		if err := lister.List(args); err != nil {
 			// we don't return here, because Print might display at least
 			// successfull results.
-			fmt.Fprintln(os.Stderr, err.Error())
+			return err
 		}
 
-		f.Print()
 		fmt.Println("")
 		return nil
 	}
