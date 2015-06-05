@@ -1,7 +1,6 @@
 package command
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -66,9 +65,7 @@ func (l *List) Run(args []string) int {
 	printProvider := func(provider string) error {
 		p, err := Provider(provider, args)
 		if err != nil {
-			if err == errNoProvider {
-				return errors.New("Provider '" + provider + "' doesn't exists.")
-			}
+			return err
 		}
 
 		lister, ok := p.(Lister)
