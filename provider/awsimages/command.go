@@ -45,8 +45,17 @@ func (a *AwsCommand) List(args []string) error {
 }
 
 func (a *AwsCommand) Copy(args []string) error {
-	return errors.New("not implemented yet")
+	c := newCopyOptions()
+	if err := c.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
 
+	if len(args) == 0 {
+		c.flagSet.Usage()
+		return nil
+	}
+
+	return a.CopyImages(c)
 }
 
 func (a *AwsCommand) Delete(args []string) error {

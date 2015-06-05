@@ -131,7 +131,7 @@ func (a *AwsImages) Help(command string) string {
 Options:
 	`
 	case "copy":
-		help = newCopyFlags().helpMsg
+		help = newCopyOptions().helpMsg
 	default:
 		return "no help found for command " + command
 	}
