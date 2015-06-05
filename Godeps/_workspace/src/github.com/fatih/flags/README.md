@@ -80,7 +80,7 @@ var regions []string
 var ids []int
 
 flags.StringSliceVar(&regions, []string{}, "to", "Regions to be used")
-flags.IntSliceVar(&ids, "ids", []int{678}, "Servers to be used")
+flags.IntSliceVar(&ids, []int{678}, "ids", "Servers to be used")
 flag.Parse()
 
 fmt.Println(regions) // prints: ["us-east-1", "eu-west-1"]
