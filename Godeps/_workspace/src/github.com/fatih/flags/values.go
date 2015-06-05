@@ -11,7 +11,7 @@ import (
 // Example:
 //
 //  var regions []string
-//	flag.Var(flags.StringListVar(&regions), "to", "Regions to be used")
+//  flag.Var(flags.StringListVar(&regions), "to", "Regions to be used")
 type StringList []string
 
 // New returns a new *StringList.
@@ -39,7 +39,7 @@ func (s *StringList) String() string { return strings.Join(*s, ",") }
 // Example:
 //
 //  var ids []int
-//	flag.Var(flags.IntListVar(&ids), "server", "IDs to be used")
+//  flag.Var(flags.IntListVar(&ids), "server", "IDs to be used")
 type IntList []int
 
 // New returns a new *IntList.

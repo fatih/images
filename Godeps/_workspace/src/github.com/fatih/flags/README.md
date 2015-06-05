@@ -4,8 +4,12 @@
 Flags is a low level package for parsing or managing single flag arguments and
 their associated values from a list of arguments. It's useful for CLI
 applications or creating logic for parsing arguments(custom or os.Args)
-manually. Checkout the
-usage below for examples:
+manually. 
+
+Note that there is no context available for flags. You need to know upfront how
+flags are supposed to be parsed.
+
+Checkout the usage below for examples:
 
 ## Install
 
