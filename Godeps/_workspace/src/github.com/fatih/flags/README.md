@@ -69,9 +69,25 @@ name, _ := flags.Parse("-foo=value") // name -> "foo
 name, _ := flags.Parse("-foo=")      // name -> "foo
 ```
 
-## flag.Value implementations (StringList and IntList)
+## flag.Value implementations (StringSlice and IntSlice)
 
 Parse into a `[]string` or `[]int` variable
+
+```go
+os.Args = []string{"cmd", "--key", "123,456", "--regions", "us-east-1,eu-west-1"}
+
+var regions []string
+var ids []int
+
+flags.StringSliceVar(&regions, []string{}, "to", "Regions to be used")
+flags.IntSliceVar(&ids, "ids", []int{678}, "Servers to be used")
+flag.Parse()
+
+fmt.Println(regions) // prints: ["us-east-1", "eu-west-1"]
+fmt.Println(ids)     // prints: [123,456]
+```
+
+Or plug it into a `flag.FlagSet` instance:
 
 ```go
 args := []string{"--key", "123,456", "--regions", "us-east-1,eu-west-1"}
@@ -79,9 +95,10 @@ args := []string{"--key", "123,456", "--regions", "us-east-1,eu-west-1"}
 var regions []string
 var ids []int
 
-flag.Var(flags.StringListVar(&regions), "to", "Regions to be used")
-flag.Var(flags.IntListVar(&ids), "ids", "Servers to be used")
-flag.Parse(args)
+f := flag.NewFlagSet()
+f.Var(flags.NewStringSlice(nil, &regions), "to", "Regions to be used")
+f.Var(flags.NewIntSlice(nil, &ids), "to", "Regions to be used")
+f.Parse(args)
 
 fmt.Println(regions) // prints: ["us-east-1", "eu-west-1"]
 fmt.Println(ids)     // prints: [123,456]
