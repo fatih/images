@@ -26,7 +26,7 @@ func Provider(name string, args []string) (interface{}, error) {
 	case "aws":
 		return awsimages.NewCommand(args)
 	case "do":
-		return doimages.New(args)
+		return doimages.NewCommand(args)
 	case "gce":
 		return gceimages.New(args)
 	default:
