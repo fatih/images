@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fatih/images/provider/awsimages"
+	"github.com/fatih/images/provider/aws"
 	"github.com/fatih/images/provider/doimages"
 	"github.com/fatih/images/provider/gceimages"
 )
@@ -24,7 +24,7 @@ var (
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
-		return awsimages.NewCommand(args)
+		return aws.NewCommand(args)
 	case "do":
 		return doimages.NewCommand(args)
 	case "gce":

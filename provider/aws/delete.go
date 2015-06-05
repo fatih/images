@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"flag"
@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
@@ -54,8 +54,8 @@ func (a *AwsImages) DeleteImages(opts *DeleteOptions) error {
 
 		for _, image := range images {
 			input := &ec2.DeregisterImageInput{
-				ImageID: aws.String(image),
-				DryRun:  aws.Boolean(opts.DryRun),
+				ImageID: awsclient.String(image),
+				DryRun:  awsclient.Boolean(opts.DryRun),
 			}
 
 			_, err := svc.DeregisterImage(input)

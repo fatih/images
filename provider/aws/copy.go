@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"flag"
@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
@@ -106,11 +106,11 @@ func (a *AwsImages) CopyImages(opts *CopyOptions) error {
 			imageDesc := fmt.Sprintf("[Copied %s from %s via images] %s", opts.ImageID, region, opts.Desc)
 			log.Println("copying image ...")
 			input := &ec2.CopyImageInput{
-				SourceImageID: aws.String(opts.ImageID),
-				SourceRegion:  aws.String(region),
-				Description:   aws.String(imageDesc),
+				SourceImageID: awsclient.String(opts.ImageID),
+				SourceRegion:  awsclient.String(region),
+				Description:   awsclient.String(imageDesc),
 				Name:          image.Name,
-				DryRun:        aws.Boolean(opts.DryRun),
+				DryRun:        awsclient.Boolean(opts.DryRun),
 			}
 
 			_, err := svc.CopyImage(input)

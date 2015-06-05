@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"flag"
@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/fatih/flags"
 )
@@ -60,7 +60,7 @@ func (a *AwsImages) CreateTags(tags string, dryRun bool, images ...string) error
 		_, err := svc.CreateTags(&ec2.CreateTagsInput{
 			Resources: stringSlice(images...),
 			Tags:      populateEC2Tags(tags, true),
-			DryRun:    aws.Boolean(dryRun),
+			DryRun:    awsclient.Boolean(dryRun),
 		})
 		return err
 	}
@@ -79,7 +79,7 @@ func (a *AwsImages) DeleteTags(tags string, dryRun bool, images ...string) error
 		_, err := svc.DeleteTags(&ec2.DeleteTagsInput{
 			Resources: stringSlice(images...),
 			Tags:      populateEC2Tags(tags, false),
-			DryRun:    aws.Boolean(dryRun),
+			DryRun:    awsclient.Boolean(dryRun),
 		})
 		return err
 	}
@@ -94,17 +94,17 @@ func populateEC2Tags(tags string, create bool) []*ec2.Tag {
 	for _, keyVal := range strings.Split(tags, ",") {
 		keys := strings.Split(keyVal, "=")
 		ec2Tag := &ec2.Tag{
-			Key: aws.String(keys[0]), // index 0 is always available
+			Key: awsclient.String(keys[0]), // index 0 is always available
 		}
 
 		// It's in the form "key4". The AWS API will create the key only if the
 		// value is being passed as an empty string.
 		if create && len(keys) == 1 {
-			ec2Tag.Value = aws.String("")
+			ec2Tag.Value = awsclient.String("")
 		}
 
 		if len(keys) == 2 {
-			ec2Tag.Value = aws.String(keys[1])
+			ec2Tag.Value = awsclient.String(keys[1])
 		}
 
 		ec2Tags = append(ec2Tags, ec2Tag)

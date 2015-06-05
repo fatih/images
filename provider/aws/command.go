@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"errors"

@@ -1,7 +1,7 @@
-package awsimages
+package aws
 
 import (
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 )
 
@@ -25,13 +25,13 @@ type multiRegion struct {
 	regions map[string]*ec2.EC2
 }
 
-func newMultiRegion(conf *aws.Config, regions []string) *multiRegion {
+func newMultiRegion(conf *awsclient.Config, regions []string) *multiRegion {
 	m := &multiRegion{
 		regions: make(map[string]*ec2.EC2, 0),
 	}
 
 	for _, region := range regions {
-		m.regions[region] = ec2.New(conf.Merge(&aws.Config{Region: region}))
+		m.regions[region] = ec2.New(conf.Merge(&awsclient.Config{Region: region}))
 	}
 
 	return m

@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/aws/credentials"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/hashicorp/go-multierror"
@@ -50,7 +50,7 @@ func New(conf *AwsConfig) (*AwsImages, error) {
 	}
 
 	creds := credentials.NewStaticCredentials(conf.AccessKey, conf.SecretKey, "")
-	awsCfg := &aws.Config{
+	awsCfg := &awsclient.Config{
 		Credentials: creds,
 		HTTPClient:  client,
 		Logger:      os.Stdout,

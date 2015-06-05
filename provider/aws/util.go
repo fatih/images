@@ -1,4 +1,4 @@
-package awsimages
+package aws
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/awslabs/aws-sdk-go/aws"
+	awsclient "github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 	"github.com/hashicorp/go-multierror"
 )
@@ -140,7 +140,7 @@ func stringSlice(vals ...string) []*string {
 	a := make([]*string, len(vals))
 
 	for i, v := range vals {
-		a[i] = aws.String(v)
+		a[i] = awsclient.String(v)
 	}
 
 	return a
