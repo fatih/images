@@ -55,6 +55,10 @@ func (a *AwsCommand) Copy(args []string) error {
 		return nil
 	}
 
+	if c.ImageID == "" {
+		return errors.New("no image is passed. Use --image")
+	}
+
 	return a.CopyImages(c)
 }
 

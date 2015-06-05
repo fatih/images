@@ -1,7 +1,6 @@
 package awsimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -65,10 +64,6 @@ Options:
 
 // Copy transfers the images to other regions
 func (a *AwsImages) CopyImages(opts *CopyOptions) error {
-	if opts.ImageID == "" {
-		return errors.New("no image is passed. Use --image")
-	}
-
 	var (
 		wg sync.WaitGroup
 		mu sync.Mutex

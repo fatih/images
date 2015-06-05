@@ -1,6 +1,10 @@
 package doimages
 
-import "github.com/fatih/images/command/loader"
+import (
+	"errors"
+
+	"github.com/fatih/images/command/loader"
+)
 
 // DoCommand implements the images various interfaces, such as Fetcher,
 // Deleter, Modifier, etc..
@@ -41,7 +45,21 @@ func (d *DoCommand) List(args []string) error {
 }
 
 func (d *DoCommand) Copy(args []string) error {
-	return nil
+	c := newCopyOptions()
+	if err := c.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		c.flagSet.Usage()
+		return nil
+	}
+
+	if c.ImageID == 0 {
+		return errors.New("no image is passed. Use --image")
+	}
+
+	return d.CopyImages(c)
 }
 
 func (d *DoCommand) Delete(args []string) error {
@@ -63,7 +81,7 @@ func (d *DoCommand) Help(command string) string {
 	case "modify":
 		help = newModifyFlags().helpMsg
 	case "copy":
-		help = newCopyFlags().helpMsg
+		help = newCopyOptions().helpMsg
 	case "list":
 		help = `Usage: images list --provider do [options]
 

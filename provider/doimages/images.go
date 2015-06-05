@@ -11,6 +11,7 @@ import (
 	"github.com/shiena/ansicolor"
 )
 
+// Images defines and represents a list of images
 type Images []godo.Image
 
 // Print prints the stored images to standard output.
