@@ -27,7 +27,7 @@ func newDeleteOptions() *DeleteOptions {
 	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.Var(flags.StringListVar(&d.ImageIds), "ids", "Images to be delete with the given ids")
+	flagSet.Var(flags.NewStringSlice(nil, &d.ImageIds), "ids", "Images to be delete with the given ids")
 	flagSet.BoolVar(&d.DryRun, "dry-run", false, "Don't run command, but show the action")
 	d.helpMsg = `Usage: images delete --provider aws [options]
 

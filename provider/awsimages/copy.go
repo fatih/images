@@ -39,7 +39,7 @@ func newCopyOptions() *CopyOptions {
 	flagSet.StringVar(&c.ImageID, "image", "", "Image to be copied with the given id")
 	flagSet.StringVar(&c.Desc, "desc", "", "Description for the new AMI (optional)")
 	flagSet.BoolVar(&c.DryRun, "dry-run", false, "Don't run command, but show the action")
-	flagSet.Var(flags.StringListVar(&c.SourceRegions), "to", "Images to be copied to the given regions")
+	flagSet.Var(flags.NewStringSlice(nil, &c.SourceRegions), "to", "Images to be copied to the given regions")
 
 	c.helpMsg = `Usage: images copy --provider aws [options]
 

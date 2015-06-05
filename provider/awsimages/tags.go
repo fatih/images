@@ -28,7 +28,7 @@ func newModifyFlags() *modifyFlags {
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.StringVar(&m.createTags, "create-tags", "", "Create  or override tags")
 	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
-	flagSet.Var(flags.StringListVar(&m.imageIds), "ids", "Images to be delete with actions")
+	flagSet.Var(flags.NewStringSlice(nil, &m.imageIds), "ids", "Images to be delete with actions")
 	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
 	m.helpMsg = `Usage: images modify --provider aws [options]
 

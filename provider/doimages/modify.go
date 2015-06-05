@@ -27,7 +27,7 @@ func newRenameOptions() *RenameOptions {
 	r := &RenameOptions{}
 
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
-	flagSet.Var(flags.IntListVar(&r.ImageIds), "ids", "Images to be delete with the given ids")
+	flagSet.Var(flags.NewIntSlice(nil, &r.ImageIds), "ids", "Images to be delete with the given ids")
 	flagSet.StringVar(&r.Name, "name", "", "New name for the images")
 	r.helpMsg = `Usage: images modify --provider do [options]
 
