@@ -80,10 +80,27 @@ func (d *DoCommand) Delete(args []string) error {
 	return d.DeleteImages(df)
 }
 
-// Modify manages the tags of the given images. It can create, override or
-// delete tags associated with the given AMI ids.
+// Modify renames the given images
 func (d *DoCommand) Modify(args []string) error {
-	return nil
+	r := newRenameOptions()
+	if err := r.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		r.flagSet.Usage()
+		return nil
+	}
+
+	if len(r.ImageIds) == 0 {
+		return errors.New("no images are passed with [--ids]")
+	}
+
+	if r.Name == "" {
+		return errors.New("no name is passed with [--name]")
+	}
+
+	return d.RenameImages(r)
 }
 
 // Help prints the help message for the given command
@@ -93,7 +110,7 @@ func (d *DoCommand) Help(command string) string {
 	case "delete":
 		help = newDeleteOptions().helpMsg
 	case "modify":
-		help = newModifyFlags().helpMsg
+		help = newRenameOptions().helpMsg
 	case "copy":
 		help = newCopyOptions().helpMsg
 	case "list":

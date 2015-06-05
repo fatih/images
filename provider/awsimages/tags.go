@@ -9,7 +9,7 @@ import (
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
-	"github.com/fatih/images/command/stringlist"
+	"github.com/fatih/flags"
 )
 
 type modifyFlags struct {
@@ -28,7 +28,7 @@ func newModifyFlags() *modifyFlags {
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.StringVar(&m.createTags, "create-tags", "", "Create  or override tags")
 	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
-	flagSet.Var(stringlist.New(&m.imageIds), "ids", "Images to be delete with actions")
+	flagSet.Var(flags.StringListVar(&m.imageIds), "ids", "Images to be delete with actions")
 	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
 	m.helpMsg = `Usage: images modify --provider aws [options]
 

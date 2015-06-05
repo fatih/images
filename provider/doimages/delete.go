@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"sync"
 
-	"github.com/fatih/images/command/stringlist"
+	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )
 
 type DeleteOptions struct {
-	ImageIds []string
+	ImageIds []int
 	helpMsg  string
 
 	flagSet *flag.FlagSet
@@ -23,7 +22,7 @@ func newDeleteOptions() *DeleteOptions {
 	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.Var(stringlist.New(&d.ImageIds), "ids", "Images to be delete with the given ids")
+	flagSet.Var(flags.IntListVar(&d.ImageIds), "ids", "Images to be delete with the given ids")
 	d.helpMsg = `Usage: images delete --provider do [options]
 
   Delete images
@@ -49,15 +48,7 @@ func (d *DoImages) DeleteImages(opts *DeleteOptions) error {
 		multiErrors error
 	)
 
-	for _, id := range opts.ImageIds {
-		imageID, err := strconv.Atoi(id)
-		if err != nil {
-			mu.Lock()
-			multiErrors = multierror.Append(multiErrors, err)
-			mu.Unlock()
-			continue
-		}
-
+	for _, imageID := range opts.ImageIds {
 		wg.Add(1)
 		go func(id int) {
 			_, err := d.client.Images.Delete(id)
