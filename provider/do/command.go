@@ -1,4 +1,4 @@
-package doimages
+package do
 
 import (
 	"errors"

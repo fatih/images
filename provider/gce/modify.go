@@ -1,4 +1,4 @@
-package gceimages
+package gce
 
 import (
 	"flag"
