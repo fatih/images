@@ -22,7 +22,7 @@ func newDeleteOptions() *DeleteOptions {
 	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.Var(flags.NewStringSlice(nil, &d.Names), "ids", "Images to be delete with the given names")
+	flagSet.Var(flags.NewStringSlice(nil, &d.Names), "names", "Images to be delete with the given names")
 	d.helpMsg = `Usage: images delete --provider gce [options]
 
   Delete images

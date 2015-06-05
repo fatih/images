@@ -64,7 +64,21 @@ func (g *GceCommand) Delete(args []string) error {
 
 // Modify renames the given images
 func (g *GceCommand) Modify(args []string) error {
-	return nil
+	m := newDeprecateOptions()
+	if err := m.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		m.flagSet.Usage()
+		return nil
+	}
+
+	if len(m.Names) == 0 {
+		return errors.New("no images are passed with [--names]")
+	}
+
+	return g.DeprecateImages(m)
 }
 
 // Help prints the help message for the given command
@@ -74,7 +88,7 @@ func (g *GceCommand) Help(command string) string {
 	case "delete":
 		help = newDeleteOptions().helpMsg
 	case "modify":
-		help = newModifyFlags().helpMsg
+		help = newDeprecateOptions().helpMsg
 	case "list":
 		help = `Usage: images list --provider gce [options]
 

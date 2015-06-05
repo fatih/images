@@ -1,33 +1,32 @@
 package gceimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 	"sync"
 
 	compute "google.golang.org/api/compute/v1"
 
+	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )
 
-type modifyFlags struct {
-	names   string
-	state   string
-	helpMsg string
+type DeprecateOptions struct {
+	Names []string
+	State string
 
+	helpMsg string
 	flagSet *flag.FlagSet
 }
 
-func newModifyFlags() *modifyFlags {
-	m := &modifyFlags{}
+func newDeprecateOptions() *DeprecateOptions {
+	m := &DeprecateOptions{}
 
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
-	flagSet.StringVar(&m.names, "names", "", "Images to be deprecated")
-	flagSet.StringVar(&m.state, "state", "", "Image state to be applied")
+	flagSet.Var(flags.NewStringSlice(nil, &m.Names), "ids", "Images to be delete with the given names")
+	flagSet.StringVar(&m.State, "state", "", "Image state to be applied")
 	m.helpMsg = `Usage: images modify --provider gce [options]
 
   Depcreate images
@@ -48,34 +47,18 @@ Options:
 }
 
 // Modify renames the given images
-func (g *GceImages) Modify(args []string) error {
-	m := newModifyFlags()
-	if err := m.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		m.flagSet.Usage()
-		return nil
-	}
-
-	if m.names == "" {
-		return errors.New("no images are passed with [--names]")
-	}
-
+func (g *GceImages) DeprecateImages(opts *DeprecateOptions) error {
 	var (
 		wg          sync.WaitGroup
 		mu          sync.Mutex // protects multiErrors
 		multiErrors error
 	)
 
-	images := strings.Split(m.names, ",")
-
-	for _, n := range images {
+	for _, n := range opts.Names {
 		wg.Add(1)
 		go func(name string) {
 			st := &compute.DeprecationStatus{
-				State: m.state,
+				State: opts.State,
 			}
 
 			_, err := g.svc.Deprecate(g.config.ProjectID, name, st).Do()
