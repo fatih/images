@@ -122,7 +122,7 @@ func (a *AwsImages) Help(command string) string {
 	case "modify":
 		help = newModifyFlags().helpMsg
 	case "delete":
-		help = newDeleteFlags().helpMsg
+		help = newDeleteOptions().helpMsg
 	case "list":
 		help = `Usage: images list --provider aws [options]
 

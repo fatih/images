@@ -1,33 +1,31 @@
 package awsimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
+	"github.com/fatih/images/command/stringlist"
 	"github.com/hashicorp/go-multierror"
 )
 
-type deleteFlags struct {
-	imageIds string
-	dryRun   bool
-	helpMsg  string
+type DeleteOptions struct {
+	ImageIds []string
+	DryRun   bool
 
+	helpMsg string
 	flagSet *flag.FlagSet
 }
 
-func newDeleteFlags() *deleteFlags {
-	d := &deleteFlags{}
+func newDeleteOptions() *DeleteOptions {
+	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&d.imageIds, "ids", "", "Images to be deleted with the given ids")
-	flagSet.StringVar(&d.imageIds, "tags", "", "Images to be deleted with the given tags")
-	flagSet.BoolVar(&d.dryRun, "dry-run", false, "Don't run command, but show the action")
+	flagSet.Var(stringlist.New(&d.ImageIds), "ids", "Images to be delete with the given ids")
+	flagSet.BoolVar(&d.DryRun, "dry-run", false, "Don't run command, but show the action")
 	d.helpMsg = `Usage: images delete --provider aws [options]
 
   Deregister AMI's.
@@ -35,7 +33,6 @@ func newDeleteFlags() *deleteFlags {
 Options:
 
   -ids         "ami-123,..."   Images to be deleted with the given ids
-  -tags        "key=val,..."   Images to be deleted with the given tags
   -dry-run                     Don't run command, but show the action
 `
 	flagSet.Usage = func() {
@@ -48,33 +45,14 @@ Options:
 }
 
 // Delete deletes the given images.
-func (a *AwsImages) Delete(args []string) error {
-	d := newDeleteFlags()
-
-	if err := d.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		d.flagSet.Usage()
-		return nil
-	}
-
-	if d.imageIds == "" {
-		return errors.New("no images are passed with [--ids]")
-	}
-
-	return a.deregister(d.dryRun, strings.Split(d.imageIds, ",")...)
-}
-
-func (a *AwsImages) deregister(dryRun bool, images ...string) error {
+func (a *AwsImages) DeleteImages(opts *DeleteOptions) error {
 	deleteImages := func(svc *ec2.EC2, images []string) error {
 		var multiErrors error
 
 		for _, image := range images {
 			input := &ec2.DeregisterImageInput{
 				ImageID: aws.String(image),
-				DryRun:  aws.Boolean(dryRun),
+				DryRun:  aws.Boolean(opts.DryRun),
 			}
 
 			_, err := svc.DeregisterImage(input)
@@ -86,5 +64,5 @@ func (a *AwsImages) deregister(dryRun bool, images ...string) error {
 		return multiErrors
 	}
 
-	return a.multiCall(deleteImages, images...)
+	return a.multiCall(deleteImages, opts.ImageIds...)
 }

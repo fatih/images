@@ -59,8 +59,21 @@ func (a *AwsCommand) Copy(args []string) error {
 }
 
 func (a *AwsCommand) Delete(args []string) error {
-	return errors.New("not implemented yet")
+	d := newDeleteOptions()
+	if err := d.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
 
+	if len(args) == 0 {
+		d.flagSet.Usage()
+		return nil
+	}
+
+	if len(d.ImageIds) == 0 {
+		return errors.New("no images are passed with [--ids]")
+	}
+
+	return a.DeleteImages(d)
 }
 
 func (a *AwsCommand) Modify(args []string) error {
