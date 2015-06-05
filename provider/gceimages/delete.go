@@ -1,29 +1,28 @@
 package gceimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 	"sync"
 
+	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )
 
-type deleteFlags struct {
-	names   string
-	helpMsg string
+type DeleteOptions struct {
+	Names []string
 
+	helpMsg string
 	flagSet *flag.FlagSet
 }
 
-func newDeleteFlags() *deleteFlags {
-	d := &deleteFlags{}
+func newDeleteOptions() *DeleteOptions {
+	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&d.names, "names", "", "Images to be deleted with the given names")
+	flagSet.Var(flags.NewStringSlice(nil, &d.Names), "ids", "Images to be delete with the given names")
 	d.helpMsg = `Usage: images delete --provider gce [options]
 
   Delete images
@@ -42,31 +41,14 @@ Options:
 }
 
 // Delete deletes the given images.
-func (g *GceImages) DeleteImages(args []string) error {
-	df := newDeleteFlags()
-
-	if err := df.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		df.flagSet.Usage()
-		return nil
-	}
-
-	if df.names == "" {
-		return errors.New("no images are passed with [--names]")
-	}
-
-	images := strings.Split(df.names, ",")
-
+func (g *GceImages) DeleteImages(opts *DeleteOptions) error {
 	var (
 		wg          sync.WaitGroup
 		mu          sync.Mutex // protects multiErrors
 		multiErrors error
 	)
 
-	for _, n := range images {
+	for _, n := range opts.Names {
 		wg.Add(1)
 		go func(name string) {
 			_, err := g.svc.Delete(g.config.ProjectID, name).Do()

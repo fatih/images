@@ -1,6 +1,10 @@
 package gceimages
 
-import "github.com/fatih/images/command/loader"
+import (
+	"errors"
+
+	"github.com/fatih/images/command/loader"
+)
 
 // GceCommand implements the images various interfaces, such as Fetcher,
 // Deleter, Modifier, etc..
@@ -40,12 +44,22 @@ func (g *GceCommand) List(args []string) error {
 	return images.Print()
 }
 
-func (g *GceCommand) Copy(args []string) error {
-	return nil
-}
-
 func (g *GceCommand) Delete(args []string) error {
-	return nil
+	df := newDeleteOptions()
+	if err := df.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		df.flagSet.Usage()
+		return nil
+	}
+
+	if len(df.Names) == 0 {
+		return errors.New("no images are passed with [--names]")
+	}
+
+	return g.DeleteImages(df)
 }
 
 // Modify renames the given images
@@ -58,7 +72,7 @@ func (g *GceCommand) Help(command string) string {
 	var help string
 	switch command {
 	case "delete":
-		help = newDeleteFlags().helpMsg
+		help = newDeleteOptions().helpMsg
 	case "modify":
 		help = newModifyFlags().helpMsg
 	case "list":
