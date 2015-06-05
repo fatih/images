@@ -11,12 +11,12 @@ import (
 	"github.com/shiena/ansicolor"
 )
 
-// MultiImages defines and represents regions to images
-type MultiImages map[string][]*ec2.Image
+// Images defines and represents regions to images
+type Images map[string][]*ec2.Image
 
 // Print prints the images to standard output.
-func (m MultiImages) Print() error {
-	if len(m) == 0 {
+func (i Images) Print() error {
+	if len(i) == 0 {
 		return errors.New("no images found")
 	}
 
@@ -26,7 +26,7 @@ func (m MultiImages) Print() error {
 	w := tabwriter.NewWriter(output, 10, 8, 0, '\t', 0)
 	defer w.Flush()
 
-	for region, images := range m {
+	for region, images := range i {
 		if len(images) == 0 {
 			continue
 		}
@@ -34,7 +34,7 @@ func (m MultiImages) Print() error {
 		fmt.Fprintln(w, green("AWS Region: %s (%d images):", region, len(images)))
 		fmt.Fprintln(w, "    Name\tID\tState\tTags")
 
-		for i, image := range images {
+		for ix, image := range images {
 			tags := make([]string, len(image.Tags))
 			for i, tag := range image.Tags {
 				tags[i] = *tag.Key + ":" + *tag.Value
@@ -51,7 +51,7 @@ func (m MultiImages) Print() error {
 			}
 
 			fmt.Fprintf(w, "[%d] %s\t%s\t%s\t%+v\n",
-				i+1, name, *image.ImageID, state, tags)
+				ix+1, name, *image.ImageID, state, tags)
 		}
 
 		fmt.Fprintln(w, "")
@@ -61,12 +61,12 @@ func (m MultiImages) Print() error {
 }
 
 // RegionFromId returns the region for the given id
-func (m MultiImages) RegionFromId(id string) (string, error) {
-	if len(m) == 0 {
+func (i Images) RegionFromId(id string) (string, error) {
+	if len(i) == 0 {
 		return "", errors.New("images are not fetched")
 	}
 
-	for region, images := range m {
+	for region, images := range i {
 		for _, image := range images {
 			if *image.ImageID == id {
 				return region, nil

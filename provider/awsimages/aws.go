@@ -24,7 +24,7 @@ type AwsConfig struct {
 // AwsImages is responsible of managing AWS images (AMI's)
 type AwsImages struct {
 	services *multiRegion
-	images   MultiImages
+	images   Images
 }
 
 func New(conf *AwsConfig) (*AwsImages, error) {
@@ -63,7 +63,7 @@ func New(conf *AwsConfig) (*AwsImages, error) {
 	}, nil
 }
 
-func (a *AwsImages) MultiImages(input *ec2.DescribeImagesInput) (MultiImages, error) {
+func (a *AwsImages) Images(input *ec2.DescribeImagesInput) (Images, error) {
 	var (
 		wg sync.WaitGroup
 		mu sync.Mutex
@@ -100,10 +100,10 @@ func (a *AwsImages) MultiImages(input *ec2.DescribeImagesInput) (MultiImages, er
 	return images, multiErrors
 }
 
-func (a *AwsImages) ownerImages() (MultiImages, error) {
+func (a *AwsImages) ownerImages() (Images, error) {
 	input := &ec2.DescribeImagesInput{
 		Owners: stringSlice("self"),
 	}
 
-	return a.MultiImages(input)
+	return a.Images(input)
 }
