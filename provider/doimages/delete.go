@@ -1,30 +1,29 @@
 package doimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 
+	"github.com/fatih/images/command/stringlist"
 	"github.com/hashicorp/go-multierror"
 )
 
-type deleteFlags struct {
-	imageIds string
+type DeleteOptions struct {
+	ImageIds []string
 	helpMsg  string
 
 	flagSet *flag.FlagSet
 }
 
-func newDeleteFlags() *deleteFlags {
-	d := &deleteFlags{}
+func newDeleteOptions() *DeleteOptions {
+	d := &DeleteOptions{}
 
 	flagSet := flag.NewFlagSet("delete", flag.ContinueOnError)
-	flagSet.StringVar(&d.imageIds, "ids", "", "Images to be deleted with the given ids")
+	flagSet.Var(stringlist.New(&d.ImageIds), "ids", "Images to be delete with the given ids")
 	d.helpMsg = `Usage: images delete --provider do [options]
 
   Delete images
@@ -43,31 +42,14 @@ Options:
 }
 
 // Delete deletes the given images.
-func (d *DoImages) Delete(args []string) error {
-	df := newDeleteFlags()
-
-	if err := df.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		df.flagSet.Usage()
-		return nil
-	}
-
-	if df.imageIds == "" {
-		return errors.New("no images are passed with [--ids]")
-	}
-
-	images := strings.Split(df.imageIds, ",")
-
+func (d *DoImages) DeleteImages(opts *DeleteOptions) error {
 	var (
 		wg          sync.WaitGroup
 		mu          sync.Mutex // protects multiErrors
 		multiErrors error
 	)
 
-	for _, id := range images {
+	for _, id := range opts.ImageIds {
 		imageID, err := strconv.Atoi(id)
 		if err != nil {
 			mu.Lock()

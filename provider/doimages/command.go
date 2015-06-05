@@ -63,7 +63,21 @@ func (d *DoCommand) Copy(args []string) error {
 }
 
 func (d *DoCommand) Delete(args []string) error {
-	return nil
+	df := newDeleteOptions()
+	if err := df.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(args) == 0 {
+		df.flagSet.Usage()
+		return nil
+	}
+
+	if len(df.ImageIds) == 0 {
+		return errors.New("no images are passed with [--ids]")
+	}
+
+	return d.DeleteImages(df)
 }
 
 // Modify manages the tags of the given images. It can create, override or
@@ -77,7 +91,7 @@ func (d *DoCommand) Help(command string) string {
 	var help string
 	switch command {
 	case "delete":
-		help = newDeleteFlags().helpMsg
+		help = newDeleteOptions().helpMsg
 	case "modify":
 		help = newModifyFlags().helpMsg
 	case "copy":
