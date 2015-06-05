@@ -78,7 +78,7 @@ func (g *GceImages) Modify(args []string) error {
 				State: m.state,
 			}
 
-			_, err := g.svc.Deprecate(g.Gce.ProjectID, name, st).Do()
+			_, err := g.svc.Deprecate(g.config.ProjectID, name, st).Do()
 			if err != nil {
 				mu.Lock()
 				multiErrors = multierror.Append(multiErrors, err)

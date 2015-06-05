@@ -28,7 +28,7 @@ func Provider(name string, args []string) (interface{}, error) {
 	case "do":
 		return doimages.NewCommand(args)
 	case "gce":
-		return gceimages.New(args)
+		return gceimages.NewCommand(args)
 	default:
 		return nil, errNoProvider
 	}

@@ -42,7 +42,7 @@ Options:
 }
 
 // Delete deletes the given images.
-func (g *GceImages) Delete(args []string) error {
+func (g *GceImages) DeleteImages(args []string) error {
 	df := newDeleteFlags()
 
 	if err := df.flagSet.Parse(args); err != nil {
@@ -69,7 +69,7 @@ func (g *GceImages) Delete(args []string) error {
 	for _, n := range images {
 		wg.Add(1)
 		go func(name string) {
-			_, err := g.svc.Delete(g.Gce.ProjectID, name).Do()
+			_, err := g.svc.Delete(g.config.ProjectID, name).Do()
 			if err != nil {
 				mu.Lock()
 				multiErrors = multierror.Append(multiErrors, err)
