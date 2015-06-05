@@ -15,10 +15,10 @@ import (
 )
 
 type AwsConfig struct {
-	Region        string `toml:"region" json:"region"`
-	RegionExclude string `toml:"region_exclude" json:"region_exclude"`
-	AccessKey     string `toml:"access_key" json:"access_key"`
-	SecretKey     string `toml:"secret_key" json:"secret_key"`
+	Regions        []string `toml:"regions" json:"regions"`
+	RegionsExclude []string `toml:"regions_exclude" json:"regions_exclude"`
+	AccessKey      string   `toml:"access_key" json:"access_key"`
+	SecretKey      string   `toml:"secret_key" json:"secret_key"`
 }
 
 // AwsImages is responsible of managing AWS images (AMI's)
@@ -30,8 +30,8 @@ type AwsImages struct {
 func New(conf *AwsConfig) (*AwsImages, error) {
 	checkCfg := "Please check your configuration"
 
-	if conf.Region == "" {
-		return nil, errors.New("AWS Region is not set. " + checkCfg)
+	if len(conf.Regions) == 0 {
+		return nil, errors.New("AWS Regions are not set. " + checkCfg)
 	}
 
 	if conf.AccessKey == "" {
@@ -56,7 +56,7 @@ func New(conf *AwsConfig) (*AwsImages, error) {
 		Logger:      os.Stdout,
 	}
 
-	m := newMultiRegion(awsCfg, parseRegions(conf.Region, conf.RegionExclude))
+	m := newMultiRegion(awsCfg, filterRegions(conf.Regions, conf.RegionsExclude))
 	return &AwsImages{
 		services: m,
 		images:   make(map[string][]*ec2.Image),
