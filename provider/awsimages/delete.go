@@ -13,8 +13,11 @@ import (
 )
 
 type DeleteOptions struct {
+	// Images to be deleted
 	ImageIds []string
-	DryRun   bool
+
+	// DryRun doesn't run the command, but shows the action
+	DryRun bool
 
 	helpMsg string
 	flagSet *flag.FlagSet
