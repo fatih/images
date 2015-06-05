@@ -13,8 +13,14 @@ import "strings"
 //	flag.Var(stringutils.New([]string{"default"}, &regions), "to", "Regions to be used")
 type StringListValue []string
 
-// New returns a new *StringListValue. Use it flag.Var() or flagset.Var()
-func New(val []string, p *[]string) *StringListValue {
+// New returns a new *StringListValue.
+func New(p *[]string) *StringListValue {
+	return NewWithDefault(nil, p)
+}
+
+// NewWithDefault returns a new *StringListValue with a default value if no
+// arguments are passed to it.
+func NewWithDefault(val []string, p *[]string) *StringListValue {
 	*p = val
 	return (*StringListValue)(p)
 }

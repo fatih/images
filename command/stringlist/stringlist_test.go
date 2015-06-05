@@ -10,7 +10,7 @@ func TestTags(t *testing.T) {
 	f := flag.NewFlagSet("TestTags", flag.PanicOnError)
 
 	var regions []string
-	f.Var(New([]string{}, &regions), "to", "Regions to be used")
+	f.Var(New(&regions), "to", "Regions to be used")
 	f.Parse([]string{"-to", "us-east-1,eu-west-2"})
 
 	want := []string{"us-east-1", "eu-west-2"}
@@ -24,7 +24,7 @@ func TestTagsDefault(t *testing.T) {
 
 	var regions []string
 	var defaults = []string{"us-east-1"}
-	f.Var(New(defaults, &regions), "to", "Regions to be used")
+	f.Var(NewWithDefault(defaults, &regions), "to", "Regions to be used")
 	f.Parse([]string{"-to", ""})
 
 	if !reflect.DeepEqual(regions, defaults) {

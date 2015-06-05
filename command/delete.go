@@ -21,7 +21,7 @@ func NewDelete(config *Config) cli.CommandFactory {
 }
 
 func (d *Delete) Help() string {
-	if d.Provider == "" {
+	if len(d.Providers) != 1 {
 		return `Usage: images delete [options]
 
   Delete images
@@ -32,11 +32,11 @@ Options:
 `
 	}
 
-	return Help("delete", d.Provider)
+	return Help("delete", d.Providers[0])
 }
 
 func (d *Delete) Run(args []string) int {
-	if d.Provider == "" {
+	if len(d.Providers) != 1 {
 		fmt.Print(d.Help())
 		return 1
 	}
@@ -46,7 +46,13 @@ func (d *Delete) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(d.Provider, args)
+	provider := d.Providers[0]
+	if provider == "all" {
+		fmt.Fprintln(os.Stderr, "Delete doesn't support multiple providers")
+		return 1
+	}
+
+	p, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -54,7 +60,7 @@ func (d *Delete) Run(args []string) int {
 
 	deleter, ok := p.(Deleter)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support deleting images", d.Provider)
+		err := fmt.Errorf("'%s' doesn't support deleting images", provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
