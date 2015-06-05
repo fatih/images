@@ -106,9 +106,36 @@ func (a *AwsCommand) Modify(args []string) error {
 	}
 
 	return nil
-
 }
 
-func (a *AwsCommand) Help(command string) error {
-	return errors.New("not implemented yet")
+// Help prints the help message for the given command
+func (a *AwsCommand) Help(command string) string {
+	var help string
+
+	global := `
+  -access-key      "..."       AWS Access Key (env: IMAGES_AWS_ACCESS_KEY)
+  -secret-key      "..."       AWS Secret Key (env: IMAGES_AWS_SECRET_KEY)
+  -regions         "..."       AWS Regions (env: IMAGES_AWS_REGION)
+  -regions-exclude "..."       AWS Regions to be excluded (env: IMAGES_AWS_REGION_EXCLUDE)
+`
+	switch command {
+	case "modify":
+		help = newModifyFlags().helpMsg
+	case "delete":
+		help = newDeleteOptions().helpMsg
+	case "list":
+		help = `Usage: images list --provider aws [options]
+
+ List AMI properties.
+
+Options:
+	`
+	case "copy":
+		help = newCopyOptions().helpMsg
+	default:
+		return "no help found for command " + command
+	}
+
+	help += global
+	return help
 }
