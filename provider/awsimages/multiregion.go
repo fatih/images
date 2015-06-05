@@ -1,8 +1,6 @@
 package awsimages
 
 import (
-	"strings"
-
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
 )
@@ -39,13 +37,10 @@ func newMultiRegion(conf *aws.Config, regions []string) *multiRegion {
 	return m
 }
 
-func parseRegions(region, exclude string) []string {
-	regions := strings.Split(region, ",")
-	if region == "all" {
+func filterRegions(regions, excludedRegions []string) []string {
+	if len(regions) == 1 && regions[0] == "all" {
 		regions = allRegions
 	}
-
-	excludedRegions := strings.Split(exclude, ",")
 
 	inExcluded := func(r string) bool {
 		for _, region := range excludedRegions {

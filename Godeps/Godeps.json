@@ -59,7 +59,7 @@
 		},
 		{
 			"ImportPath": "github.com/fatih/flags",
-			"Rev": "31efa8ff9c58ddb91c2403c3a55a81b83423bffe"
+			"Rev": "74ae742ff786987dfd10ca2e971d9a10936a2d67"
 		},
 		{
 			"ImportPath": "github.com/fatih/structs",

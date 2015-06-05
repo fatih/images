@@ -1,10 +1,8 @@
 package command
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/fatih/flags"
@@ -25,22 +23,26 @@ func NewList(config *Config) cli.CommandFactory {
 }
 
 func (l *List) Help() string {
-	if l.Provider == "" {
+	if len(l.Providers) == 0 {
 		return `Usage: images list [options]
 
-  Lists available images for the given provider.
+  Lists available images for the given providers.
 
 Options:
 
-  -provider "name,..."    Provider to be used to modify images
+  -providers "name,..."    Providers to be used to list images
 `
 	}
 
-	return Help("list", l.Provider)
+	if len(l.Providers) == 1 && l.Providers[0] == "all" {
+		return "images: list images for all available providers"
+	}
+
+	return Help("list", l.Providers[0])
 }
 
 func (l *List) Run(args []string) int {
-	if l.Provider == "" {
+	if len(l.Providers) == 0 {
 		fmt.Println(l.Help())
 		return 1
 	}
@@ -50,9 +52,8 @@ func (l *List) Run(args []string) int {
 		return 1
 	}
 
-	providers := strings.Split(l.Provider, ",")
-	if l.Provider == "all" {
-		providers = providerList
+	if len(l.Providers) == 1 && l.Providers[0] == "all" {
+		l.Providers = providerList
 	}
 
 	var (
@@ -64,28 +65,25 @@ func (l *List) Run(args []string) int {
 	printProvider := func(provider string) error {
 		p, err := Provider(provider, args)
 		if err != nil {
-			if err == errNoProvider {
-				return errors.New("Provider '" + provider + "' doesn't exists.")
-			}
+			return err
 		}
 
-		f, ok := p.(Fetcher)
+		lister, ok := p.(Lister)
 		if !ok {
-			return fmt.Errorf("Provider '%s' doesn't support listing images", l.Provider)
+			return fmt.Errorf("Provider '%s' doesn't support listing images", provider)
 		}
 
-		if err := f.Fetch(args); err != nil {
+		if err := lister.List(args); err != nil {
 			// we don't return here, because Print might display at least
 			// successfull results.
-			fmt.Fprintln(os.Stderr, err.Error())
+			return err
 		}
 
-		f.Print()
 		fmt.Println("")
 		return nil
 	}
 
-	for _, provider := range providers {
+	for _, provider := range l.Providers {
 		wg.Add(1)
 		go func(provider string) {
 			err := printProvider(provider)

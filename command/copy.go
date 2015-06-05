@@ -21,22 +21,22 @@ func NewCopy(config *Config) cli.CommandFactory {
 }
 
 func (c *Copy) Help() string {
-	if c.Provider == "" {
+	if len(c.Providers) != 1 {
 		return `Usage: images copy [options]
 
   Copy images to regions
 
 Options:
 
-  -provider [name]    Provider to be used to modify images
+  -providers "name"    Provider to be used to copy images
 `
 	}
 
-	return Help("copy", c.Provider)
+	return Help("copy", c.Providers[0])
 }
 
 func (c *Copy) Run(args []string) int {
-	if c.Provider == "" {
+	if len(c.Providers) != 1 {
 		fmt.Print(c.Help())
 		return 1
 	}
@@ -46,7 +46,13 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(c.Provider, args)
+	provider := c.Providers[0]
+	if provider == "all" {
+		fmt.Fprintln(os.Stderr, "Copy doesn't support multiple providers")
+		return 1
+	}
+
+	p, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -54,7 +60,7 @@ func (c *Copy) Run(args []string) int {
 
 	copyier, ok := p.(Copyier)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support copying images", c.Provider)
+		err := fmt.Errorf("'%s' doesn't support copying images", provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

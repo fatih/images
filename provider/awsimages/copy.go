@@ -1,38 +1,45 @@
 package awsimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
+	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )
 
-type copyFlags struct {
-	imageID       string
-	sourceRegions string
-	desc          string
-	dryRun        bool
-	helpMsg       string
+type CopyOptions struct {
+	// Image to be copied to other regions
+	ImageID string
 
+	// SourceRegions defines a list of regions  which the image
+	// is being copied. i.e: ["us-east-1", "eu-west-1"]
+	SourceRegions []string
+
+	// Descroption for the newly created AMI (optional)
+	Desc string
+
+	// DryRun doesn't run the command, but shows the action
+	DryRun bool
+
+	helpMsg string
 	flagSet *flag.FlagSet
 }
 
-func newCopyFlags() *copyFlags {
-	c := &copyFlags{}
+func newCopyOptions() *CopyOptions {
+	c := &CopyOptions{}
 
 	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
-	flagSet.StringVar(&c.imageID, "image", "", "Image to be copied with the given id")
-	flagSet.StringVar(&c.sourceRegions, "to", "", "Images to be copied to the given regions")
-	flagSet.StringVar(&c.desc, "desc", "", "Description for the new AMI (optional)")
-	flagSet.BoolVar(&c.dryRun, "dry-run", false, "Don't run command, but show the action")
+	flagSet.StringVar(&c.ImageID, "image", "", "Image to be copied with the given id")
+	flagSet.StringVar(&c.Desc, "desc", "", "Description for the new AMI (optional)")
+	flagSet.BoolVar(&c.DryRun, "dry-run", false, "Don't run command, but show the action")
+	flagSet.Var(flags.NewStringSlice(nil, &c.SourceRegions), "to", "Images to be copied to the given regions")
 
 	c.helpMsg = `Usage: images copy --provider aws [options]
 
@@ -56,22 +63,7 @@ Options:
 }
 
 // Copy transfers the images to other regions
-func (a *AwsImages) Copy(args []string) error {
-	c := newCopyFlags()
-
-	if err := c.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		c.flagSet.Usage()
-		return nil
-	}
-
-	if c.imageID == "" {
-		return errors.New("no image is passed. Use --image")
-	}
-
+func (a *AwsImages) CopyImages(opts *CopyOptions) error {
 	var (
 		wg sync.WaitGroup
 		mu sync.Mutex
@@ -79,7 +71,7 @@ func (a *AwsImages) Copy(args []string) error {
 		multiErrors error
 	)
 
-	images, err := a.matchImages(c.imageID)
+	images, err := a.matchImages(opts.ImageID)
 	if err != nil {
 		return err
 	}
@@ -96,7 +88,7 @@ func (a *AwsImages) Copy(args []string) error {
 
 	resp, err := svc.DescribeImages(&ec2.DescribeImagesInput{
 		Owners:   stringSlice("self"),
-		ImageIDs: stringSlice(c.imageID),
+		ImageIDs: stringSlice(opts.ImageID),
 	})
 	if err != nil {
 		return err
@@ -104,23 +96,21 @@ func (a *AwsImages) Copy(args []string) error {
 
 	image := resp.Images[0]
 
-	if c.desc == "" {
-		c.desc = *image.Description
+	if opts.Desc == "" {
+		opts.Desc = *image.Description
 	}
 
-	regions := strings.Split(c.sourceRegions, ",")
-
-	for _, r := range regions {
+	for _, r := range opts.SourceRegions {
 		wg.Add(1)
 		go func(region string) {
-			imageDesc := fmt.Sprintf("[Copied %s from %s via images] %s", c.imageID, region, c.desc)
+			imageDesc := fmt.Sprintf("[Copied %s from %s via images] %s", opts.ImageID, region, opts.Desc)
 			log.Println("copying image ...")
 			input := &ec2.CopyImageInput{
-				SourceImageID: aws.String(c.imageID),
+				SourceImageID: aws.String(opts.ImageID),
 				SourceRegion:  aws.String(region),
 				Description:   aws.String(imageDesc),
 				Name:          image.Name,
-				DryRun:        aws.Boolean(c.dryRun),
+				DryRun:        aws.Boolean(opts.DryRun),
 			}
 
 			_, err := svc.CopyImage(input)

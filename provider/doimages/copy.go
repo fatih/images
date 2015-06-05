@@ -1,35 +1,31 @@
 package doimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/digitalocean/godo"
+	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )
 
-type copyFlags struct {
-	imageID       string
-	sourceRegions string
-	desc          string
-	dryRun        bool
-	helpMsg       string
+type CopyOptions struct {
+	ImageID       int
+	SourceRegions []string
 
+	helpMsg string
 	flagSet *flag.FlagSet
 }
 
-func newCopyFlags() *copyFlags {
-	c := &copyFlags{}
+func newCopyOptions() *CopyOptions {
+	c := &CopyOptions{}
 
 	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
-	flagSet.StringVar(&c.imageID, "image", "", "Image to be copied with the given id")
-	flagSet.StringVar(&c.sourceRegions, "to", "", "Images to be copied to the given regions")
+	flagSet.IntVar(&c.ImageID, "image", 0, "Image to be copied with the given id")
+	flagSet.Var(flags.NewStringSlice(nil, &c.SourceRegions), "to", "Images to be copied to the given regions")
 
 	c.helpMsg = `Usage: images copy --provider do [options]
 
@@ -51,22 +47,7 @@ Options:
 }
 
 // Copy transfers the images to other regions
-func (d *DoImages) Copy(args []string) error {
-	c := newCopyFlags()
-
-	if err := c.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		c.flagSet.Usage()
-		return nil
-	}
-
-	if c.imageID == "" {
-		return errors.New("no image is passed. Use --image")
-	}
-
+func (d *DoImages) CopyImages(opts *CopyOptions) error {
 	var (
 		wg sync.WaitGroup
 		mu sync.Mutex
@@ -74,17 +55,10 @@ func (d *DoImages) Copy(args []string) error {
 		multiErrors error
 	)
 
-	imageID, err := strconv.Atoi(c.imageID)
-	if err != nil {
-		return err
-	}
-
-	regions := strings.Split(c.sourceRegions, ",")
-
-	for _, r := range regions {
+	for _, r := range opts.SourceRegions {
 		wg.Add(1)
 		go func(region string) {
-			_, _, err := d.client.ImageActions.Transfer(imageID, &godo.ActionRequest{
+			_, _, err := d.client.ImageActions.Transfer(opts.ImageID, &godo.ActionRequest{
 				"type":   "transfer",
 				"region": region,
 			})

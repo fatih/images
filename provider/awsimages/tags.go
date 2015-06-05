@@ -1,7 +1,6 @@
 package awsimages
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/ec2"
+	"github.com/fatih/flags"
 )
 
 type modifyFlags struct {
 	createTags string
 	deleteTags string
-	imageIds   string
+	imageIds   []string
 	dryRun     bool
 	helpMsg    string
 
@@ -28,7 +28,7 @@ func newModifyFlags() *modifyFlags {
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.StringVar(&m.createTags, "create-tags", "", "Create  or override tags")
 	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
-	flagSet.StringVar(&m.imageIds, "ids", "", "Images to be used with actions")
+	flagSet.Var(flags.NewStringSlice(nil, &m.imageIds), "ids", "Images to be delete with actions")
 	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
 	m.helpMsg = `Usage: images modify --provider aws [options]
 
@@ -48,38 +48,6 @@ Options:
 	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
 	m.flagSet = flagSet
 	return m
-}
-
-// Modify manages the tags of the given images. It can create, override or
-// delete tags associated with the given AMI ids.
-func (a *AwsImages) Modify(args []string) error {
-	m := newModifyFlags()
-	if err := m.flagSet.Parse(args); err != nil {
-		return nil // we don't return error, the usage will be printed instead
-	}
-
-	if len(args) == 0 {
-		m.flagSet.Usage()
-		return nil
-	}
-
-	if m.imageIds == "" {
-		return errors.New("no images are passed with [--ids]")
-	}
-
-	if m.createTags != "" && m.deleteTags != "" {
-		return errors.New("not allowed to be used together: [--create-tags,--delete-tags]")
-	}
-
-	if m.createTags != "" {
-		return a.CreateTags(m.createTags, m.dryRun, strings.Split(m.imageIds, ",")...)
-	}
-
-	if m.deleteTags != "" {
-		return a.DeleteTags(m.deleteTags, m.dryRun, strings.Split(m.imageIds, ",")...)
-	}
-
-	return nil
 }
 
 // CreateTags adds or overwrites all tags for the specified images. Tags is in

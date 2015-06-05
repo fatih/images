@@ -21,7 +21,7 @@ func NewModify(config *Config) cli.CommandFactory {
 }
 
 func (m *Modify) Help() string {
-	if m.Provider == "" {
+	if len(m.Providers) != 1 {
 		defaultHelp := `Usage: images modify [options]
 
   Modifies images properties. Each providers sub options are different.
@@ -33,11 +33,11 @@ Options:
 		return defaultHelp
 	}
 
-	return Help("modify", m.Provider)
+	return Help("modify", m.Providers[0])
 }
 
 func (m *Modify) Run(args []string) int {
-	if m.Provider == "" {
+	if len(m.Providers) != 1 {
 		fmt.Print(m.Help())
 		return 1
 	}
@@ -47,7 +47,13 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(m.Provider, args)
+	provider := m.Providers[0]
+	if provider == "all" {
+		fmt.Fprintln(os.Stderr, "Modify doesn't support multiple providers")
+		return 1
+	}
+
+	p, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -55,7 +61,7 @@ func (m *Modify) Run(args []string) int {
 
 	mr, ok := p.(Modifier)
 	if !ok {
-		err := fmt.Errorf("'%s' doesn't support listing images", m.Provider)
+		err := fmt.Errorf("'%s' doesn't support listing images", provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

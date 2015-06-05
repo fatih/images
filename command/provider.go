@@ -24,9 +24,9 @@ var (
 func Provider(name string, args []string) (interface{}, error) {
 	switch name {
 	case "aws":
-		return awsimages.New(args)
+		return awsimages.NewCommand(args)
 	case "do":
-		return doimages.New(args)
+		return doimages.NewCommand(args)
 	case "gce":
 		return gceimages.New(args)
 	default:
@@ -34,13 +34,9 @@ func Provider(name string, args []string) (interface{}, error) {
 	}
 }
 
-// Fecher fetches and prints the images
-type Fetcher interface {
-	// Fetch fetches the information from the provider
-	Fetch(args []string) error
-
-	// Print prints the images to standard output or to something else.
-	Print()
+// Lister lists and prints the images
+type Lister interface {
+	List(args []string) error
 }
 
 // Copyier copyies the image.

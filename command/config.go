@@ -9,10 +9,9 @@ import (
 
 // Config defines the global flag set of images
 type Config struct {
-	// Provider defines the provider name. It can be a single word or a comma
-	// separated list, such as "aws,do". The special "all" name matches all
-	// providers.
-	Provider string
+	// Providers define the providers to be used with images. Example: ["aws",
+	// "do"]. The special ["all"] name matches all providers.
+	Providers []string
 
 	// NoColor disables color output
 	NoColor bool
@@ -27,9 +26,9 @@ type Config struct {
 // Help returns the help messages of the respective commands
 func (c *Config) Help() map[string]string {
 	return map[string]string{
-		"provider": "Provider to be used",
-		"no-color": "Disables color output",
-		"force":    "Disables user prompt",
+		"providers": "Providers to be used",
+		"no-color":  "Disables color output",
+		"force":     "Disables user prompt",
 	}
 }
 
