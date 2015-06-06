@@ -1,4 +1,4 @@
-# Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/koding/tunnel) [![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square)](https://github.com/fatih/images/releases)
+# Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/fatih/images) [![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square)](https://github.com/fatih/images/releases)
 
 Images is a tool to manage machine images from multiple providers over a single
 CLI interface. Its fast(concurrent actions), simple to use and and very
