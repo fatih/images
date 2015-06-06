@@ -6,6 +6,10 @@ GOPATH:=$(PWD)/Godeps/_workspace:$(GOPATH)
 
 all: build
 
+install:
+	@echo "$(OK_COLOR)==> Installing to /usr/local/bin $(NO_COLOR)"
+	@cp bin/images /usr/local/bin
+
 build:
 	@echo "$(OK_COLOR)==> Building the project $(NO_COLOR)"
 ifndef IMAGES_VERSION
