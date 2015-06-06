@@ -28,6 +28,8 @@ var Outputs = map[string]OutputMode{
 
 type OutputValue OutputMode
 
+// NewOutputValue satisfies the flag.Value interface{}. Use it to plug into the
+// flag package.
 func NewOutputValue(val OutputMode, p *OutputMode) *OutputValue {
 	*p = val
 	return (*OutputValue)(p)
