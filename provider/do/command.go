@@ -36,12 +36,17 @@ func NewCommand(args []string) (*DoCommand, error) {
 
 // List implements the command.Lister interface
 func (d *DoCommand) List(args []string) error {
+	l := newListFlags()
+	if err := l.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
 	images, err := d.UserImages()
 	if err != nil {
 		return err
 	}
 
-	return images.Print()
+	return images.Print(l.output)
 }
 
 func (d *DoCommand) Copy(args []string) error {
@@ -114,12 +119,7 @@ func (d *DoCommand) Help(command string) string {
 	case "copy":
 		help = newCopyOptions().helpMsg
 	case "list":
-		help = `Usage: images list --provider do [options]
-
- List images
-
-Options:
-	`
+		help = newListFlags().helpMsg
 	default:
 		return "no help found for command " + command
 	}
