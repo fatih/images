@@ -36,12 +36,17 @@ func NewCommand(args []string) (*GceCommand, error) {
 
 // List implements the command.Lister interface
 func (g *GceCommand) List(args []string) error {
+	l := newListFlags()
+	if err := l.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
 	images, err := g.ProjectImages()
 	if err != nil {
 		return err
 	}
 
-	return images.Print()
+	return images.Print(l.output)
 }
 
 func (g *GceCommand) Delete(args []string) error {
@@ -90,12 +95,7 @@ func (g *GceCommand) Help(command string) string {
 	case "modify":
 		help = newDeprecateOptions().helpMsg
 	case "list":
-		help = `Usage: images list --provider gce [options]
-
- List images
-
-Options:
-	`
+		help = newListFlags().helpMsg
 	default:
 		return "no help found for command " + command
 	}
@@ -107,5 +107,4 @@ Options:
 
 	help += global
 	return help
-
 }
