@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/fatih/images/command/loader"
 )
@@ -79,7 +80,12 @@ func (a *AwsCommand) List(args []string) error {
 		return err
 	}
 
-	return images.Print(Table)
+	outputMode, ok := Outputs[strings.ToLower(l.output)]
+	if !ok {
+		return fmt.Errorf("output mode '%s' is not valid.\n\n%s", l.output, l.helpMsg)
+	}
+
+	return images.Print(outputMode)
 }
 
 func (a *AwsCommand) Copy(args []string) error {

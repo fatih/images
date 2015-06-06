@@ -20,6 +20,12 @@ const (
 	JSON
 )
 
+var Outputs = map[string]OutputMode{
+	"simplified": Simplified,
+	"table":      Table,
+	"json":       JSON,
+}
+
 // Images defines and represents regions to images
 type Images map[string][]*ec2.Image
 
@@ -37,8 +43,6 @@ func (i Images) Print(mode OutputMode) error {
 	case Table:
 		fallthrough
 	case Simplified:
-		fallthrough
-	default:
 		if len(i) == 0 {
 			return errors.New("no images found")
 		}
@@ -80,6 +84,8 @@ func (i Images) Print(mode OutputMode) error {
 			fmt.Fprintln(w, "")
 		}
 		return nil
+	default:
+		return fmt.Errorf("output mode '%s' is not valid", mode)
 	}
 }
 
