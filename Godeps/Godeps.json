@@ -71,11 +71,11 @@
 		},
 		{
 			"ImportPath": "github.com/fatih/flags",
-			"Rev": "74ae742ff786987dfd10ca2e971d9a10936a2d67"
+			"Rev": "302926783d75142fb1d5611aba97f039b8148e9d"
 		},
 		{
 			"ImportPath": "github.com/fatih/structs",
-			"Rev": "b4641b79cf37cd07961c25c5460be637ab27da76"
+			"Rev": "a9f7daa9c2729e97450c2da2feda19130a367d8f"
 		},
 		{
 			"ImportPath": "github.com/google/go-querystring/query",
