@@ -2,6 +2,10 @@ package aws
 
 import (
 	"errors"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/fatih/images/command/loader"
 )
@@ -10,6 +14,35 @@ import (
 // Deleter, Modifier, etc..
 type AwsCommand struct {
 	*AwsImages
+}
+
+type listFlags struct {
+	output  string
+	helpMsg string
+	flagSet *flag.FlagSet
+}
+
+func newListFlags() *listFlags {
+	l := &listFlags{}
+
+	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
+	flagSet.StringVar(&l.output, "output", "simplified", "Output mode")
+	l.helpMsg = `Usage: images list --provider aws [options]
+
+   List AMI properties.
+
+Options:
+
+  -output  "json"              Output mode of images. (default: "simplified")
+                               Available options: "json","table" or "simplified" 
+`
+
+	flagSet.Usage = func() {
+		fmt.Fprintf(os.Stderr, l.helpMsg)
+	}
+	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
+	l.flagSet = flagSet
+	return l
 }
 
 // NewCommand returns a new instance of AwsCommand
@@ -36,12 +69,17 @@ func NewCommand(args []string) (*AwsCommand, error) {
 
 // List implements the command.Lister interface
 func (a *AwsCommand) List(args []string) error {
+	l := newListFlags()
+	if err := l.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
 	images, err := a.ownerImages()
 	if err != nil {
 		return err
 	}
 
-	return images.Print()
+	return images.Print(Table)
 }
 
 func (a *AwsCommand) Copy(args []string) error {
@@ -128,12 +166,7 @@ func (a *AwsCommand) Help(command string) string {
 	case "delete":
 		help = newDeleteOptions().helpMsg
 	case "list":
-		help = `Usage: images list --provider aws [options]
-
- List AMI properties.
-
-Options:
-	`
+		help = newListFlags().helpMsg
 	case "copy":
 		help = newCopyOptions().helpMsg
 	default:

@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	awsclient "github.com/awslabs/aws-sdk-go/aws"
-	"github.com/awslabs/aws-sdk-go/service/ec2"
+	awsclient "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/fatih/flags"
 	"github.com/hashicorp/go-multierror"
 )

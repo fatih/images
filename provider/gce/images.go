@@ -8,7 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/shiena/ansicolor"
-	"google.golang.org/api/compute/v1"
+	compute "google.golang.org/api/compute/v1"
 )
 
 type Images compute.ImageList
