@@ -19,8 +19,9 @@ flexible. Think of it as a companion to the popular image creation tool
 
 ## Installation
 
-Download the stable binary releases suitable for your system:
+Download the latest release suitable for your system:
 
+[Images releases](https://github.com/fatih/images/releases)
 
 Or if you have Go installed, install latest development version:
 
