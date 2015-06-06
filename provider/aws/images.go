@@ -9,30 +9,17 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
+	"github.com/fatih/images/provider/utils"
 	"github.com/shiena/ansicolor"
 )
-
-type OutputMode int
-
-const (
-	Simplified OutputMode = iota + 1
-	Table
-	JSON
-)
-
-var Outputs = map[string]OutputMode{
-	"simplified": Simplified,
-	"table":      Table,
-	"json":       JSON,
-}
 
 // Images defines and represents regions to images
 type Images map[string][]*ec2.Image
 
 // Print prints the images to standard output.
-func (i Images) Print(mode OutputMode) error {
+func (i Images) Print(mode utils.OutputMode) error {
 	switch mode {
-	case JSON:
+	case utils.JSON:
 		out, err := i.outputJSON()
 		if err != nil {
 			return err
@@ -40,9 +27,7 @@ func (i Images) Print(mode OutputMode) error {
 
 		fmt.Println(out)
 		return nil
-	case Table:
-		fallthrough
-	case Simplified:
+	case utils.Simplified:
 		if len(i) == 0 {
 			return errors.New("no images found")
 		}

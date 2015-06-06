@@ -2,11 +2,6 @@ package aws
 
 import (
 	"errors"
-	"flag"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"strings"
 
 	"github.com/fatih/images/command/loader"
 )
@@ -15,35 +10,6 @@ import (
 // Deleter, Modifier, etc..
 type AwsCommand struct {
 	*AwsImages
-}
-
-type listFlags struct {
-	output  string
-	helpMsg string
-	flagSet *flag.FlagSet
-}
-
-func newListFlags() *listFlags {
-	l := &listFlags{}
-
-	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
-	flagSet.StringVar(&l.output, "output", "simplified", "Output mode")
-	l.helpMsg = `Usage: images list --provider aws [options]
-
-   List AMI properties.
-
-Options:
-
-  -output  "json"              Output mode of images. (default: "simplified")
-                               Available options: "json","table" or "simplified" 
-`
-
-	flagSet.Usage = func() {
-		fmt.Fprintf(os.Stderr, l.helpMsg)
-	}
-	flagSet.SetOutput(ioutil.Discard) // don't print anything without my permission
-	l.flagSet = flagSet
-	return l
 }
 
 // NewCommand returns a new instance of AwsCommand
@@ -80,12 +46,7 @@ func (a *AwsCommand) List(args []string) error {
 		return err
 	}
 
-	outputMode, ok := Outputs[strings.ToLower(l.output)]
-	if !ok {
-		return fmt.Errorf("output mode '%s' is not valid.\n\n%s", l.output, l.helpMsg)
-	}
-
-	return images.Print(outputMode)
+	return images.Print(l.output)
 }
 
 func (a *AwsCommand) Copy(args []string) error {
