@@ -28,7 +28,7 @@ func (m *Modify) Help() string {
 
 Options:
 
-  -provider                  Provider to be used to modify images
+  -providers                  Provider to be used to modify images
 `
 		return defaultHelp
 	}

@@ -28,7 +28,7 @@ func (d *Delete) Help() string {
 
 Options:
 
-  -provider [name]    Provider to be used to modify images
+  -providers [name]    Provider to be used to modify images
 `
 	}
 

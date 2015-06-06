@@ -30,7 +30,7 @@ func newModifyFlags() *modifyFlags {
 	flagSet.StringVar(&m.deleteTags, "delete-tags", "", "Delete tags")
 	flagSet.Var(flags.NewStringSlice(nil, &m.imageIds), "ids", "Images to be delete with actions")
 	flagSet.BoolVar(&m.dryRun, "dry-run", false, "Don't run command, but show the action")
-	m.helpMsg = `Usage: images modify --provider aws [options]
+	m.helpMsg = `Usage: images modify --providers aws [options]
 
   Modify AMI properties.
 

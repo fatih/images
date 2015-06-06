@@ -27,7 +27,7 @@ func newCopyOptions() *CopyOptions {
 	flagSet.IntVar(&c.ImageID, "image", 0, "Image to be copied with the given id")
 	flagSet.Var(flags.NewStringSlice(nil, &c.SourceRegions), "to", "Images to be copied to the given regions")
 
-	c.helpMsg = `Usage: images copy --provider do [options]
+	c.helpMsg = `Usage: images copy --providers do [options]
 
   Copy image to regions
 

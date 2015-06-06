@@ -27,7 +27,7 @@ func newDeprecateOptions() *DeprecateOptions {
 	flagSet := flag.NewFlagSet("modify", flag.ContinueOnError)
 	flagSet.Var(flags.NewStringSlice(nil, &m.Names), "ids", "Images to be delete with the given names")
 	flagSet.StringVar(&m.State, "state", "", "Image state to be applied")
-	m.helpMsg = `Usage: images modify --provider gce [options]
+	m.helpMsg = `Usage: images modify --providers gce [options]
 
   Depcreate images
 

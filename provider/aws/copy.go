@@ -41,7 +41,7 @@ func newCopyOptions() *CopyOptions {
 	flagSet.BoolVar(&c.DryRun, "dry-run", false, "Don't run command, but show the action")
 	flagSet.Var(flags.NewStringSlice(nil, &c.SourceRegions), "to", "Images to be copied to the given regions")
 
-	c.helpMsg = `Usage: images copy --provider aws [options]
+	c.helpMsg = `Usage: images copy --providers aws [options]
 
   Copy image to regions
 

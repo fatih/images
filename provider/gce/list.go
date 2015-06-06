@@ -20,7 +20,7 @@ func newListFlags() *listFlags {
 
 	flagSet := flag.NewFlagSet("copy", flag.ContinueOnError)
 	flagSet.Var(utils.NewOutputValue(utils.Simplified, &l.output), "output", "Output mode")
-	l.helpMsg = `Usage: images list --provider gce [options]
+	l.helpMsg = `Usage: images list --providers gce [options]
 
    List images
 

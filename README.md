@@ -9,8 +9,8 @@ flexible. Think of it as a companion to the popular image creation tool
 
 - Multiple provider backend support: `AWS`, `DigitalOcean`, `GCE`, etc...
 - Multi region support
-- List images from multiple providers
-- Modify image attributes, such as tags or names
+- List images from multiple regions/providers
+- Modify image attributes, such as tags, names, states
 - Delete images
 - Copy images from one region to another region
 - Commands are executed concurrently (delete, list, etc..).
@@ -19,10 +19,10 @@ flexible. Think of it as a companion to the popular image creation tool
 
 ## Installation
 
-Download the binary release suitable for your system:
+Download the stable binary releases suitable for your system:
 
 
-Or if you have Go installed, install latest version:
+Or if you have Go installed, install latest development version:
 
 ```bash
 go get -u github.com/fatih/images
@@ -48,7 +48,7 @@ Available commands are:
 
 Because `images` is built around to support multiple providers, each provider
 has a specific set of features. To display the specific provider help message
-pass the `-provider name -help` flags at any time, where `name` is the provider
+pass the `-providers name -help` flags at any time, where `name` is the provider
 name, such as "aws".
 
 Current supported providers are:
@@ -68,7 +68,7 @@ Coming soon:
 either a file, from environment variables or command line flags. Examples:
 
 ```bash
-$ images list --provider aws --region "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
+$ images list --providers aws --region "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
 ```
 
 or via environment variable:
@@ -80,7 +80,7 @@ $ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1" IMAGES_AWS_ACCESS_KEY=".." i
 or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
 
 ```toml
-provider = "aws"
+providers = "aws"
 
 [aws]
 region     = "us-east-1,eu-west-2"
@@ -97,8 +97,8 @@ $ images list
 
 `images` has multi provider support. The following examples are for the
 provider "aws".  The commands are supposed to be executed with
-`IMAGES_PROVIDER=aws` or with `--provider aws` or added to `.imagesrc` file via
-`provider = "aws"`
+`IMAGES_PROVIDER=aws` or with `--providers aws` or added to `.imagesrc` file via
+`providers = "aws"`
 
 
 #### List
@@ -118,13 +118,13 @@ $ images list -region "all"
 List from multiple providers (fetches concurrently):
 
 ```
-$ images list -provider "aws,do"
+$ images list -providers "aws,do"
 ```
 
 List from all supported providers
 
 ```
-$ images list -provider "all"
+$ images list -providers "all"
 ```
 
 Change output mode to json
