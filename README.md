@@ -1,4 +1,4 @@
-# Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/koding/tunnel) [![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square)](https://github.com/fatih/images/releases) [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)](https://github.com/fatih/images/blob/master/LICENSE.md)
+# Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/koding/tunnel) [![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square)](https://github.com/fatih/images/releases)
 
 Images is a tool to manage machine images from multiple providers over a single
 CLI interface. Its fast(concurrent actions), simple to use and and very
@@ -7,7 +7,7 @@ flexible. Think of it as a companion to the popular image creation tool
 
 ## Features
 
-- Multiple provider backend support: `AWS`, `DO`, `GCE`, etc...
+- Multiple provider backend support: `AWS`, `DigitalOcean`, `GCE`, etc...
 - Multi region support
 - List images from multiple providers
 - Modify image attributes, such as tags or names
@@ -50,6 +50,17 @@ Because `images` is built around to support multiple providers, each provider
 has a specific set of features. To display the specific provider help message
 pass the `-provider name -help` flags at any time, where `name` is the provider
 name, such as "aws".
+
+Current supported providers are:
+
+* `aws`
+* `do`
+* `gce`
+
+Coming soon:
+
+* `virtualbox`
+* `docker`
 
 ## Configuration
 
@@ -114,6 +125,12 @@ List from all supported providers
 
 ```
 $ images list -provider "all"
+```
+
+Change output mode to json
+
+```
+$ images list -output json
 ```
 
 #### Delete
