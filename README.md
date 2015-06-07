@@ -6,7 +6,6 @@ flexible. Think of it as a companion to the popular image creation tool
 [Packer](https://packer.io/). You can fetch images from multiple providers,
 delete them, change tags or names of multiple images, any many other things.
 
-![images](http://d.pr/i/1lR5f+)
 ![images](https://github.com/github/fatih/images/blob/master/asset/dia.png)
 
 ## Features
