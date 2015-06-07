@@ -3,7 +3,11 @@
 Images is a tool to manage machine images from multiple providers over a single
 CLI interface. Its fast(concurrent actions), simple to use and and very
 flexible. Think of it as a companion to the popular image creation tool
-[Packer](https://packer.io/).
+[Packer](https://packer.io/). You can fetch images from multiple providers,
+delete them, change tags or names of multiple images, any many other things.
+
+![images](http://d.pr/i/1lR5f+)
+![images](https://github.com/github/fatih/images/blob/master/asset/dia.png)
 
 ## Features
 
@@ -21,7 +25,7 @@ flexible. Think of it as a companion to the popular image creation tool
 
 Download the latest release suitable for your system:
 
--> [Images releases](https://github.com/fatih/images/releases)
+=> [Images releases](https://github.com/fatih/images/releases)
 
 Or if you have Go installed, install latest development version:
 
