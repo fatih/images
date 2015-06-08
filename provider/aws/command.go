@@ -3,6 +3,7 @@ package aws
 import (
 	"errors"
 
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/fatih/images/command/loader"
 )
 
@@ -13,7 +14,7 @@ type AwsCommand struct {
 }
 
 // NewCommand returns a new instance of AwsCommand
-func NewCommand(args []string) (*AwsCommand, error) {
+func NewCommand(args []string) (*AwsCommand, []string, error) {
 	var conf struct {
 		// just so we can use the Env and TOML loader more efficiently with out
 		// any complex hacks
@@ -21,17 +22,19 @@ func NewCommand(args []string) (*AwsCommand, error) {
 	}
 
 	if err := loader.Load(&conf, args); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	awsImages, err := New(&conf.Aws)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	remainingArgs := loader.ExcludeArgs(&conf, args)
 
 	return &AwsCommand{
 		AwsImages: awsImages,
-	}, nil
+	}, remainingArgs, nil
 }
 
 // List implements the command.Lister interface
@@ -41,7 +44,17 @@ func (a *AwsCommand) List(args []string) error {
 		return nil // we don't return error, the usage will be printed instead
 	}
 
-	images, err := a.ownerImages()
+	input := &ec2.DescribeImagesInput{}
+
+	if len(l.owners) == 0 {
+		input.Owners = stringSlice("self")
+	}
+
+	if len(l.imageIds) != 0 {
+		input.ImageIDs = stringSlice(l.imageIds...)
+	}
+
+	images, err := a.Images(input)
 	if err != nil {
 		return err
 	}

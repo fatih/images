@@ -13,7 +13,7 @@ type GceCommand struct {
 }
 
 // NewCommand returns a new instance of GceImages
-func NewCommand(args []string) (*GceCommand, error) {
+func NewCommand(args []string) (*GceCommand, []string, error) {
 	var conf struct {
 		// just so we can use the Env and TOML loader more efficiently with out
 		// any complex hacks
@@ -21,17 +21,18 @@ func NewCommand(args []string) (*GceCommand, error) {
 	}
 
 	if err := loader.Load(&conf, args); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	gceImages, err := New(&conf.Gce)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	remainingArgs := loader.ExcludeArgs(&conf, args)
 	return &GceCommand{
 		GceImages: gceImages,
-	}, nil
+	}, remainingArgs, nil
 }
 
 // List implements the command.Lister interface

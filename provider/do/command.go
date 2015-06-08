@@ -13,7 +13,7 @@ type DoCommand struct {
 }
 
 // NewCommand returns a new instance of DoCommand
-func NewCommand(args []string) (*DoCommand, error) {
+func NewCommand(args []string) (*DoCommand, []string, error) {
 	var conf struct {
 		// just so we can use the Env and TOML loader more efficiently with out
 		// any complex hacks
@@ -21,17 +21,19 @@ func NewCommand(args []string) (*DoCommand, error) {
 	}
 
 	if err := loader.Load(&conf, args); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	doImages, err := New(&conf.Do)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	remainingArgs := loader.ExcludeArgs(&conf, args)
 
 	return &DoCommand{
 		DoImages: doImages,
-	}, nil
+	}, remainingArgs, nil
 }
 
 // List implements the command.Lister interface

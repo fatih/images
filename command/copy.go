@@ -52,7 +52,7 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(provider, args)
+	p, remArgs, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -65,7 +65,7 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	if err := copyier.Copy(args); err != nil {
+	if err := copyier.Copy(remArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

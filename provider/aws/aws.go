@@ -4,14 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"sort"
-	"sync"
 	"time"
 
 	awsclient "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/hashicorp/go-multierror"
 )
 
 type AwsConfig struct {
@@ -61,49 +58,4 @@ func New(conf *AwsConfig) (*AwsImages, error) {
 		services: m,
 		images:   make(map[string][]*ec2.Image),
 	}, nil
-}
-
-func (a *AwsImages) Images(input *ec2.DescribeImagesInput) (Images, error) {
-	var (
-		wg sync.WaitGroup
-		mu sync.Mutex
-
-		multiErrors error
-	)
-
-	images := make(map[string][]*ec2.Image)
-
-	for r, s := range a.services.regions {
-		wg.Add(1)
-		go func(region string, svc *ec2.EC2) {
-			resp, err := svc.DescribeImages(input)
-			mu.Lock()
-
-			if err != nil {
-				multiErrors = multierror.Append(multiErrors, err)
-			} else {
-				// sort from oldest to newest
-				if len(resp.Images) > 1 {
-					sort.Sort(byTime(resp.Images))
-				}
-
-				images[region] = resp.Images
-			}
-
-			mu.Unlock()
-			wg.Done()
-		}(r, s)
-	}
-
-	wg.Wait()
-
-	return images, multiErrors
-}
-
-func (a *AwsImages) ownerImages() (Images, error) {
-	input := &ec2.DescribeImagesInput{
-		Owners: stringSlice("self"),
-	}
-
-	return a.Images(input)
 }

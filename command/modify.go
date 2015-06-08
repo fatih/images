@@ -53,7 +53,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(provider, args)
+	p, remArgs, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -66,7 +66,7 @@ func (m *Modify) Run(args []string) int {
 		return 1
 	}
 
-	if err := mr.Modify(args); err != nil {
+	if err := mr.Modify(remArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
