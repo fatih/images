@@ -41,8 +41,8 @@ type Lister interface {
 	List(args []string) error
 }
 
-// Copyier copyies the image.
-type Copyier interface {
+// Copier copyies the image.
+type Copier interface {
 	Copy(args []string) error
 }
 

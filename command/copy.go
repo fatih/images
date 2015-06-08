@@ -58,14 +58,14 @@ func (c *Copy) Run(args []string) int {
 		return 1
 	}
 
-	copyier, ok := p.(Copyier)
+	copier, ok := p.(Copier)
 	if !ok {
 		err := fmt.Errorf("'%s' doesn't support copying images", provider)
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 
-	if err := copyier.Copy(remArgs); err != nil {
+	if err := copier.Copy(remArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
