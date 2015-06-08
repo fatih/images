@@ -11,16 +11,16 @@ import (
 type Config struct {
 	// Providers define the providers to be used with images. Example: ["aws",
 	// "do"]. The special ["all"] name matches all providers.
-	Providers []string
+	Providers []string `toml:"providers" json:"providers"`
 
 	// NoColor disables color output
-	NoColor bool
+	NoColor bool `toml:"no_color" json:"no_color"`
 
 	// Force disables asking for user input for certain actions, such as
 	// "delete"
-	Force bool
+	Force bool `toml:"force" json:"force"`
 
-	Ui cli.Ui
+	Ui cli.Ui `toml:"-" json:"-"`
 }
 
 // Help returns the help messages of the respective commands
