@@ -6,7 +6,7 @@ flexible. Think of it as a companion to the popular image creation tool
 [Packer](https://packer.io/). You can fetch images from multiple providers,
 delete them, change tags or names of multiple images, any many other things.
 
-![images](https://github.com/fatih/images/blob/master/asset/dia.png)
+[![images](https://github.com/fatih/images/blob/master/asset/dia.png)](https://github.com/fatih/images)
 
 ## Features
 
@@ -22,6 +22,7 @@ delete them, change tags or names of multiple images, any many other things.
 
 ## Installation
 
+Images is still under development. Any feedback/contribution is welcome!
 Download the latest release suitable for your system:
 
 => [Images releases](https://github.com/fatih/images/releases)
@@ -72,19 +73,20 @@ Coming soon:
 either a file, from environment variables or command line flags. Examples:
 
 ```bash
-$ images list --providers aws --region "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
+$ images list --providers aws --regions "us-east-1,eu-west-2" --access-key "..." -secret-key "..."
 ```
 
 or via environment variable:
 
 ```bash
-$ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1" IMAGES_AWS_ACCESS_KEY=".." images list
+$ IMAGES_PROVIDERS=aws IMAGES_AWS_REGIONS="us-east-1" IMAGES_AWS_ACCESS_KEY=".." images list
 ```
 
 or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
 
 ```toml
 providers = ["aws"]
+no_color  = true
 
 [aws]
 regions    = ["us-east-1","eu-west-2"]
