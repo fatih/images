@@ -1,7 +1,7 @@
 # Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/fatih/images) [![Release](https://img.shields.io/github/release/fatih/images.svg?style=flat-square)](https://github.com/fatih/images/releases)
 
 Images is a tool to manage machine images from multiple providers over a single
-CLI interface. Its fast(concurrent actions), simple to use and and very
+CLI interface. Its fast(concurrent actions), simple to use and very
 flexible. Think of it as a companion to the popular image creation tool
 [Packer](https://packer.io/). You can fetch images from multiple providers,
 delete them, change tags or names of multiple images, any many other things.
