@@ -63,7 +63,7 @@ func (l *List) Run(args []string) int {
 	)
 
 	printProvider := func(provider string) error {
-		p, err := Provider(provider, args)
+		p, remArgs, err := Provider(provider, args)
 		if err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func (l *List) Run(args []string) int {
 			return fmt.Errorf("Provider '%s' doesn't support listing images", provider)
 		}
 
-		if err := lister.List(args); err != nil {
+		if err := lister.List(remArgs); err != nil {
 			// we don't return here, because Print might display at least
 			// successfull results.
 			return err

@@ -52,7 +52,7 @@ func (d *Delete) Run(args []string) int {
 		return 1
 	}
 
-	p, err := Provider(provider, args)
+	p, remArgs, err := Provider(provider, args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -79,7 +79,7 @@ func (d *Delete) Run(args []string) int {
 		}
 	}
 
-	if err := deleter.Delete(args); err != nil {
+	if err := deleter.Delete(remArgs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}

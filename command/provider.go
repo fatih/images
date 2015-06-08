@@ -20,8 +20,10 @@ var (
 	}
 )
 
-// Provider returns the provider with the given name
-func Provider(name string, args []string) (interface{}, error) {
+// Provider returns the provider with the given name and the filtered remaining
+// arguments. Each provider is responsible of how the remaining arguments are
+// returned.
+func Provider(name string, args []string) (interface{}, []string, error) {
 	switch name {
 	case "aws":
 		return aws.NewCommand(args)
@@ -30,7 +32,7 @@ func Provider(name string, args []string) (interface{}, error) {
 	case "gce":
 		return gce.NewCommand(args)
 	default:
-		return nil, errNoProvider
+		return nil, nil, errNoProvider
 	}
 }
 
@@ -60,7 +62,7 @@ type Helper interface {
 }
 
 func Help(command, name string) string {
-	p, err := Provider(name, nil)
+	p, _, err := Provider(name, nil)
 	if err != nil {
 		if err == errNoProvider {
 			return "Provider '" + name + "' doesn't exists."
