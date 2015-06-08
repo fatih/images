@@ -84,10 +84,10 @@ $ IMAGES_PROVIDER=aws IMAGES_AWS_REGION="us-east-1" IMAGES_AWS_ACCESS_KEY=".." i
 or via `.imagesrc` file, which can be either in `TOML` or `JSON`. Below is an example for `TOML`:
 
 ```toml
-providers = "aws"
+providers = ["aws"]
 
 [aws]
-region     = "us-east-1,eu-west-2"
+regions    = ["us-east-1","eu-west-2"]
 access_key = "..."
 secret_key = "..."
 ```
@@ -107,16 +107,16 @@ provider "aws".  The commands are supposed to be executed with
 
 #### List
 
-List images for a given provider. Examples:
+List images for a given region. Examples:
 
 ```
-$ images list -region "us-east-1"
+$ images list -regions "us-east-1"
 ```
 
 List from all regions (fetches concurrently):
 
 ```
-$ images list -region "all"
+$ images list -regions "all"
 ```
 
 List from multiple providers (fetches concurrently):
