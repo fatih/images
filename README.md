@@ -103,8 +103,8 @@ $ images list
 
 `images` has multi provider support. The following examples are for the
 provider "aws".  The commands are supposed to be executed with
-`IMAGES_PROVIDER=aws` or with `--providers aws` or added to `.imagesrc` file via
-`providers = "aws"`
+`IMAGES_PROVIDERS=aws` or with `--providers aws` or added to `.imagesrc` file
+via `providers = "aws"`
 
 
 #### List
@@ -158,20 +158,20 @@ all are deleted concurrently.
 To create or override a image tag:
 
 ```
-$images modify --create-tags "Name=ImagesExample" --ids ami-f465e69d
+$ images modify --create-tags "Name=ImagesExample" --ids ami-f465e69d
 ```
 
 To delete the tags of an image
 
 ```
-$images modify --delete-tags "Name=ImagesExample" --ids ami-f465e69d
+$ images modify --delete-tags "Name=ImagesExample" --ids ami-f465e69d
 ```
 
 The commands also have support for batch action:
 
 ```
-$images modify --create-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
-$images modify --delete-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
+$ images modify --create-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
+$ images modify --delete-tags "Name=Example" --ids ami-f465e69d,ami-c5c237ac,ami-64pgca7e
 ```
 
 Just like for the `delete` command, all you need to give is the ami ids.
