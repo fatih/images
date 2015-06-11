@@ -88,6 +88,7 @@ func (l *List) Run(args []string) int {
 		go func(provider string) {
 			err := printProvider(provider)
 			if err != nil {
+				err = fmt.Errorf("%s: %s", provider, err)
 				mu.Lock()
 				multiErrors = multierror.Append(multiErrors, err)
 				mu.Unlock()
