@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
@@ -18,6 +17,10 @@ type Images map[string][]*ec2.Image
 
 // Print prints the images to standard output.
 func (i Images) Print(mode utils.OutputMode) error {
+	if len(i) == 0 {
+		return errors.New("no images found")
+	}
+
 	switch mode {
 	case utils.JSON:
 		out, err := i.outputJSON()
@@ -28,14 +31,10 @@ func (i Images) Print(mode utils.OutputMode) error {
 		fmt.Println(out)
 		return nil
 	case utils.Simplified:
-		if len(i) == 0 {
-			return errors.New("no images found")
-		}
 
 		green := color.New(color.FgGreen).SprintfFunc()
 		output := ansicolor.NewAnsiColorWriter(os.Stdout)
-
-		w := tabwriter.NewWriter(output, 10, 8, 0, '\t', 0)
+		w := utils.NewImagesTabWriter(output)
 		defer w.Flush()
 
 		for region, images := range i {

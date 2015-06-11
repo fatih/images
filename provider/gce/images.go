@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/fatih/color"
 	"github.com/fatih/images/provider/utils"
@@ -33,7 +32,7 @@ func (i Images) Print(mode utils.OutputMode) error {
 	case utils.Simplified:
 		green := color.New(color.FgGreen).SprintfFunc()
 		output := ansicolor.NewAnsiColorWriter(os.Stdout)
-		w := tabwriter.NewWriter(output, 10, 8, 0, '\t', 0)
+		w := utils.NewImagesTabWriter(output)
 		defer w.Flush()
 
 		imageDesc := "image"

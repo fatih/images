@@ -1,6 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"io"
+	"strings"
+	"text/tabwriter"
+)
 
 type OutputMode int
 
@@ -48,3 +52,7 @@ func (o *OutputValue) Set(val string) error {
 func (o *OutputValue) Get() interface{} { return OutputMode(*o) }
 
 func (o *OutputValue) String() string { return OutputMode(*o).String() }
+
+func NewImagesTabWriter(out io.Writer) *tabwriter.Writer {
+	return tabwriter.NewWriter(out, 10, 8, 1, '\t', 0)
+}
