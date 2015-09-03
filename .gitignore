@@ -25,4 +25,4 @@ _testmain.go
 .imagesrc
 
 #binary
-images 
+bin/
