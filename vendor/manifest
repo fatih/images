@@ -1,0 +1,207 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/BurntSushi/toml",
+			"repository": "https://github.com/BurntSushi/toml",
+			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/aws",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/aws"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/endpoints",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/endpoints"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/protocol/ec2query",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/protocol/ec2query"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/protocol/query",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/protocol/query"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/protocol/rest",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/protocol/rest"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/protocol/xml/xmlutil",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/protocol/xml/xmlutil"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/internal/signer/v4",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/internal/signer/v4"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/ec2",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/service/ec2"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/sts",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "376badeb12ede342ca2f41fd7b45027aa3f00264",
+			"branch": "master",
+			"path": "/service/sts"
+		},
+		{
+			"importpath": "github.com/digitalocean/godo",
+			"repository": "https://github.com/digitalocean/godo",
+			"revision": "0d77b009a8e77c302d978200d37f410a48c938b4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/fatih/camelcase",
+			"repository": "https://github.com/fatih/camelcase",
+			"revision": "332844f2fb0193cce955f4687646abbdcc43ceeb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/fatih/color",
+			"repository": "https://github.com/fatih/color",
+			"revision": "76d423163af754ff6423d2d9be0057fbf03c57c2",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/fatih/flags",
+			"repository": "https://github.com/fatih/flags",
+			"revision": "302926783d75142fb1d5611aba97f039b8148e9d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/fatih/structs",
+			"repository": "https://github.com/fatih/structs",
+			"revision": "a9f7daa9c2729e97450c2da2feda19130a367d8f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/google/go-querystring/query",
+			"repository": "https://github.com/google/go-querystring",
+			"revision": "547ef5ac979778feb2f760cdb5f4eae1a2207b86",
+			"branch": "master",
+			"path": "/query"
+		},
+		{
+			"importpath": "github.com/hashicorp/go-multierror",
+			"repository": "https://github.com/hashicorp/go-multierror",
+			"revision": "56912fb08d85084aa318edcf2bba735b97cf35c5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/koding/multiconfig",
+			"repository": "https://github.com/koding/multiconfig",
+			"revision": "e4e03cda6d54dd751fcbe60ce3d34d9985e52f67",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-isatty",
+			"repository": "https://github.com/mattn/go-isatty",
+			"revision": "7fcbc72f853b92b5720db4a6b8482be612daef24",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mitchellh/cli",
+			"repository": "https://github.com/mitchellh/cli",
+			"revision": "8102d0ed5ea2709ade1243798785888175f6e415",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mitchellh/go-homedir",
+			"repository": "https://github.com/mitchellh/go-homedir",
+			"revision": "df55a15e5ce646808815381b3db47a8c66ea62f4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/shiena/ansicolor",
+			"repository": "https://github.com/shiena/ansicolor",
+			"revision": "a5e2b567a4dd6cc74545b8a4f27c9d63b9e7735b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/tent/http-link-go",
+			"repository": "https://github.com/tent/http-link-go",
+			"revision": "ac974c61c2f990f4115b119354b5e0b47550e888",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/vaughan0/go-ini",
+			"repository": "https://github.com/vaughan0/go-ini",
+			"revision": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"branch": "master",
+			"path": "/ssh/terminal"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "db8e4de5b2d6653f66aea53094624468caad15d2",
+			"branch": "master",
+			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/oauth2",
+			"repository": "https://go.googlesource.com/oauth2",
+			"revision": "ad0128250e8fba646a92ca9129716e523d63ef9f",
+			"branch": "master"
+		},
+		{
+			"importpath": "google.golang.org/api/compute/v1",
+			"repository": "https://code.googlesource.com/google-api-go-client",
+			"revision": "381e13c897e25a83973e3ea8beed668ff6f46805",
+			"branch": "master",
+			"path": "/compute/v1"
+		},
+		{
+			"importpath": "google.golang.org/api/googleapi",
+			"repository": "https://code.googlesource.com/google-api-go-client",
+			"revision": "381e13c897e25a83973e3ea8beed668ff6f46805",
+			"branch": "master",
+			"path": "/googleapi"
+		},
+		{
+			"importpath": "google.golang.org/cloud/compute/metadata",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "5773690439e343a5da8d622cd7cdd7d1b11e846f",
+			"branch": "master",
+			"path": "/compute/metadata"
+		},
+		{
+			"importpath": "google.golang.org/cloud/internal",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "5773690439e343a5da8d622cd7cdd7d1b11e846f",
+			"branch": "master",
+			"path": "/internal"
+		}
+	]
+}
