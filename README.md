@@ -25,12 +25,22 @@ delete them, change tags or names of multiple images, any many other things.
 Images is still under development. Any feedback/contribution is welcome!
 Download the latest release suitable for your system:
 
-=> [Images releases](https://github.com/fatih/images/releases)
+[Images releases](https://github.com/fatih/images/releases)
 
-Or if you have Go installed, install latest development version:
+### Build from source
+
+To build from the source you need to install [gb](http://getgb.io). Once
+installed just invoke:
 
 ```bash
-go get -u github.com/fatih/images
+$ gb build
+```
+
+You should now have `images` binary in the bin directory:
+
+```bash
+$ ls bin/
+images
 ```
 
 ## Intro
