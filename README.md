@@ -27,21 +27,8 @@ Download the latest release suitable for your system:
 
 [Images releases](https://github.com/fatih/images/releases)
 
-### Build from source
-
-To build from the source you need to install [gb](http://getgb.io). Once
-installed just invoke:
-
-```bash
-$ gb build
-```
-
-You should now have `images` binary in the bin directory:
-
-```bash
-$ ls bin/
-images
-```
+(Want to build & develop the source? Check out the
+[Build&Develop](https://github.com/fatih/images#build--development) section!)
 
 ## Intro
 
@@ -211,7 +198,8 @@ $ images copy -image "ami-530ay345" -to "us-east-1"  -desc "My new AMI"
 
 ## Build & Development
 
-To build `images` just run:
+To build `images` just run ([gb](getgb.io) needs to be available on the
+system):
 
 ```sh
 $ make build

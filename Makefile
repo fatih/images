@@ -10,10 +10,11 @@ install:
 	@echo "$(OK_COLOR)==> Installing to /usr/local/bin $(NO_COLOR)"
 	@cp bin/images /usr/local/bin
 
-build:
+build: check_gb
 	@echo "$(OK_COLOR)==> Building the project $(NO_COLOR)"
 ifndef IMAGES_VERSION
-	@`which go` build -v -o bin/images
+	@`which gb` build
+	@echo "$(OK_COLOR)==> Binary installed to bin/ $(NO_COLOR)"
 else
 	@`which go` build -v -ldflags "-X main.Version '${IMAGES_VERSION} ($(GITCOMMIT))'" -o bin/images
 endif
@@ -30,6 +31,10 @@ endif
 check_goxc:
 	@echo "$(OK_COLOR)==> Checking goxc availability $(NO_COLOR)"
 	@which goxc > /dev/null
+
+check_gb:
+	@echo "$(OK_COLOR)==> Checking gb binary $(NO_COLOR)"
+	@which gb > /dev/null
 
 clean:
 	@echo "$(OK_COLOR)==> Cleaning output directories $(NO_COLOR)"
