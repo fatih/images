@@ -198,7 +198,7 @@ $ images copy -image "ami-530ay345" -to "us-east-1"  -desc "My new AMI"
 
 ## Build & Development
 
-To build `images` just run ([gb](getgb.io) needs to be available on the
+To build `images` just run ([gb](http://getgb.io) needs to be available on the
 system):
 
 ```sh
