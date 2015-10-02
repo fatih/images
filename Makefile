@@ -22,9 +22,9 @@ endif
 release: check_gb clean
 ifdef IMAGES_VERSION
 	@echo "$(OK_COLOR)==> Creating new release $(IMAGES_VERSION) $(NO_COLOR)"
+	@env GOOS=darwin GOARCH=amd64 gb build -ldflags="-X main.Version=${IMAGES_VERSION}"
 	@env GOOS=linux GOARCH=amd64 gb build -ldflags="-X main.Version=${IMAGES_VERSION}"
 	@env GOOS=windows GOARCH=amd64 gb build -ldflags="-X main.Version=${IMAGES_VERSION}"
-	@env GOOS=darwin GOARCH=amd64 gb build -ldflags="-X main.Version=${IMAGES_VERSION}"
 
 	@echo "$(OK_COLOR)==> Constructing archives"
 	@mkdir -p out/
