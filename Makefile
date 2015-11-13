@@ -34,7 +34,7 @@ ifdef IMAGES_VERSION
 	@mv *.zip out/
 	
 else
-	@echo "$(ERR_COLOR)Please set IMAGES_VERRSION environment variable to create a release $(NO_COLOR)"
+	@echo "$(ERR_COLOR)Please set IMAGES_VERSION environment variable to create a release $(NO_COLOR)"
 endif
 
 check_gb:
