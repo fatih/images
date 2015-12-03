@@ -1,8 +1,10 @@
 package loader
 
 import (
+	"bytes"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -109,26 +111,41 @@ func Load(conf interface{}, args []string) error {
 	return l.Load(conf)
 }
 
-func discoverConfigPath(configName string) (string, string, error) {
+func discoverConfigPath(configName string) (path string, typ string, err error) {
+	// Look for a .imagesrc{,.toml,.json} config in current directory first.
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", "", err
 	}
+	path, typ, err = discoverConfigPathDir(cwd, configName)
+	if err == nil {
+		return path, typ, nil
+	}
+	// Then try the top-level dir of the repository; if we're not in
+	// a git repo or there's no git executable, ignore it and
+	// return previous error.
+	gitTop, gitErr := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if gitErr != nil {
+		return "", "", err
+	}
+	return discoverConfigPathDir(string(bytes.TrimSpace(gitTop)), configName)
+}
 
-	configPath := filepath.Join(cwd, "."+configName)
+func discoverConfigPathDir(dir, configName string) (path string, typ string, err error) {
+	configPath := filepath.Join(dir, "."+configName)
 
 	if _, err := os.Stat(configPath); err == nil {
 		return configPath, "", nil
 	}
 
 	// check for .toml
-	tomlPath := filepath.Join(cwd, "."+configName+".toml")
+	tomlPath := configPath + ".toml"
 	if _, err := os.Stat(tomlPath); err == nil {
 		return tomlPath, "toml", nil
 	}
 
 	// check for .json
-	jsonPath := filepath.Join(cwd, "."+configName+".json")
+	jsonPath := configPath + ".json"
 	if _, err := os.Stat(jsonPath); err == nil {
 		return jsonPath, "json", nil
 	}
