@@ -6,6 +6,7 @@ import (
 	"provider/aws"
 	"provider/do"
 	"provider/gce"
+	"provider/sl"
 )
 
 var (
@@ -16,6 +17,7 @@ var (
 		"aws",
 		"do",
 		"gce",
+		"sl",
 	}
 )
 
@@ -30,6 +32,8 @@ func Provider(name string, args []string) (interface{}, []string, error) {
 		return do.NewCommand(args)
 	case "gce":
 		return gce.NewCommand(args)
+	case "sl":
+		return sl.NewCommand(args)
 	default:
 		return nil, nil, errNoProvider
 	}
