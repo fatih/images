@@ -19,7 +19,7 @@ type Tags map[string]string
 // String gives key-value tags representation.
 func (t Tags) String() string {
 	if len(t) == 0 {
-		return ""
+		return "[]"
 	}
 	var buf bytes.Buffer
 	fmt.Fprint(&buf, "[")
@@ -124,7 +124,14 @@ func (img *SLImages) patchTags(patchFn func(orig Tags), force bool, imageIDs ...
 		if fields.Tags == nil {
 			fields.Tags = make(Tags)
 		}
+		oldNum := len(fields.Tags)
 		patchFn(fields.Tags)
+		// EditImage edits only non-zero-value fields.
+		// Removal of the last tag we need to handle explicitely.
+		if oldNum > 0 && len(fields.Tags) == 0 {
+			fields.Description = "{}"
+			fields.Tags = nil
+		}
 		if e := img.EditImage(image.ID, fields); e != nil {
 			err = multierror.Append(err, fmt.Errorf("failed to patch image with id=%d: %s", image.ID, e))
 		}
