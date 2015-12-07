@@ -98,10 +98,18 @@ func (img *SLImages) ImagesByIDs(ids ...int) (Images, error) {
 	for _, img := range images {
 		if _, ok := filter[img.ID]; ok {
 			filtered = append(filtered, img)
+			delete(filter, img.ID)
 		}
 	}
 	if len(filtered) == 0 {
 		return nil, fmt.Errorf("no images found for ids=%v", ids)
+	}
+	if len(filter) != 0 {
+		ids = make([]int, 0, len(filter))
+		for id := range filter {
+			ids = append(ids, id)
+		}
+		return nil, fmt.Errorf("the following images were not found: %v", ids)
 	}
 	return filtered, nil
 }
