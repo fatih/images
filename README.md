@@ -58,6 +58,7 @@ Current supported providers are:
 * `aws`
 * `do`
 * `gce`
+* `sl`
 
 Coming soon:
 

@@ -126,6 +126,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/maximilien/softlayer-go",
+			"repository": "https://github.com/maximilien/softlayer-go",
+			"revision": "0f17f976492007fc76d081bd25305e1f0f1d205a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/mitchellh/cli",
 			"repository": "https://github.com/mitchellh/cli",
 			"revision": "8102d0ed5ea2709ade1243798785888175f6e415",
@@ -135,6 +141,18 @@
 			"importpath": "github.com/mitchellh/go-homedir",
 			"repository": "https://github.com/mitchellh/go-homedir",
 			"revision": "df55a15e5ce646808815381b3db47a8c66ea62f4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/onsi/ginkgo",
+			"repository": "https://github.com/onsi/ginkgo",
+			"revision": "7f8ab55aaf3b86885aa55b762e803744d1674700",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/onsi/gomega",
+			"repository": "https://github.com/onsi/gomega",
+			"revision": "2152b45fa28a361beba9aab0885972323a444e28",
 			"branch": "master"
 		},
 		{
