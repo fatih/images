@@ -61,16 +61,6 @@ func (img *Image) encode() error {
 // Images defines and represents regions to images
 type Images []*Image
 
-// ByID
-func (img Images) ByID(id int) *Image {
-	for _, image := range img {
-		if image.ID == id {
-			return image
-		}
-	}
-	return nil
-}
-
 // Len, Less and Swap implements the sort.Interface interface.
 func (img Images) Len() int           { return len(img) }
 func (img Images) Less(i, j int) bool { return img[i].ID < img[i].ID }
@@ -81,12 +71,14 @@ func (img Images) Print(mode utils.OutputMode) error {
 	if len(img) == 0 {
 		return errors.New("no images found (use -all flag)")
 	}
+
 	switch mode {
 	case utils.JSON:
 		p, err := json.MarshalIndent(img, "", "    ")
 		if err != nil {
 			return err
 		}
+
 		fmt.Println(string(p))
 		return nil
 	case utils.Simplified:
@@ -96,6 +88,7 @@ func (img Images) Print(mode utils.OutputMode) error {
 
 		fmt.Fprintln(w, green("Softlayer (%d images):", len(img)))
 		fmt.Fprintln(w, "    Name\tID\tUUID\tCreated\tTags")
+
 		for i, image := range img {
 			created := "-"
 			if image.CreateDate != nil {
@@ -104,6 +97,7 @@ func (img Images) Print(mode utils.OutputMode) error {
 			fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s\t%s\n", i, image.Name, image.ID,
 				image.UUID, created, image.tags())
 		}
+
 		fmt.Fprintln(w)
 		return nil
 	default:

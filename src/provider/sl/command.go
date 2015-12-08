@@ -42,6 +42,7 @@ func (cmd *SLCommand) List(args []string) error {
 	if err := l.flagSet.Parse(args); err != nil {
 		return nil // we don't return error, the usage will be printed instead
 	}
+
 	if len(l.imageIds) == 1 {
 		image, err := cmd.ImageByID(l.imageIds[0])
 		if err != nil {
@@ -49,6 +50,7 @@ func (cmd *SLCommand) List(args []string) error {
 		}
 		return (Images{image}).Print(l.output)
 	}
+
 	if len(l.imageIds) != 0 {
 		images, err := cmd.ImagesByIDs(l.imageIds...)
 		if err != nil {
@@ -56,13 +58,16 @@ func (cmd *SLCommand) List(args []string) error {
 		}
 		return images.Print(l.output)
 	}
+
 	images, err := cmd.Images()
 	if err != nil {
 		return err
 	}
+
 	if l.all {
 		return images.Print(l.output)
 	}
+
 	var filtered Images
 	// Filter out system images and not taggable ones.
 	for _, img := range images {
@@ -82,9 +87,11 @@ func (cmd *SLCommand) Modify(args []string) error {
 	if err := l.flagSet.Parse(args); err != nil {
 		return nil // we don't return error, the usage will be printed instead
 	}
+
 	if len(l.imageIds) == 0 {
 		return errors.New("no value for -ids flag")
 	}
+
 	createTags := newTags(l.createTags)
 	deleteTags := newTags(l.deleteTags)
 	if len(createTags) != 0 && len(deleteTags) != 0 {
@@ -102,7 +109,7 @@ func (cmd *SLCommand) Modify(args []string) error {
 	} else if len(deleteTags) != 0 {
 		return cmd.deleteTags(deleteTags, l.force, l.imageIds...)
 	}
-	return errors.New("neither -create-tags nor -delete-tags action was specified")
+	return errors.New("neither -create-tags nor -delete-tags flag was specified")
 }
 
 // Help prints the help message for the given command

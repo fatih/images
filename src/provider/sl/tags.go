@@ -88,6 +88,7 @@ func (img *SLImages) createTags(tags Tags, force bool, imageIDs ...int) error {
 	if len(tags) == 0 {
 		return errors.New("not tags to create")
 	}
+
 	patchFn := func(orig Tags) {
 		for k, v := range tags {
 			orig[k] = v
@@ -100,6 +101,7 @@ func (img *SLImages) deleteTags(tags Tags, force bool, imageIDs ...int) error {
 	if len(tags) == 0 {
 		return errors.New("not tags to delete")
 	}
+
 	patchFn := func(orig Tags) {
 		for k := range tags {
 			delete(orig, k)
@@ -118,12 +120,14 @@ func (img *SLImages) patchTags(patchFn func(orig Tags), force bool, imageIDs ...
 			err = multierror.Append(err, fmt.Errorf("unable to patch not taggable image with id=%d (use -f to override)", image.ID))
 			continue
 		}
+
 		fields := &Image{
 			Tags: image.Tags,
 		}
 		if fields.Tags == nil {
 			fields.Tags = make(Tags)
 		}
+
 		oldNum := len(fields.Tags)
 		patchFn(fields.Tags)
 		// EditImage edits only non-zero-value fields.
@@ -132,6 +136,7 @@ func (img *SLImages) patchTags(patchFn func(orig Tags), force bool, imageIDs ...
 			fields.Description = "{}"
 			fields.Tags = nil
 		}
+
 		if e := img.EditImage(image.ID, fields); e != nil {
 			err = multierror.Append(err, fmt.Errorf("failed to patch image with id=%d: %s", image.ID, e))
 		}

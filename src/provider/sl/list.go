@@ -64,19 +64,24 @@ func (img *SLImages) Images() (Images, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if err = newError(p); err != nil {
 		return nil, err
 	}
+
 	if err = json.Unmarshal(p, &images); err != nil {
 		return nil, err
 	}
+
 	if len(images) == 0 {
 		return nil, errors.New("no images found")
 	}
+
 	sort.Sort(Images(images))
 	for _, image := range images {
 		image.decode()
 	}
+
 	return images, nil
 }
 
@@ -87,9 +92,11 @@ func (img *SLImages) ImagesByIDs(ids ...int) (Images, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(ids) == 0 {
 		return images, nil
 	}
+
 	filter := make(map[int]struct{}, len(ids))
 	filtered := []*Image{}
 	for _, id := range ids {
@@ -101,9 +108,11 @@ func (img *SLImages) ImagesByIDs(ids ...int) (Images, error) {
 			delete(filter, img.ID)
 		}
 	}
+
 	if len(filtered) == 0 {
 		return nil, fmt.Errorf("no images found for ids=%v", ids)
 	}
+
 	if len(filter) != 0 {
 		ids = make([]int, 0, len(filter))
 		for id := range filter {
@@ -111,6 +120,7 @@ func (img *SLImages) ImagesByIDs(ids ...int) (Images, error) {
 		}
 		return nil, fmt.Errorf("the following images were not found: %v", ids)
 	}
+
 	return filtered, nil
 }
 
@@ -121,13 +131,16 @@ func (img *SLImages) ImageByID(id int) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if err = newError(p); err != nil {
 		return nil, err
 	}
+
 	var image Image
 	if err = json.Unmarshal(p, &image); err != nil {
 		return nil, fmt.Errorf("unable to unmarshal response: %s", err)
 	}
+
 	image.decode()
 	return &image, nil
 }

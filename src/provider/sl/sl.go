@@ -10,26 +10,6 @@ import (
 	"github.com/maximilien/softlayer-go/softlayer"
 )
 
-// Error represents and error object response payload.
-type Error struct {
-	Text string `json:"error,omitepty"`
-	Code string `json:"code,omitempty"`
-}
-
-// Error implements the builtin error interface.
-func (err Error) Error() string {
-	return fmt.Sprintf("%s (code=%q)", err.Text, err.Code)
-}
-
-func newError(p []byte) error {
-	var e Error
-	err := json.Unmarshal(p, &e)
-	if err == nil && e.Text != "" && e.Code != "" {
-		return &e
-	}
-	return nil
-}
-
 // SLConfig represents a configuration section of .imagesrc for sl provider.
 type SLConfig struct {
 	Username string `toml:"username" json:"username"`
@@ -55,10 +35,12 @@ func New(conf *SLConfig) (*SLImages, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	image, err := client.GetSoftLayer_Virtual_Disk_Image_Service()
 	if err != nil {
 		return nil, err
 	}
+
 	return &SLImages{
 		client:  client,
 		account: account,
@@ -71,9 +53,11 @@ func (img *SLImages) EditImage(id int, fields *Image) error {
 	if fields == nil {
 		return nil
 	}
+
 	if err := fields.encode(); err != nil {
 		return err
 	}
+
 	req := struct {
 		Parameters []*Image `json:"parameters"`
 	}{[]*Image{fields}}
@@ -81,18 +65,22 @@ func (img *SLImages) EditImage(id int, fields *Image) error {
 	if err != nil {
 		return err
 	}
+
 	path := fmt.Sprintf("%s/%d/editObject.json", img.image.GetName(), id)
 	p, err = img.client.DoRawHttpRequest(path, "POST", bytes.NewBuffer(p))
 	if err != nil {
 		return err
 	}
+
 	if err = newError(p); err != nil {
 		return err
 	}
+
 	var ok bool
 	if err = json.Unmarshal(p, &ok); err != nil {
 		return fmt.Errorf("unable to unmarshal response: %s", err)
 	}
+
 	if !ok {
 		return fmt.Errorf("failed patching image=%d with fields=%+v", id, fields)
 	}
