@@ -81,7 +81,7 @@ func (cmd *SLCommand) List(args []string) error {
 }
 
 // Modify manages the tags of the given images. It can create, override or
-// delete tags associated with the given AMI ids.
+// delete tags associated with the given Template ids.
 func (cmd *SLCommand) Modify(args []string) error {
 	l := newModifyFlags()
 	if err := l.flagSet.Parse(args); err != nil {
@@ -112,6 +112,20 @@ func (cmd *SLCommand) Modify(args []string) error {
 	return errors.New("neither -create-tags nor -delete-tags flag was specified")
 }
 
+// Delete deletes Block Device Templates by the given ids.
+func (cmd *SLCommand) Delete(args []string) error {
+	l := newModifyFlags()
+	if err := l.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	if len(l.imageIds) == 0 {
+		return errors.New("no value for -ids flag")
+	}
+
+	return cmd.DeleteImages(l.imageIds...)
+}
+
 // Help prints the help message for the given command
 func (a *SLCommand) Help(command string) string {
 	var help string
@@ -125,6 +139,8 @@ func (a *SLCommand) Help(command string) string {
 		help = newModifyFlags().helpMsg
 	case "list":
 		help = newListFlags().helpMsg
+	case "delete":
+		help = newDeleteFlags().helpMsg
 	default:
 		return "no help found for command " + command
 	}
