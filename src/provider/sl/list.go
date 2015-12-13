@@ -59,8 +59,8 @@ var empty = &bytes.Buffer{}
 // Images returns all images. If not images are found, it returns non-nil error.
 func (img *SLImages) Images() (Images, error) {
 	var images []*Image
-	path := fmt.Sprintf("%s/%s", img.account.GetName(), "getVirtualDiskImages.json")
-	p, err := img.client.DoRawHttpRequest(path, "GET", empty)
+	path := fmt.Sprintf("%s/getBlockDeviceTemplateGroups.json", img.account.GetName())
+	p, err := img.client.DoRawHttpRequestWithObjectMask(path, imageMask, "GET", empty)
 	if err != nil {
 		return nil, err
 	}
@@ -126,8 +126,8 @@ func (img *SLImages) ImagesByIDs(ids ...int) (Images, error) {
 
 // ImageByID looks up an image by the given ID.
 func (img *SLImages) ImageByID(id int) (*Image, error) {
-	path := fmt.Sprintf("%s/%d/getObject.json", img.image.GetName(), id)
-	p, err := img.client.DoRawHttpRequest(path, "GET", empty)
+	path := fmt.Sprintf("%s/%d/getObject.json", img.block.GetName(), id)
+	p, err := img.client.DoRawHttpRequestWithObjectMask(path, imageMask, "GET", empty)
 	if err != nil {
 		return nil, err
 	}
