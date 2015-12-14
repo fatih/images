@@ -41,8 +41,11 @@ func New(conf *AwsConfig) (*AwsImages, error) {
 	// increase the timeout
 	timeout := time.Second * 30
 	client := &http.Client{
-		Transport: &http.Transport{TLSHandshakeTimeout: timeout},
-		Timeout:   timeout,
+		Transport: &http.Transport{
+			Proxy:               http.ProxyFromEnvironment,
+			TLSHandshakeTimeout: timeout,
+		},
+		Timeout: timeout,
 	}
 
 	creds := credentials.NewStaticCredentials(conf.AccessKey, conf.SecretKey, "")

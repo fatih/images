@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"provider/utils"
@@ -13,23 +14,47 @@ import (
 	"github.com/shiena/ansicolor"
 )
 
+// Datacenter represents a Softlayer datacenter.
+type Datacenter struct {
+	ID       int    `json:"id,omitempty"`
+	Name     string `json:"name,omitempty"`
+	StatusID int    `json:"statusId,omitempty"`
+}
+
 // Image
 type Image struct {
-	Capacity            int        `json:"capacity,omitempty"`
-	Checksum            string     `json:"checksum,omitempty"`
-	CreateDate          *time.Time `json:"createDate,omitempty"`
-	Description         string     `json:"description,omitempty"`
-	ID                  int        `json:"id,omitempty"`
-	ModifyDate          *time.Time `json:"modifyDate,omitempty"`
-	Name                string     `json:"name,omitempty"`
-	ParentID            int        `json:"parentId,omitempty"`
-	StorageRepositoryID int        `json:"storageRepositoryId,omitempty"`
-	TypeID              int        `json:"typeId,omitempty"`
-	Units               string     `json:"units,omitempty"`
-	UUID                string     `json:"uuid,omitempty"`
+	ID          int           `json:"id,omitempty"`
+	ParentID    int           `json:"parentId,omitempty"`
+	GlobalID    string        `json:"globalIdentifier,omitempty"`
+	CreateDate  time.Time     `json:"createDate,omitempty"`
+	Name        string        `json:"name,omitempty"`
+	Note        string        `json:"note,omitempty"`
+	Datacenter  *Datacenter   `json:"datacenter,omitempty"`
+	Datacenters []*Datacenter `json:"datacenters,omitempty"`
 
 	Tags        Tags `json:"-"`
 	NotTaggable bool `json:"-"`
+}
+
+func (img *Image) globalID() string {
+	if img.GlobalID != "" {
+		return img.GlobalID
+	}
+	return "-"
+}
+
+func (img *Image) datacenters() string {
+	var names []string
+	if img.Datacenter != nil {
+		names = append(names, img.Datacenter.Name)
+	}
+	for _, d := range img.Datacenters {
+		names = append(names, d.Name)
+	}
+	if len(names) == 0 {
+		return "-"
+	}
+	return strings.Join(names, ",")
 }
 
 func (img *Image) tags() string {
@@ -41,7 +66,7 @@ func (img *Image) tags() string {
 
 // decode unmarshals tags from description or mark as non taggable when decoding fails.
 func (img *Image) decode() {
-	if err := json.Unmarshal([]byte(img.Description), &img.Tags); err != nil {
+	if err := json.Unmarshal([]byte(img.Note), &img.Tags); err != nil {
 		img.NotTaggable = true
 	}
 }
@@ -53,9 +78,20 @@ func (img *Image) encode() error {
 		if err != nil {
 			return fmt.Errorf("unable to marshal tags: %s", err)
 		}
-		img.Description = string(p)
+		img.Note = string(p)
 	}
 	return nil
+}
+
+var imageMask = []string{
+	"id",
+	"parentId",
+	"globalIdentifier",
+	"createDate",
+	"name",
+	"note",
+	"datacenter",
+	"datacenters",
 }
 
 // Images defines and represents regions to images
@@ -87,15 +123,15 @@ func (img Images) Print(mode utils.OutputMode) error {
 		defer w.Flush()
 
 		fmt.Fprintln(w, green("Softlayer (%d images):", len(img)))
-		fmt.Fprintln(w, "    Name\tID\tUUID\tCreated\tTags")
+		fmt.Fprintln(w, "    Name\tID\tGlobalID\tCreated\tDatacenters\tTags")
 
 		for i, image := range img {
 			created := "-"
-			if image.CreateDate != nil {
+			if !image.CreateDate.IsZero() {
 				created = image.CreateDate.Format(time.RFC3339)
 			}
-			fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s\t%s\n", i, image.Name, image.ID,
-				image.UUID, created, image.tags())
+			fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s\t%s\t%s\n", i, image.Name, image.ID,
+				image.globalID(), created, image.datacenters(), image.tags())
 		}
 
 		fmt.Fprintln(w)

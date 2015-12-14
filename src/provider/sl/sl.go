@@ -21,7 +21,7 @@ type SLImages struct {
 	client softlayer.Client
 
 	account softlayer.SoftLayer_Account_Service
-	image   softlayer.SoftLayer_Virtual_Disk_Image_Service
+	block   softlayer.SoftLayer_Virtual_Guest_Block_Device_Template_Group_Service
 }
 
 // New creates new Softlayer command client.
@@ -36,7 +36,7 @@ func New(conf *SLConfig) (*SLImages, error) {
 		return nil, err
 	}
 
-	image, err := client.GetSoftLayer_Virtual_Disk_Image_Service()
+	block, err := client.GetSoftLayer_Virtual_Guest_Block_Device_Template_Group_Service()
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func New(conf *SLConfig) (*SLImages, error) {
 	return &SLImages{
 		client:  client,
 		account: account,
-		image:   image,
+		block:   block,
 	}, nil
 }
 
@@ -66,7 +66,7 @@ func (img *SLImages) EditImage(id int, fields *Image) error {
 		return err
 	}
 
-	path := fmt.Sprintf("%s/%d/editObject.json", img.image.GetName(), id)
+	path := fmt.Sprintf("%s/%d/editObject.json", img.block.GetName(), id)
 	p, err = img.client.DoRawHttpRequest(path, "POST", bytes.NewBuffer(p))
 	if err != nil {
 		return err
