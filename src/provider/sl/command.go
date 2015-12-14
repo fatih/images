@@ -71,7 +71,7 @@ func (cmd *SLCommand) List(args []string) error {
 	var filtered Images
 	// Filter out system images and not taggable ones.
 	for _, img := range images {
-		isSystem := strings.HasSuffix(img.Name, "-SWAP") || strings.HasSuffix(img.Name, "-METADATA")
+		isSystem := strings.HasSuffix(img.Name, "-SWAP") || strings.HasSuffix(img.Name, "-METADATA") || img.GlobalID == ""
 		if isSystem || img.NotTaggable {
 			continue
 		}
