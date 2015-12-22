@@ -126,6 +126,16 @@ func (cmd *SLCommand) Delete(args []string) error {
 	return cmd.DeleteImages(l.imageIds...)
 }
 
+// Copy copies the image to different datacenters.
+func (cmd *SLCommand) Copy(args []string) error {
+	l := newCopyFlags()
+	if err := l.flagSet.Parse(args); err != nil {
+		return nil // we don't return error, the usage will be printed instead
+	}
+
+	return cmd.CopyToDatacenters(l.imageID, l.datacenters...)
+}
+
 // Help prints the help message for the given command
 func (a *SLCommand) Help(command string) string {
 	var help string
@@ -141,6 +151,8 @@ func (a *SLCommand) Help(command string) string {
 		help = newListFlags().helpMsg
 	case "delete":
 		help = newDeleteFlags().helpMsg
+	case "copy":
+		help = newCopyFlags().helpMsg
 	default:
 		return "no help found for command " + command
 	}
