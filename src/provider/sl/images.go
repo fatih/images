@@ -14,6 +14,11 @@ import (
 	"github.com/shiena/ansicolor"
 )
 
+// Transaction represents an ongoing resource transaction.
+type Transaction struct {
+	ID int `json:"id,omitempty"`
+}
+
 // Datacenter represents a Softlayer datacenter.
 type Datacenter struct {
 	ID       int    `json:"id,omitempty"`
