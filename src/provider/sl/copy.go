@@ -80,6 +80,11 @@ func (img *SLImages) datacentersByName(names ...string) ([]*Datacenter, error) {
 }
 
 func (img *SLImages) CopyToDatacenters(id int, datacenters ...string) error {
+	image, err := img.ImageByID(id)
+	if err != nil {
+		return err
+	}
+	datacenters = append(datacenters, image.datacenters()...)
 	d, err := img.datacentersByName(datacenters...)
 	if err != nil {
 		return err

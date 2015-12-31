@@ -43,7 +43,7 @@ func (img *Image) globalID() string {
 	return "-"
 }
 
-func (img *Image) datacenters() string {
+func (img *Image) datacenters() []string {
 	var names []string
 	if img.Datacenter != nil {
 		names = append(names, img.Datacenter.Name)
@@ -52,9 +52,9 @@ func (img *Image) datacenters() string {
 		names = append(names, d.Name)
 	}
 	if len(names) == 0 {
-		return "-"
+		return nil
 	}
-	return strings.Join(names, ",")
+	return names
 }
 
 func (img *Image) tags() string {
@@ -131,7 +131,7 @@ func (img Images) Print(mode utils.OutputMode) error {
 				created = image.CreateDate.Format(time.RFC3339)
 			}
 			fmt.Fprintf(w, "[%d] %s\t%d\t%s\t%s\t%s\t%s\n", i, image.Name, image.ID,
-				image.globalID(), created, image.datacenters(), image.tags())
+				image.globalID(), created, strings.Join(image.datacenters(), ","), image.tags())
 		}
 
 		fmt.Fprintln(w)
