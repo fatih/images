@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/fatih/flags"
 )
@@ -80,10 +81,21 @@ func (img *SLImages) datacentersByName(names ...string) ([]*Datacenter, error) {
 }
 
 func (img *SLImages) CopyToDatacenters(id int, datacenters ...string) error {
+	image, err := img.ImageByID(id)
+	if err != nil {
+		return err
+	}
+
+	datacenters = append(datacenters, image.datacenters()...)
 	d, err := img.datacentersByName(datacenters...)
 	if err != nil {
 		return err
 	}
+
+	if err := img.WaitReady(id, 2*time.Minute); err != nil {
+		return err
+	}
+
 	req := struct {
 		Parameters []interface{} `json:"parameters"`
 	}{Parameters: []interface{}{d}}
