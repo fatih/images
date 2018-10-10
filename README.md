@@ -1,3 +1,10 @@
+# Archived project. No maintenance. 
+
+This project is not maintained anymore and is archived. Feel free to fork and
+make your own changes if needed. For more detail read my blog post: [Taking an indefinite sabbatical from my projects](https://arslan.io/2018/10/09/taking-an-indefinite-sabbatical-from-my-projects/)
+
+Thanks to everyone for their valuable feedback and contributions.
+
 # Images [![Build Status](http://img.shields.io/travis/fatih/images.svg?style=flat-square)](https://travis-ci.org/fatih/images)
 
 Images is a tool to manage machine images from multiple providers over a single
